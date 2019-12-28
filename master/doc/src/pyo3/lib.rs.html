@@ -319,6 +319,8 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">specialization</span>)]</span>
 
@@ -469,6 +471,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unindent</span>;
 
 <span class="doccomment">/// Raw ffi declarations for the c interface of python</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">unknown_clippy_lints</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ffi</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">buffer</span>;
