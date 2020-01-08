@@ -782,6 +782,23 @@ struct MyClass {
 }
 #}</code></pre></pre>
 <p>The above example generates implementations for <code>PyTypeInfo</code> and <code>PyTypeObject</code> for <code>MyClass</code>.</p>
+<a class="header" href="#add-class-to-module" id="add-class-to-module"><h2>Add class to module</h2></a>
+<p>Custom Python classes can then be added to a module using <code>add_class</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+# use pyo3::prelude::*;
+# #[pyclass]
+# struct MyClass {
+#    num: i32,
+#    debug: bool,
+# }
+#[pymodule]
+fn mymodule(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+    m.add_class::&lt;MyClass&gt;()?;
+    Ok(())
+}
+#}</code></pre></pre>
 <a class="header" href="#get-python-objects-from-pyclass" id="get-python-objects-from-pyclass"><h2>Get Python objects from <code>pyclass</code></h2></a>
 <p>You can use <code>pyclass</code>es like normal rust structs.</p>
 <p>However, if instantiated normally, you can't treat <code>pyclass</code>es as Python objects.</p>
@@ -1200,12 +1217,57 @@ use pyo3::types::{PyDict, PyTuple};
 #
 #[pymethods]
 impl MyClass {
-    #[args(arg1=true, args=&quot;*&quot;, arg2=10, args3=&quot;\&quot;Hello\&quot;&quot;, kwargs=&quot;**&quot;)]
-    fn method(&amp;self, arg1: bool, args: &amp;PyTuple, arg2: i32, arg3: &amp;str, kwargs: Option&lt;&amp;PyDict&gt;) -&gt; PyResult&lt;i32&gt; {
-        Ok(1)
+    #[new]
+    #[args(num=&quot;-1&quot;, debug=&quot;true&quot;)]
+    fn new(obj: &amp;PyRawObject, num: i32, debug: bool) {
+        obj.init({
+            MyClass {
+                num,
+                debug,
+            }
+        });
+    }
+    #[args(
+        num=&quot;10&quot;,
+        debug=&quot;true&quot;,
+        py_args=&quot;*&quot;,
+        name=&quot;\&quot;Hello\&quot;&quot;,
+        py_kwargs=&quot;**&quot;
+    )]
+    fn method(&amp;mut self,
+        num: i32,
+        debug: bool,
+        name: &amp;str,
+        py_args: &amp;PyTuple,
+        py_kwargs: Option&lt;&amp;PyDict&gt;,
+    ) -&gt; PyResult&lt;String&gt; {
+        self.debug = debug;
+        self.num = num;
+        Ok(format!(&quot;py_args={:?}, py_kwargs={:?}, name={}, num={}, debug={}&quot;,
+                    py_args, py_kwargs, name, self.num, self.debug))
+    }
+    fn make_change(&amp;mut self, num: i32, debug: bool) -&gt; PyResult&lt;String&gt; {
+        self.num = num;
+        self.debug = debug;
+        Ok(format!(&quot;num={}, debug={}&quot;, self.num, self.debug))
     }
 }
 #}</code></pre></pre>
+<p>N.B. the position of the <code>&quot;*&quot;</code> argument (if included) controls the system of handling positional and keyword arguments. In Python:</p>
+<pre><code class="language-python">import mymodule
+
+mc = mymodule.MyClass()
+print(mc.method(44, False, &quot;World&quot;, 666, x=44, y=55))
+print(mc.method(num=-1, name=&quot;World&quot;))
+print(mc.make_change(44, False))
+print(mc.make_change(debug=False, num=-1))
+</code></pre>
+<p>Produces output:</p>
+<pre><code class="language-text">py_args=('World', 666), py_kwargs=Some({'x': 44, 'y': 55}), name=Hello, num=44, debug=false
+py_args=(), py_kwargs=None, name=World, num=-1, debug=true
+num=44, debug=false
+num=-1, debug=false
+</code></pre>
 <a class="header" href="#class-customizations" id="class-customizations"><h2>Class customizations</h2></a>
 <p>Python's object model defines several protocols for different object behavior, like sequence,
 mapping or number protocols. PyO3 defines separate traits for each of them. To provide specific
