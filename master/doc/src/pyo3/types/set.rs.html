@@ -398,6 +398,11 @@
 <span id="398">398</span>
 <span id="399">399</span>
 <span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -422,8 +427,13 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyFrozenSet</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 
-<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PySet</span>, <span class="ident">ffi</span>::<span class="ident">PySet_Type</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;builtins&quot;</span>), <span class="ident">ffi</span>::<span class="ident">PySet_Check</span>);
-<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PyFrozenSet</span>, <span class="ident">ffi</span>::<span class="ident">PyFrozenSet_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyFrozenSet_Check</span>);
+<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PySet</span>, <span class="ident">ffi</span>::<span class="ident">PySetObject</span>, <span class="ident">ffi</span>::<span class="ident">PySet_Type</span>, <span class="ident">ffi</span>::<span class="ident">PySet_Check</span>);
+<span class="macro">pyobject_native_type</span><span class="macro">!</span>(
+    <span class="ident">PyFrozenSet</span>,
+    <span class="ident">ffi</span>::<span class="ident">PySetObject</span>,
+    <span class="ident">ffi</span>::<span class="ident">PyFrozenSet_Type</span>,
+    <span class="ident">ffi</span>::<span class="ident">PyFrozenSet_Check</span>
+);
 
 <span class="kw">impl</span> <span class="ident">PySet</span> {
     <span class="doccomment">/// Creates a new set.</span>

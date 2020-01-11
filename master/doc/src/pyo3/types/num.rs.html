@@ -611,11 +611,6 @@
 <span id="611">611</span>
 <span id="612">612</span>
 <span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -739,12 +734,7 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyLong</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 
-<span class="macro">pyobject_native_type</span><span class="macro">!</span>(
-    <span class="ident">PyLong</span>,
-    <span class="ident">ffi</span>::<span class="ident">PyLong_Type</span>,
-    <span class="prelude-val">Some</span>(<span class="string">&quot;builtins&quot;</span>),
-    <span class="ident">ffi</span>::<span class="ident">PyLong_Check</span>
-);
+<span class="macro">pyobject_native_var_type</span><span class="macro">!</span>(<span class="ident">PyLong</span>, <span class="ident">ffi</span>::<span class="ident">PyLong_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyLong_Check</span>);
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">int_fits_c_long</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rust_type</span>:<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {

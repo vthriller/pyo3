@@ -181,6 +181,24 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -192,10 +210,10 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">exceptions</span>::<span class="ident">TypeError</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">init_once</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">PyNativeType</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass</span>::<span class="ident">PyClass</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass_init</span>::<span class="ident">PyClassInitializer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyModule</span>, <span class="ident">PyTuple</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">GILPool</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">GILPool</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
 
 <span class="doccomment">/// Description of a python parameter; used for `parse_args()`.</span>
@@ -362,6 +380,24 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">IntoPyResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">into_py_result</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="self">self</span>
+    }
+}
+
+<span class="doccomment">/// Variant of IntoPyResult for the specific case of #[new]. In the case of returning (Sub, Base)</span>
+<span class="doccomment">/// from #[new], IntoPyResult can&#39;t apply because (Sub, Base) doesn&#39;t implement IntoPy&lt;PyObject&gt;.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoPyNewResult</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyClass</span>, <span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">into_pynew_result</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyClass</span>, <span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">IntoPyNewResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">I</span> {
+    <span class="kw">fn</span> <span class="ident">into_pynew_result</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyClass</span>, <span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">IntoPyNewResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">into_pynew_result</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
         <span class="self">self</span>
     }
 }

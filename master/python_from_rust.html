@@ -164,7 +164,8 @@ This method returns nothing, but you can get objects via <code>locals</code> dic
 macro, which is a shorthand for <code>Python::run</code>.
 Since <code>py_run!</code> can cause panic, we recommend you to use this macro only for testing
 your Python extensions quickly.</p>
-<pre><pre class="playpen"><code class="language-rust">use pyo3::{PyObjectProtocol, prelude::*, py_run};
+<pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
+use pyo3::{PyClassShell, PyObjectProtocol, py_run};
 #  fn main() {
 #[pyclass]
 struct UserData {
@@ -189,7 +190,7 @@ let userdata = UserData {
     id: 34,
     name: &quot;Yu&quot;.to_string(),
 };
-let userdata = PyRef::new(py, userdata).unwrap();
+let userdata = PyClassShell::new_ref(py, userdata).unwrap();
 let userdata_as_tuple = (34, &quot;Yu&quot;);
 py_run!(py, userdata userdata_as_tuple, r#&quot;
 assert repr(userdata) == &quot;User Yu(id: 34)&quot;

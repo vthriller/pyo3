@@ -138,9 +138,6 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! Python Iterator Interface.</span>
@@ -148,11 +145,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::{<span class="ident">CallbackConverter</span>, <span class="ident">PyObjectCallbackConverter</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::<span class="ident">PyResult</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">PyRefMut</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeInfo</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">IntoPyPointer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">pyclass</span>::<span class="ident">PyClassShell</span>, <span class="ident">IntoPy</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IntoPyPointer</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
 
 <span class="doccomment">/// Python Iterator Interface.</span>
@@ -160,15 +154,15 @@
 <span class="doccomment">/// more information</span>
 <span class="doccomment">/// `https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_iter`</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyTypeInfo</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="kw">fn</span> <span class="ident">__iter__</span>(<span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
+    <span class="kw">fn</span> <span class="ident">__iter__</span>(<span class="ident">slf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PyClassShell</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyIterIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__next__</span>(<span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
+    <span class="kw">fn</span> <span class="ident">__next__</span>(<span class="ident">slf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PyClassShell</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyIterNextProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {

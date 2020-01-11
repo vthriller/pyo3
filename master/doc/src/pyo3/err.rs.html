@@ -546,6 +546,13 @@
 <span id="546">546</span>
 <span id="547">547</span>
 <span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -873,6 +880,13 @@
             <span class="ident">PyErrValue</span>::<span class="ident">ToObject</span>(<span class="ident">ob</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ob</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">into_ptr</span>(),
         };
         <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">PyErr_Restore</span>(<span class="ident">ptype</span>.<span class="ident">into_ptr</span>(), <span class="ident">pvalue</span>, <span class="ident">ptraceback</span>.<span class="ident">into_ptr</span>()) }
+    }
+
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="doccomment">/// Utility method for proc-macro code</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_and_null</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+        <span class="self">self</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
+        <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>()
     }
 
     <span class="doccomment">/// Issue a warning message.</span>

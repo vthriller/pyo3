@@ -119,13 +119,6 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">pyport</span>::<span class="ident">Py_ssize_t</span>;
@@ -158,13 +151,6 @@
     <span class="kw">pub</span> <span class="ident">co_weakreflist</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_6</span>)]</span>
     <span class="kw">pub</span> <span class="ident">co_extra</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PyCodeObject</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">unsafe</span> { ::<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">zeroed</span>() }
-    }
 }
 
 <span class="comment">/* Masks for co_flags */</span>

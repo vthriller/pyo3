@@ -321,6 +321,11 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">specialization</span>)]</span>
 
@@ -448,11 +453,13 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyErrArguments</span>, <span class="ident">PyErrValue</span>, <span class="ident">PyResult</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>::{<span class="ident">init_once</span>, <span class="ident">GILGuard</span>, <span class="ident">GILPool</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::{<span class="ident">AsPyRef</span>, <span class="ident">ManagedPyRef</span>, <span class="ident">Py</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::{<span class="ident">AsPyRef</span>, <span class="ident">ManagedPyRef</span>, <span class="ident">Py</span>, <span class="ident">PyNativeType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass</span>::{<span class="ident">PyClass</span>, <span class="ident">PyClassShell</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass_init</span>::<span class="ident">PyClassInitializer</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">python</span>::{<span class="ident">prepare_freethreaded_python</span>, <span class="ident">Python</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyObjectAlloc</span>, <span class="ident">PyRawObject</span>, <span class="ident">PyTypeInfo</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">type_flags</span>, <span class="ident">PyTypeInfo</span>};
 
 <span class="comment">// Re-exported for wrap_function</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
@@ -470,11 +477,6 @@
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unindent</span>;
 
-<span class="doccomment">/// Raw ffi declarations for the c interface of python</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">unknown_clippy_lints</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ffi</span>;
-
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">buffer</span>;
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">callback</span>;
@@ -484,14 +486,22 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">derive_utils</span>;
 <span class="kw">mod</span> <span class="ident">err</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exceptions</span>;
+<span class="doccomment">/// Raw ffi declarations for the c interface of python</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">unknown_clippy_lints</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ffi</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freelist</span>;
 <span class="kw">mod</span> <span class="ident">gil</span>;
 <span class="kw">mod</span> <span class="ident">instance</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">mod</span> <span class="ident">internal_tricks</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">marshal</span>;
 <span class="kw">mod</span> <span class="ident">object</span>;
 <span class="kw">mod</span> <span class="ident">objectprotocol</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass_init</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass_slots</span>;
 <span class="kw">mod</span> <span class="ident">python</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">type_object</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">types</span>;
@@ -540,7 +550,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// use pyo3::{prelude::*, py_run};</span>
+<span class="doccomment">/// use pyo3::{prelude::*, py_run, PyClassShell};</span>
 <span class="doccomment">/// #[pyclass]</span>
 <span class="doccomment">/// #[derive(Debug)]</span>
 <span class="doccomment">/// struct Time {</span>
@@ -563,7 +573,7 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// let gil = Python::acquire_gil();</span>
 <span class="doccomment">/// let py = gil.python();</span>
-<span class="doccomment">/// let time = PyRef::new(py, Time {hour: 8, minute: 43, second: 16}).unwrap();</span>
+<span class="doccomment">/// let time = PyClassShell::new_ref(py, Time {hour: 8, minute: 43, second: 16}).unwrap();</span>
 <span class="doccomment">/// let time_as_tuple = (8, 43, 16);</span>
 <span class="doccomment">/// py_run!(py, time time_as_tuple, r#&quot;</span>
 <span class="doccomment">/// assert time.hour == 8</span>

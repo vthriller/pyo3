@@ -56,8 +56,6 @@
 <span id="56">56</span>
 <span id="57">57</span>
 <span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::{<span class="ident">c_double</span>, <span class="ident">c_int</span>};
@@ -88,7 +86,6 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyComplex_ImagAsDouble</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_double</span>;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Py_complex</span> {
@@ -96,11 +93,10 @@
     <span class="kw">pub</span> <span class="ident">imag</span>: <span class="ident">c_double</span>,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyComplexObject</span> {
-    <span class="ident">_ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">cval</span>: <span class="ident">Py_complex</span>,
 }
 

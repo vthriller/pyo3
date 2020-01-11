@@ -197,10 +197,6 @@
 <span id="197">197</span>
 <span id="198">198</span>
 <span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -213,15 +209,11 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">internal_tricks</span>::<span class="ident">Unsendable</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeCreate</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass</span>::<span class="ident">PyClass</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeObject</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyTuple</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyList</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">IntoPy</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Py</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ToPyObject</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">Py</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_char</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>;
@@ -230,7 +222,7 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyModule</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 
-<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PyModule</span>, <span class="ident">ffi</span>::<span class="ident">PyModule_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyModule_Check</span>);
+<span class="macro">pyobject_native_var_type</span><span class="macro">!</span>(<span class="ident">PyModule</span>, <span class="ident">ffi</span>::<span class="ident">PyModule_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyModule_Check</span>);
 
 <span class="kw">impl</span> <span class="ident">PyModule</span> {
     <span class="doccomment">/// Create a new module object with the `__name__` attribute set to name.</span>
@@ -377,7 +369,7 @@
     <span class="doccomment">/// and adds the type to this module.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_class</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeCreate</span>,
+        <span class="ident">T</span>: <span class="ident">PyClass</span>,
     {
         <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">T</span>::<span class="ident">NAME</span>, <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PyTypeObject</span><span class="op">&gt;</span>::<span class="ident">type_object</span>())
     }

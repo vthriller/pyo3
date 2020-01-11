@@ -374,6 +374,11 @@
 <span id="374">374</span>
 <span id="375">375</span>
 <span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Safe Rust wrappers for types defined in the Python `datetime` library</span>
 <span class="doccomment">//!</span>
@@ -446,6 +451,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDate</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 <span class="macro">pyobject_native_type</span><span class="macro">!</span>(
     <span class="ident">PyDate</span>,
+    <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">PyDateTime_Date</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">DateType</span>,
     <span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     <span class="ident">PyDate_Check</span>
@@ -501,6 +507,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 <span class="macro">pyobject_native_type</span><span class="macro">!</span>(
     <span class="ident">PyDateTime</span>,
+    <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">PyDateTime_DateTime</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">DateTimeType</span>,
     <span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     <span class="ident">PyDateTime_Check</span>
@@ -610,6 +617,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTime</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 <span class="macro">pyobject_native_type</span><span class="macro">!</span>(
     <span class="ident">PyTime</span>,
+    <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">PyDateTime_Time</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">TimeType</span>,
     <span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     <span class="ident">PyTime_Check</span>
@@ -694,6 +702,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTzInfo</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 <span class="macro">pyobject_native_type</span><span class="macro">!</span>(
     <span class="ident">PyTzInfo</span>,
+    <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">PyObject</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">TZInfoType</span>,
     <span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     <span class="ident">PyTZInfo_Check</span>
@@ -703,6 +712,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDelta</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 <span class="macro">pyobject_native_type</span><span class="macro">!</span>(
     <span class="ident">PyDelta</span>,
+    <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">PyDateTime_Delta</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">DeltaType</span>,
     <span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     <span class="ident">PyDelta_Check</span>

@@ -326,24 +326,15 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::{<span class="ident">AsPyRef</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::{<span class="ident">AsPyRef</span>, <span class="ident">PyNativeType</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyTuple</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Py</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">Py</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
 
@@ -500,7 +491,7 @@
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
-        <span class="ident">FromPyObject</span>::<span class="ident">extract</span>(<span class="self">self</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>).<span class="ident">into</span>())
+        <span class="ident">FromPyObject</span>::<span class="ident">extract</span>(<span class="self">self</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>))
     }
 
     <span class="doccomment">/// Retrieves an attribute value.</span>
@@ -589,13 +580,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">AsPyRef</span><span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyObject</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyRef</span><span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">PyRef</span>::<span class="ident">from_ref</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PyAny</span>)) }
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">PyRefMut</span>::<span class="ident">from_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyAny</span>)) }
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PyAny</span> {
+        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PyAny</span>) }
     }
 }
 

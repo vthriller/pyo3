@@ -158,7 +158,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>, <span class="ident">non_snake_case</span>, <span class="ident">non_upper_case_globals</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">allow</span>(<span class="ident">unused_imports</span>))]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">inline_always</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">inline_always</span>))]</span>
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">bltinmodule</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">boolobject</span>::<span class="kw-2">*</span>;

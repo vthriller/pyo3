@@ -118,6 +118,11 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -146,7 +151,12 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyFloat</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 
-<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PyFloat</span>, <span class="ident">ffi</span>::<span class="ident">PyFloat_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyFloat_Check</span>);
+<span class="macro">pyobject_native_type</span><span class="macro">!</span>(
+    <span class="ident">PyFloat</span>,
+    <span class="ident">ffi</span>::<span class="ident">PyFloatObject</span>,
+    <span class="ident">ffi</span>::<span class="ident">PyFloat_Type</span>,
+    <span class="ident">ffi</span>::<span class="ident">PyFloat_Check</span>
+);
 
 <span class="kw">impl</span> <span class="ident">PyFloat</span> {
     <span class="doccomment">/// Creates a new Python `float` object.</span>

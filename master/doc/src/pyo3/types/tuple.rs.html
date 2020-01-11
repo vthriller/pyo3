@@ -334,7 +334,7 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTuple</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 
-<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PyTuple</span>, <span class="ident">ffi</span>::<span class="ident">PyTuple_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyTuple_Check</span>);
+<span class="macro">pyobject_native_var_type</span><span class="macro">!</span>(<span class="ident">PyTuple</span>, <span class="ident">ffi</span>::<span class="ident">PyTuple_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyTuple_Check</span>);
 
 <span class="kw">impl</span> <span class="ident">PyTuple</span> {
     <span class="doccomment">/// Construct a new tuple with the given elements.</span>
@@ -435,7 +435,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">index</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">slice</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">slice</span>[<span class="self">self</span>.<span class="ident">index</span>].<span class="ident">as_ref</span>(<span class="self">self</span>.<span class="ident">py</span>);
             <span class="self">self</span>.<span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="prelude-val">Some</span>(<span class="ident">item</span>.<span class="ident">into</span>())
+            <span class="prelude-val">Some</span>(<span class="ident">item</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
