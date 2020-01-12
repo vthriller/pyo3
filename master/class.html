@@ -344,7 +344,7 @@ Consult the table below to determine which type your constructor should return:<
 <a class="header" href="#inheritance" id="inheritance"><h2>Inheritance</h2></a>
 <p>By default, <code>PyAny</code> is used as the base class. To override this default,
 use the <code>extends</code> parameter for <code>pyclass</code> with the full path to the base class.</p>
-<p>For convinience, <code>(T, U)</code> implements <code>Into&lt;PyClassInitializer&lt;T&gt;&gt;</code> where <code>U</code> is the
+<p>For convenience, <code>(T, U)</code> implements <code>Into&lt;PyClassInitializer&lt;T&gt;&gt;</code> where <code>U</code> is the
 baseclass of <code>T</code>.
 But for more deeply nested inheritance, you have to return <code>PyClassInitializer&lt;T&gt;</code>
 explicitly.</p>
@@ -413,13 +413,13 @@ impl SubSubClass {
 # let subsub = pyo3::PyClassShell::new_ref(py, SubSubClass::new()).unwrap();
 # pyo3::py_run!(py, subsub, &quot;assert subsub.method3() == 3000&quot;)
 #}</code></pre></pre>
-<p>To aceess super class, you can use either of these two ways.</p>
+<p>To access the super class, you can use either of these two ways:</p>
 <ul>
 <li>Use <code>self_: &amp;PyClassShell&lt;Self&gt;</code> instead of <code>self</code>, and call <code>get_super()</code></li>
 <li><code>ObjectProtocol::get_base</code>
-We recommend <code>PyClasShell</code> here, since it makes the context much clearer.</li>
+We recommend <code>PyClassShell</code> here, since it makes the context much clearer.</li>
 </ul>
-<p>If <code>SubClass</code> does not provide baseclass initialization, compile fails.</p>
+<p>If <code>SubClass</code> does not provide a baseclass initialization, the compilation fails.</p>
 <pre><code class="language-compile_fail"># use pyo3::prelude::*;
 use pyo3::PyClassShell;
 
