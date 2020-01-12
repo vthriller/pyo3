@@ -932,10 +932,10 @@ so that they can benefit from a freelist. <code>XXX</code> is a number of items 
 If a custom class contains references to other Python objects that can be collected, the <code>PyGCProtocol</code> trait has to be implemented.</li>
 <li><code>weakref</code> - Adds support for Python weak references.</li>
 <li><code>extends=BaseType</code> - Use a custom base class. The base <code>BaseType</code> must implement <code>PyTypeInfo</code>.</li>
+<li><code>subclass</code> - Allows Python classes to inherit from this class.</li>
 <li><code>dict</code> - Adds <code>__dict__</code> support, so that the instances of this type have a dictionary containing arbitrary instance variables.</li>
 <li><code>module=&quot;XXX&quot;</code> - Set the name of the module the class will be shown as defined in. If not given, the class
 will be a virtual member of the <code>builtins</code> module.</li>
-<li><code>subclass</code> - Allows Python classes to inherit from this class. This feature is hidden behind a <code>unsound-subclass</code> feature because it is currently causing segmentation faults</li>
 </ul>
 <a class="header" href="#constructor" id="constructor"><h2>Constructor</h2></a>
 <p>By default it is not possible to create an instance of a custom class from Python code.
