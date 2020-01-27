@@ -924,7 +924,7 @@
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyDateTime_GET_YEAR</span>(<span class="ident">o</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
     <span class="comment">// This should work for Date or DateTime</span>
     <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="kw-2">*</span>(<span class="ident">o</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyDateTime_Date</span>);
-    (<span class="ident">c_int</span>::<span class="ident">from</span>(<span class="ident">d</span>.<span class="ident">data</span>[<span class="number">0</span>]) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span> <span class="op">|</span> <span class="ident">c_int</span>::<span class="ident">from</span>(<span class="ident">d</span>.<span class="ident">data</span>[<span class="number">1</span>]))
+    <span class="ident">c_int</span>::<span class="ident">from</span>(<span class="ident">d</span>.<span class="ident">data</span>[<span class="number">0</span>]) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span> <span class="op">|</span> <span class="ident">c_int</span>::<span class="ident">from</span>(<span class="ident">d</span>.<span class="ident">data</span>[<span class="number">1</span>])
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
