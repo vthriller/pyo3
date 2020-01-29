@@ -49,6 +49,7 @@
 <span id="49">49</span>
 <span id="50">50</span>
 <span id="51">51</span>
+<span id="52">52</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conversion</span>::<span class="ident">PyTryFrom</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::<span class="ident">PyDowncastError</span>;
@@ -85,6 +86,7 @@
     <span class="prelude-val">Some</span>(<span class="string">&quot;builtins&quot;</span>),
     <span class="ident">ffi</span>::<span class="ident">PyObject_Check</span>
 );
+<span class="macro">pyobject_native_type_extract</span><span class="macro">!</span>(<span class="ident">PyAny</span>);
 
 <span class="kw">impl</span> <span class="ident">PyAny</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast_ref</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">PyDowncastError</span><span class="op">&gt;</span>
