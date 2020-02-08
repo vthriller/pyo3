@@ -434,16 +434,6 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -456,8 +446,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_char</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="self">self</span>, <span class="ident">ops</span>};
 
 <span class="doccomment">/// The boilerplate to convert between a rust type and a python exception</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
@@ -537,31 +527,26 @@
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">type_object</span>::<span class="ident">PyTypeObject</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="kw">fn</span> <span class="ident">type_object</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Py</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">types</span>::<span class="ident">PyType</span><span class="op">&gt;</span> {
-                <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">type_object</span>::<span class="ident">LazyTypeObject</span>;
-                <span class="kw">static</span> <span class="ident">TYPE_OBJECT</span>: <span class="ident">LazyTypeObject</span> <span class="op">=</span> <span class="ident">LazyTypeObject</span>::<span class="ident">new</span>();
+                <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">type_object</span>::<span class="ident">LazyHeapType</span>;
+                <span class="kw">static</span> <span class="ident">TYPE_OBJECT</span>: <span class="ident">LazyHeapType</span> <span class="op">=</span> <span class="ident">LazyHeapType</span>::<span class="ident">new</span>();
 
-                <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">TYPE_OBJECT</span>
-                    .<span class="ident">get_or_init</span>(<span class="op">|</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">acquire_gil</span>();
-                        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
+                <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">TYPE_OBJECT</span>.<span class="ident">get_or_init</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">imp</span> <span class="op">=</span> <span class="ident">py</span>
+                        .<span class="ident">import</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
+                        .<span class="ident">expect</span>(<span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Can not import module: &quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>)));
+                    <span class="kw">let</span> <span class="ident">cls</span> <span class="op">=</span> <span class="ident">imp</span>.<span class="ident">get</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)).<span class="ident">expect</span>(<span class="macro">concat</span><span class="macro">!</span>(
+                        <span class="string">&quot;Can not load exception class: {}.{}&quot;</span>,
+                        <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>),
+                        <span class="string">&quot;.&quot;</span>,
+                        <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)
+                    ));
 
-                        <span class="kw">let</span> <span class="ident">imp</span> <span class="op">=</span> <span class="ident">py</span>
-                            .<span class="ident">import</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
-                            .<span class="ident">expect</span>(<span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Can not import module: &quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>)));
-                        <span class="kw">let</span> <span class="ident">cls</span> <span class="op">=</span> <span class="ident">imp</span>.<span class="ident">get</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)).<span class="ident">expect</span>(<span class="macro">concat</span><span class="macro">!</span>(
-                            <span class="string">&quot;Can not load exception class: {}.{}&quot;</span>,
-                            <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>),
-                            <span class="string">&quot;.&quot;</span>,
-                            <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)
-                        ));
-
-                        <span class="kw">unsafe</span> {
-                            <span class="prelude-val">Ok</span>(<span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>::<span class="ident">new_unchecked</span>(
-                                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">IntoPyPointer</span>::<span class="ident">into_ptr</span>(<span class="ident">cls</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
-                            ))
-                        }
-                    })
-                    .<span class="ident">unwrap</span>();
+                    <span class="kw">unsafe</span> {
+                        <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>::<span class="ident">new_unchecked</span>(
+                            <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">IntoPyPointer</span>::<span class="ident">into_ptr</span>(<span class="ident">cls</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>
+                        )
+                    }
+                });
 
                 <span class="kw">unsafe</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Py</span>::<span class="ident">from_borrowed_ptr</span>(<span class="ident">ptr</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ffi</span>::<span class="ident">PyObject</span>) }
             }
@@ -625,22 +610,17 @@
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span>: <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">type_object</span>::<span class="ident">PyTypeObject</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="kw">fn</span> <span class="ident">type_object</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Py</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">types</span>::<span class="ident">PyType</span><span class="op">&gt;</span> {
-                <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">type_object</span>::<span class="ident">LazyTypeObject</span>;
-                <span class="kw">static</span> <span class="ident">TYPE_OBJECT</span>: <span class="ident">LazyTypeObject</span> <span class="op">=</span> <span class="ident">LazyTypeObject</span>::<span class="ident">new</span>();
+                <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">type_object</span>::<span class="ident">LazyHeapType</span>;
+                <span class="kw">static</span> <span class="ident">TYPE_OBJECT</span>: <span class="ident">LazyHeapType</span> <span class="op">=</span> <span class="ident">LazyHeapType</span>::<span class="ident">new</span>();
 
-                <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">TYPE_OBJECT</span>
-                    .<span class="ident">get_or_init</span>(<span class="op">|</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">acquire_gil</span>();
-                        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
-
-                        <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyErr</span>::<span class="ident">new_type</span>(
-                            <span class="ident">py</span>,
-                            <span class="macro">concat</span><span class="macro">!</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>), <span class="string">&quot;.&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)),
-                            <span class="prelude-val">Some</span>(<span class="ident">py</span>.<span class="ident">get_type</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span><span class="op">&gt;</span>()),
-                            <span class="prelude-val">None</span>,
-                        ))
-                    })
-                    .<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">TYPE_OBJECT</span>.<span class="ident">get_or_init</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+                    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyErr</span>::<span class="ident">new_type</span>(
+                        <span class="ident">py</span>,
+                        <span class="macro">concat</span><span class="macro">!</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>), <span class="string">&quot;.&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)),
+                        <span class="prelude-val">Some</span>(<span class="ident">py</span>.<span class="ident">get_type</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span><span class="op">&gt;</span>()),
+                        <span class="prelude-val">None</span>,
+                    )
+                });
 
                 <span class="kw">unsafe</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Py</span>::<span class="ident">from_borrowed_ptr</span>(<span class="ident">ptr</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ffi</span>::<span class="ident">PyObject</span>) }
             }

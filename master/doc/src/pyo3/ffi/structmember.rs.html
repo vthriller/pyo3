@@ -108,7 +108,7 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">READONLY</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">READ_RESTRICTED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PY_WRITE_RESTRICTED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RESTRICTED</span>: <span class="ident">c_int</span> <span class="op">=</span> (<span class="ident">READ_RESTRICTED</span> <span class="op">|</span> <span class="ident">PY_WRITE_RESTRICTED</span>);
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RESTRICTED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="ident">READ_RESTRICTED</span> <span class="op">|</span> <span class="ident">PY_WRITE_RESTRICTED</span>;
 
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">windows</span>, <span class="ident">link</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;pythonXY&quot;</span>))]</span>
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
