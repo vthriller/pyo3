@@ -160,7 +160,7 @@ fn rust2py(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 
 // logic implemented as a normal rust function
 fn sum_as_string(a:i64, b:i64) -&gt; String {
-    format!(&quot;{}&quot;, a + b).to_string()
+    format!(&quot;{}&quot;, a + b)
 }
 
 # fn main() {}
