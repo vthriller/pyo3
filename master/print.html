@@ -347,8 +347,9 @@ fn main() {
     obj.call(py, (), Some(kwargs.into_py_dict(py)));
 }
 </code></pre></pre>
-<a class="header" href="#intopyt" id="intopyt"><h2><code>IntoPy&lt;T&gt;</code></h2></a>
-<p>Many conversions in PyO3 can't use <code>std::convert::Into</code> because they need a GIL token. That's why the <code>IntoPy&lt;T&gt;</code> trait offers an <code>into_py</code> method that works just like <code>into</code>, except for taking a <code>Python&lt;'_&gt;</code> argument.</p>
+<a class="header" href="#frompyt-and-intopyt" id="frompyt-and-intopyt"><h2><code>FromPy&lt;T&gt;</code> and <code>IntoPy&lt;T&gt;</code></h2></a>
+<p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token. The <code>FromPy&lt;T&gt;</code> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument. I.e. FromPy<T> could be converting a rust object into a python object even though it says <code>FromPy</code> - it doesn't say anything about which side of the conversion is a python object.</p>
+<p>(Just like From<T>, if you implement FromPy<T> you gain a blanket implementation of IntoPy<T> for free.)</p>
 <p>Eventually, traits such as <code>ToPyObject</code> will be replaced by this trait and a <code>FromPy</code> trait will be added that will implement <code>IntoPy</code>, just like with <code>From</code> and <code>Into</code>.</p>
 <a class="header" href="#python-exceptions" id="python-exceptions"><h1>Python Exceptions</h1></a>
 <a class="header" href="#define-a-new-exception" id="define-a-new-exception"><h2>Define a new exception</h2></a>
