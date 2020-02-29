@@ -742,6 +742,15 @@
 <span id="742">742</span>
 <span id="743">743</span>
 <span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017 Daniel Grunwald</span>
 <span class="comment">//</span>
@@ -771,7 +780,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cell</span>, <span class="ident">mem</span>, <span class="ident">slice</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cell</span>, <span class="ident">mem</span>, <span class="ident">ptr</span>, <span class="ident">slice</span>};
 
 <span class="doccomment">/// Allows access to the underlying buffer used by a python object such as `bytes`, `bytearray` or `array.array`.</span>
 <span class="comment">// use Pin&lt;Box&gt; because Python expects that the Py_buffer struct has a stable memory address</span>
@@ -1322,10 +1331,19 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">release</span>(<span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) {
+        <span class="comment">// First move self into a ManuallyDrop, so that PyBuffer::drop will</span>
+        <span class="comment">// never be called. (It would acquire the GIL and call PyBuffer_Release</span>
+        <span class="comment">// again.)</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mdself</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">ManuallyDrop</span>::<span class="ident">new</span>(<span class="self">self</span>);
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">Py_buffer</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">Py_buffer</span>;
-            <span class="ident">ffi</span>::<span class="ident">PyBuffer_Release</span>(<span class="ident">ptr</span>)
-        };
+            <span class="comment">// Next, make the actual PyBuffer_Release call.</span>
+            <span class="ident">ffi</span>::<span class="ident">PyBuffer_Release</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">mdself</span>.<span class="number">0</span>);
+
+            <span class="comment">// Finally, drop the contained Pin&lt;Box&lt;_&gt;&gt; in place, to free the</span>
+            <span class="comment">// Box memory.</span>
+            <span class="kw">let</span> <span class="ident">inner</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">Py_buffer</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mdself</span>.<span class="number">0</span>;
+            <span class="ident">ptr</span>::<span class="ident">drop_in_place</span>(<span class="ident">inner</span>);
+        }
     }
 }
 
