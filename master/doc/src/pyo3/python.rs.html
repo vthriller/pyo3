@@ -459,25 +459,6 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -488,7 +469,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>::{<span class="self">self</span>, <span class="ident">GILGuard</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">AsPyRef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyObjectLayout</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">PyTypeObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyDowncastImpl</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">PyTypeObject</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyModule</span>, <span class="ident">PyType</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyPointer</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>};
@@ -658,7 +639,7 @@
     <span class="doccomment">///    Some(locals),</span>
     <span class="doccomment">/// ).unwrap();</span>
     <span class="doccomment">/// let ret = locals.get_item(&quot;ret&quot;).unwrap();</span>
-    <span class="doccomment">/// let b64: &amp;PyBytes = ret.downcast_ref().unwrap();</span>
+    <span class="doccomment">/// let b64: &amp;PyBytes = ret.downcast().unwrap();</span>
     <span class="doccomment">/// assert_eq!(b64.as_bytes(), b&quot;SGVsbG8gUnVzdCE=&quot;);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(
@@ -756,19 +737,19 @@
     <span class="doccomment">/// Register object in release pool, and try to downcast to specific type.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_cast_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">obj</span>: <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span>, <span class="ident">PyDowncastError</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gil</span>::<span class="ident">register_owned</span>(<span class="self">self</span>, <span class="ident">obj</span>.<span class="ident">into_nonnull</span>()) };
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">p</span>)
+        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gil</span>::<span class="ident">register_owned</span>(<span class="self">self</span>, <span class="ident">obj</span>.<span class="ident">into_nonnull</span>()) };
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">obj</span>)
     }
 
     <span class="doccomment">/// Register object in release pool, and do unchecked downcast to specific type.</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cast_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">obj</span>: <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">PyDowncastImpl</span> <span class="op">+</span> <span class="ident">PyTypeInfo</span>,
     {
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">gil</span>::<span class="ident">register_owned</span>(<span class="self">self</span>, <span class="ident">obj</span>.<span class="ident">into_nonnull</span>());
-        <span class="ident">T</span>::<span class="ident">ConcreteLayout</span>::<span class="ident">internal_ref_cast</span>(<span class="ident">p</span>)
+        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">gil</span>::<span class="ident">register_owned</span>(<span class="self">self</span>, <span class="ident">obj</span>.<span class="ident">into_nonnull</span>());
+        <span class="ident">T</span>::<span class="ident">unchecked_downcast</span>(<span class="ident">obj</span>)
     }
 
     <span class="doccomment">/// Register `ffi::PyObject` pointer in release pool</span>
@@ -785,16 +766,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_owned_ptr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
-    {
-        <span class="ident">FromPyPointer</span>::<span class="ident">from_owned_ptr</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
-    }
-
-    <span class="doccomment">/// Register `ffi::PyObject` pointer in release pool,</span>
-    <span class="doccomment">/// Do unchecked downcast to specific type. Returns mutable reference.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">mut_from_owned_ptr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="ident">T</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">FromPyPointer</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="ident">FromPyPointer</span>::<span class="ident">from_owned_ptr</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
@@ -805,7 +777,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_owned_ptr_or_err</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">FromPyPointer</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="ident">FromPyPointer</span>::<span class="ident">from_owned_ptr_or_err</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
@@ -816,7 +788,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_owned_ptr_or_opt</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">FromPyPointer</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="ident">FromPyPointer</span>::<span class="ident">from_owned_ptr_or_opt</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
@@ -827,17 +799,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_borrowed_ptr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
-    {
-        <span class="ident">FromPyPointer</span>::<span class="ident">from_borrowed_ptr</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
-    }
-
-    <span class="doccomment">/// Register borrowed `ffi::PyObject` pointer in release pool.</span>
-    <span class="doccomment">/// Panics if the pointer is `null`.</span>
-    <span class="doccomment">/// do unchecked downcast to specific type.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">mut_from_borrowed_ptr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="ident">T</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">FromPyPointer</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="ident">FromPyPointer</span>::<span class="ident">from_borrowed_ptr</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
@@ -848,7 +810,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_borrowed_ptr_or_err</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">FromPyPointer</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="ident">FromPyPointer</span>::<span class="ident">from_borrowed_ptr_or_err</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
@@ -859,7 +821,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_borrowed_ptr_or_opt</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">FromPyPointer</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="ident">FromPyPointer</span>::<span class="ident">from_borrowed_ptr_or_opt</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }

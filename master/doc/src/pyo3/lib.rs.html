@@ -327,6 +327,8 @@
 <span id="327">327</span>
 <span id="328">328</span>
 <span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">specialization</span>)]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>)]</span> <span class="comment">// FIXME (#698)</span>
@@ -458,7 +460,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::{<span class="ident">AsPyRef</span>, <span class="ident">ManagedPyRef</span>, <span class="ident">Py</span>, <span class="ident">PyNativeType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass</span>::{<span class="ident">PyClass</span>, <span class="ident">PyClassShell</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pycell</span>::{<span class="ident">PyCell</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass</span>::<span class="ident">PyClass</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass_init</span>::<span class="ident">PyClassInitializer</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">python</span>::{<span class="ident">prepare_freethreaded_python</span>, <span class="ident">Python</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">type_flags</span>, <span class="ident">PyTypeInfo</span>};
@@ -501,6 +504,7 @@
 <span class="kw">mod</span> <span class="ident">object</span>;
 <span class="kw">mod</span> <span class="ident">objectprotocol</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pycell</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass_init</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass_slots</span>;
@@ -552,7 +556,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// use pyo3::{prelude::*, py_run, PyClassShell};</span>
+<span class="doccomment">/// use pyo3::{prelude::*, py_run, PyCell};</span>
 <span class="doccomment">/// #[pyclass]</span>
 <span class="doccomment">/// #[derive(Debug)]</span>
 <span class="doccomment">/// struct Time {</span>
@@ -575,7 +579,7 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// let gil = Python::acquire_gil();</span>
 <span class="doccomment">/// let py = gil.python();</span>
-<span class="doccomment">/// let time = PyClassShell::new_ref(py, Time {hour: 8, minute: 43, second: 16}).unwrap();</span>
+<span class="doccomment">/// let time = PyCell::new(py, Time {hour: 8, minute: 43, second: 16}).unwrap();</span>
 <span class="doccomment">/// let time_as_tuple = (8, 43, 16);</span>
 <span class="doccomment">/// py_run!(py, time time_as_tuple, r#&quot;</span>
 <span class="doccomment">/// assert time.hour == 8</span>

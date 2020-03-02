@@ -92,6 +92,7 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">pyport</span>::{<span class="ident">Py_hash_t</span>, <span class="ident">Py_ssize_t</span>};
@@ -116,6 +117,7 @@
 }
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySetObject</span> {
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">fill</span>: <span class="ident">Py_ssize_t</span>,

@@ -101,7 +101,6 @@
 <span id="101">101</span>
 <span id="102">102</span>
 <span id="103">103</span>
-<span id="104">104</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -111,12 +110,11 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::<span class="ident">PyMethodDef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::<span class="ident">PyResult</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeInfo</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">PyObject</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyClass</span>, <span class="ident">PyObject</span>};
 
 <span class="doccomment">/// Context manager interface</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyContextProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyTypeInfo</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyContextProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
     <span class="kw">fn</span> <span class="ident">__enter__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyContextEnterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,

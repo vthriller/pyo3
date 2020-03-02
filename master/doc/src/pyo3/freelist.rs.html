@@ -104,7 +104,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass</span>::{<span class="ident">tp_free_fallback</span>, <span class="ident">PyClassAlloc</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyObjectLayout</span>, <span class="ident">PyTypeInfo</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyLayout</span>, <span class="ident">PyTypeInfo</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_void</span>;
@@ -172,7 +172,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PyTypeInfo</span> <span class="op">+</span> <span class="ident">PyClassWithFreeList</span>,
 {
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">ConcreteLayout</span> {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Layout</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">PyClassWithFreeList</span><span class="op">&gt;</span>::<span class="ident">get_free_list</span>().<span class="ident">pop</span>() {
             <span class="ident">ffi</span>::<span class="ident">PyObject_Init</span>(<span class="ident">obj</span>, <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">PyTypeInfo</span><span class="op">&gt;</span>::<span class="ident">type_object</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw">_</span>);
             <span class="ident">obj</span> <span class="kw">as</span> <span class="kw">_</span>
@@ -181,7 +181,7 @@
         }
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">dealloc</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">self_</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">ConcreteLayout</span>) {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">dealloc</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">self_</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Layout</span>) {
         (<span class="kw-2">*</span><span class="ident">self_</span>).<span class="ident">py_drop</span>(<span class="ident">py</span>);
 
         <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">self_</span> <span class="kw">as</span> <span class="kw">_</span>;

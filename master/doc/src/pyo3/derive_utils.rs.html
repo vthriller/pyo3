@@ -218,6 +218,21 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -403,8 +418,8 @@
     }
 }
 
-<span class="doccomment">/// Variant of IntoPyResult for the specific case of #[new]. In the case of returning (Sub, Base)</span>
-<span class="doccomment">/// from #[new], IntoPyResult can&#39;t apply because (Sub, Base) doesn&#39;t implement IntoPy&lt;PyObject&gt;.</span>
+<span class="doccomment">/// Variant of IntoPyResult for the specific case of `#[new]`. In the case of returning (Sub, Base)</span>
+<span class="doccomment">/// from `#[new]`, IntoPyResult can&#39;t apply because (Sub, Base) doesn&#39;t implement IntoPy&lt;PyObject&gt;.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoPyNewResult</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyClass</span>, <span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">into_pynew_result</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>;
 }
@@ -438,6 +453,21 @@
     <span class="kw">fn</span> <span class="ident">get_property_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
         <span class="self">self</span>.<span class="ident">clone_ref</span>(<span class="ident">py</span>)
     }
+}
+
+<span class="doccomment">/// Utilities for basetype</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyBaseTypeUtils</span> {
+    <span class="kw">type</span> <span class="ident">Dict</span>;
+    <span class="kw">type</span> <span class="ident">WeakRef</span>;
+    <span class="kw">type</span> <span class="ident">LayoutAsBase</span>;
+    <span class="kw">type</span> <span class="ident">BaseNativeType</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> <span class="ident">PyBaseTypeUtils</span> <span class="kw">for</span> <span class="ident">T</span> {
+    <span class="kw">type</span> <span class="ident">Dict</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">Dict</span>;
+    <span class="kw">type</span> <span class="ident">WeakRef</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">WeakRef</span>;
+    <span class="kw">type</span> <span class="ident">LayoutAsBase</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">pycell</span>::<span class="ident">PyCellInner</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">BaseNativeType</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">BaseNativeType</span>;
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "pyo3";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

@@ -261,11 +261,6 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -275,15 +270,11 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::{<span class="ident">LenResultConverter</span>, <span class="ident">PyObjectCallbackConverter</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::<span class="ident">PyMethodDef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeInfo</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">FromPyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 
 <span class="doccomment">/// Mapping interface</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMappingProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyTypeInfo</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMappingProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
     <span class="kw">fn</span> <span class="ident">__len__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyMappingLenProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
@@ -440,8 +431,7 @@
         <span class="macro">py_binary_func</span><span class="macro">!</span>(
             <span class="ident">PyMappingGetItemProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__getitem__</span>,
-            <span class="ident">T</span>::<span class="ident">Success</span>,
-            <span class="ident">PyObjectCallbackConverter</span>
+            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>)
         )
     }
 }

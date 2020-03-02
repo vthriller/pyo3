@@ -558,6 +558,13 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -892,11 +899,18 @@
         <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">PyErr_Restore</span>(<span class="ident">ptype</span>.<span class="ident">into_ptr</span>(), <span class="ident">pvalue</span>, <span class="ident">ptraceback</span>.<span class="ident">into_ptr</span>()) }
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="doccomment">/// Utility method for proc-macro code</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_and_null</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="self">self</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
         <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>()
+    }
+
+    <span class="doccomment">/// Utility method for proc-macro code</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_and_minus1</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">libc</span>::<span class="ident">c_int</span> {
+        <span class="self">self</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
+        <span class="op">-</span><span class="number">1</span>
     }
 
     <span class="doccomment">/// Issue a warning message.</span>
@@ -962,7 +976,7 @@
     }
 }
 
-<span class="doccomment">/// Converts `PyDowncastError` to Python `TypeError`.</span>
+<span class="doccomment">/// Convert `PyDowncastError` to Python `TypeError`.</span>
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="ident">PyDowncastError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyErr</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_err</span>: <span class="ident">PyDowncastError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
         <span class="ident">exceptions</span>::<span class="ident">TypeError</span>.<span class="ident">into</span>()

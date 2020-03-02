@@ -158,6 +158,7 @@ and <code>PyClass</code> for <code>MyClass</code>.</p>
 # #![allow(unused_variables)]
 #fn main() {
 use pyo3::prelude::*;
+use pyo3::types::PyAny;
 
 /// Class for demonstration
 struct MyClass {
@@ -169,9 +170,10 @@ impl pyo3::pyclass::PyClassAlloc for MyClass {}
 
 unsafe impl pyo3::PyTypeInfo for MyClass {
     type Type = MyClass;
-    type BaseType = pyo3::types::PyAny;
-    type ConcreteLayout = pyo3::PyClassShell&lt;Self&gt;;
-    type Initializer = pyo3::PyClassInitializer&lt;Self&gt;;
+    type BaseType = PyAny;
+    type BaseLayout = pyo3::pycell::PyCellBase&lt;PyAny&gt;;
+    type Layout = PyCell&lt;Self&gt;;
+    type Initializer = PyClassInitializer&lt;Self&gt;;
 
     const NAME: &amp;'static str = &quot;MyClass&quot;;
     const MODULE: Option&lt;&amp;'static str&gt; = None;
@@ -189,6 +191,7 @@ unsafe impl pyo3::PyTypeInfo for MyClass {
 impl pyo3::pyclass::PyClass for MyClass {
     type Dict = pyo3::pyclass_slots::PyClassDummySlot;
     type WeakRef = pyo3::pyclass_slots::PyClassDummySlot;
+    type BaseNativeType = PyAny;
 }
 
 impl pyo3::IntoPy&lt;PyObject&gt; for MyClass {
@@ -239,42 +242,54 @@ fn mymodule(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     Ok(())
 }
 #}</code></pre></pre>
-<a class="header" href="#get-python-objects-from-pyclass" id="get-python-objects-from-pyclass"><h2>Get Python objects from <code>pyclass</code></h2></a>
-<p>You sometimes need to convert your <code>pyclass</code> into a Python object in Rust code (e.g., for testing it).</p>
-<p>For getting <em>GIL-bounded</em> (i.e., with <code>'py</code> lifetime) references of <code>pyclass</code>,
-you can use <code>PyClassShell&lt;T&gt;</code>.
-Or you can use <code>Py&lt;T&gt;</code> directly, for <em>not-GIL-bounded</em> references.</p>
-<a class="header" href="#pyclassshell" id="pyclassshell"><h3><code>PyClassShell</code></h3></a>
-<p><code>PyClassShell</code> represents the actual layout of <code>pyclass</code> on the Python heap.</p>
-<p>If you want to instantiate <code>pyclass</code> in Python and get the reference,
-you can use <code>PyClassShell::new_ref</code> or <code>PyClassShell::new_mut</code>.</p>
+<a class="header" href="#pycell-and-interior-mutability" id="pycell-and-interior-mutability"><h2>PyCell and interior mutability</h2></a>
+<p>You sometimes need to convert your <code>pyclass</code> into a Python object and access it
+from Rust code (e.g., for testing it).
+<a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a> is our primary interface for that.</p>
+<p><code>PyCell&lt;T: PyClass&gt;</code> is always allocated in the Python heap, so we don't have the ownership of it.
+We can only get <code>&amp;PyCell&lt;T&gt;</code>, not <code>PyCell&lt;T&gt;</code>.</p>
+<p>Thus, to mutate data behind <code>&amp;PyCell</code> safely, we employ the
+<a href="https://doc.rust-lang.org/book/ch15-05-interior-mutability.html">Interior Mutability Pattern</a>
+like <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html">std::cell::RefCell</a>.</p>
+<p>Users who are familiar with <code>RefCell</code> can use <code>PyCell</code> just like <code>RefCell</code>.</p>
+<p>For users who are not very familiar with <code>RefCell</code>, here is a reminder of Rust's rules of borrowing:</p>
+<ul>
+<li>At any given time, you can have either (but not both of) one mutable reference or any number of immutable references.</li>
+<li>References must always be valid.
+<code>PyCell</code> ensures these borrowing rules by tracking references at runtime.</li>
+</ul>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
 # use pyo3::prelude::*;
 # use pyo3::types::PyDict;
-# use pyo3::PyClassShell;
 #[pyclass]
 struct MyClass {
+   #[pyo3(get)]
    num: i32,
    debug: bool,
 }
 let gil = Python::acquire_gil();
 let py = gil.python();
-let obj = PyClassShell::new_ref(py, MyClass { num: 3, debug: true }).unwrap();
-// You can use deref
-assert_eq!(obj.num, 3);
-let dict = PyDict::new(py);
-// You can treat a `&amp;PyClassShell` as a normal Python object
-dict.set_item(&quot;obj&quot;, obj).unwrap();
-
-// return &amp;mut PyClassShell&lt;MyClass&gt;
-let obj = PyClassShell::new_mut(py, MyClass { num: 3, debug: true }).unwrap();
-obj.num = 5;
+let obj = PyCell::new(py, MyClass { num: 3, debug: true }).unwrap();
+{
+    let obj_ref = obj.borrow(); // Get PyRef
+    assert_eq!(obj_ref.num, 3);
+    // You cannot get PyRefMut unless all PyRefs are dropped
+    assert!(obj.try_borrow_mut().is_err());
+}
+{
+    let mut obj_mut = obj.borrow_mut(); // Get PyRefMut
+    obj_mut.num = 5;
+    // You cannot get any other refs until the PyRefMut is dropped
+    assert!(obj.try_borrow().is_err());
+    assert!(obj.try_borrow_mut().is_err());
+}
+// You can convert `&amp;PyCell` to Python object
+pyo3::py_run!(py, obj, &quot;assert obj.num == 5&quot;)
 #}</code></pre></pre>
-<a class="header" href="#py" id="py"><h3><code>Py</code></h3></a>
-<p><code>Py</code> is an object wrapper which stores an object longer than the GIL lifetime.</p>
-<p>You can use it to avoid lifetime problems.</p>
+<p><code>&amp;PyCell&lt;T&gt;</code> is bounded by the same lifetime as <code>GILGuard</code>.
+To avoid this you can use <code>Py&lt;T&gt;</code>, which stores an object longer than the GIL lifetime.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -290,7 +305,9 @@ fn return_myclass() -&gt; Py&lt;MyClass&gt; {
 }
 let gil = Python::acquire_gil();
 let obj = return_myclass();
-assert_eq!(obj.as_ref(gil.python()).num, 1);
+let cell = obj.as_ref(gil.python()); // AsPyRef::as_ref returns &amp;PyCell
+let obj_ref = cell.borrow(); // Get PyRef&lt;T&gt;
+assert_eq!(obj_ref.num, 1);
 #}</code></pre></pre>
 <a class="header" href="#customizing-the-class" id="customizing-the-class"><h2>Customizing the class</h2></a>
 <p>The <code>#[pyclass]</code> macro accepts the following parameters:</p>
@@ -349,11 +366,15 @@ use the <code>extends</code> parameter for <code>pyclass</code> with the full pa
 baseclass of <code>T</code>.
 But for more deeply nested inheritance, you have to return <code>PyClassInitializer&lt;T&gt;</code>
 explicitly.</p>
+<p>To get a parent class from a child, use <code>PyRef&lt;T&gt;</code> instead of <code>&amp;self</code>,
+or <code>PyRefMut&lt;T&gt;</code> instead of <code>&amp;mut self</code>.
+Then you can access a parent class by <code>self_.as_ref()</code> as <code>&amp;Self::BaseClass</code>,
+or by <code>self_.into_super()</code> as <code>PyRef&lt;Self::BaseClass&gt;</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
 # use pyo3::prelude::*;
-use pyo3::PyClassShell;
+use pyo3::PyCell;
 
 #[pyclass]
 struct BaseClass {
@@ -384,8 +405,9 @@ impl SubClass {
        (SubClass{ val2: 15}, BaseClass::new())
    }
 
-   fn method2(self_: &amp;PyClassShell&lt;Self&gt;) -&gt; PyResult&lt;usize&gt; {
-      self_.get_super().method().map(|x| x * self_.val2)
+   fn method2(self_: PyRef&lt;Self&gt;) -&gt; PyResult&lt;usize&gt; {
+       let super_ = self_.as_ref();  // Get &amp;BaseClass
+       super_.method().map(|x| x * self_.val2)
    }
 }
 
@@ -402,27 +424,22 @@ impl SubSubClass {
            .add_subclass(SubSubClass{val3: 20})
    }
 
-   fn method3(self_: &amp;PyClassShell&lt;Self&gt;) -&gt; PyResult&lt;usize&gt; {
-      let super_ = self_.get_super();
-      SubClass::method2(super_).map(|x| x * self_.val3)
+   fn method3(self_: PyRef&lt;Self&gt;) -&gt; PyResult&lt;usize&gt; {
+      let v = self_.val3;
+      let super_ = self_.into_super();  // Get PyRef&lt;SubClass&gt;
+      SubClass::method2(super_).map(|x| x * v)
    }
 }
 
 
 # let gil = Python::acquire_gil();
 # let py = gil.python();
-# let subsub = pyo3::PyClassShell::new_ref(py, SubSubClass::new()).unwrap();
+# let subsub = pyo3::PyCell::new(py, SubSubClass::new()).unwrap();
 # pyo3::py_run!(py, subsub, &quot;assert subsub.method3() == 3000&quot;)
 #}</code></pre></pre>
-<p>To access the super class, you can use either of these two ways:</p>
-<ul>
-<li>Use <code>self_: &amp;PyClassShell&lt;Self&gt;</code> instead of <code>self</code>, and call <code>get_super()</code></li>
-<li><code>ObjectProtocol::get_base</code>
-We recommend <code>PyClassShell</code> here, since it makes the context much clearer.</li>
-</ul>
 <p>If <code>SubClass</code> does not provide a baseclass initialization, the compilation fails.</p>
 <pre><code class="language-compile_fail"># use pyo3::prelude::*;
-use pyo3::PyClassShell;
+use pyo3::PyCell;
 
 #[pyclass]
 struct BaseClass {
@@ -861,8 +878,8 @@ struct GCTracked {} // Fails because it does not implement PyGCProtocol
 <a href="https://docs.rs/pyo3/latest/pyo3/class/iter/trait.PyIterProtocol.html"><code>PyIterProtocol</code></a> trait.
 It includes two methods <code>__iter__</code> and <code>__next__</code>:</p>
 <ul>
-<li><code>fn __iter__(slf: &amp;mut PyClassShell&lt;Self&gt;) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
-<li><code>fn __next__(slf: &amp;mut PyClassShell&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;impl IntoPy&lt;PyObject&gt;&gt;&gt;</code></li>
+<li><code>fn __iter__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
+<li><code>fn __next__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;impl IntoPy&lt;PyObject&gt;&gt;&gt;</code></li>
 </ul>
 <p>Returning <code>Ok(None)</code> from <code>__next__</code> indicates that that there are no further items.</p>
 <p>Example:</p>
@@ -870,7 +887,7 @@ It includes two methods <code>__iter__</code> and <code>__next__</code>:</p>
 # #![allow(unused_variables)]
 #fn main() {
 use pyo3::prelude::*;
-use pyo3::{PyIterProtocol, PyClassShell};
+use pyo3::{PyIterProtocol, PyCell};
 
 #[pyclass]
 struct MyIterator {
@@ -879,16 +896,14 @@ struct MyIterator {
 
 #[pyproto]
 impl PyIterProtocol for MyIterator {
-    fn __iter__(slf: &amp;mut PyClassShell&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;MyIterator&gt;&gt; {
+    fn __iter__(mut slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;MyIterator&gt;&gt; {
         Ok(slf.into())
     }
-    fn __next__(slf: &amp;mut PyClassShell&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;PyObject&gt;&gt; {
+    fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;PyObject&gt;&gt; {
         Ok(slf.iter.next())
     }
 }
 #}</code></pre></pre>
-<a class="header" href="#manually-implementing-pyclass" id="manually-implementing-pyclass"><h2>Manually implementing pyclass</h2></a>
-<p>TODO: Which traits to implement (basically <code>PyTypeCreate: PyObjectAlloc + PyTypeInfo + PyMethodsProtocol + Sized</code>) and what they mean.</p>
 <a class="header" href="#how-methods-are-implemented" id="how-methods-are-implemented"><h2>How methods are implemented</h2></a>
 <p>Users should be able to define a <code>#[pyclass]</code> with or without <code>#[pymethods]</code>, while PyO3 needs a
 trait with a function that returns all methods. Since it's impossible to make the code generation in

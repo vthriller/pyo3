@@ -149,6 +149,19 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -162,53 +175,64 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">isize</span>, <span class="ident">ptr</span>};
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CallbackConverter</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">R</span>;
+<span class="doccomment">/// Convert the result of callback function into the appropriate return value.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Used by PyO3 macros.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CallbackConverter</span> {
+    <span class="kw">type</span> <span class="ident">Source</span>;
+    <span class="kw">type</span> <span class="prelude-ty">Result</span>: <span class="ident">Copy</span>;
+    <span class="kw">const</span> <span class="ident">ERR_VALUE</span>: <span class="self">Self</span>::<span class="prelude-ty">Result</span>;
 
-    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">s</span>: <span class="ident">S</span>, <span class="ident">p</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">R</span>;
-    <span class="kw">fn</span> <span class="ident">error_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">R</span>;
-}
-
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyObjectCallbackConverter</span>;
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">CallbackConverter</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyObjectCallbackConverter</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>,
-{
-    <span class="kw">type</span> <span class="ident">R</span> <span class="op">=</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>;
-
-    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">val</span>: <span class="ident">S</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span> {
-        <span class="ident">val</span>.<span class="ident">into_py</span>(<span class="ident">py</span>).<span class="ident">into_ptr</span>()
-    }
+    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">s</span>: <span class="self">Self</span>::<span class="ident">Source</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">error_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span> {
-        <span class="ident">ptr</span>::<span class="ident">null_mut</span>()
+    <span class="kw">fn</span> <span class="ident">convert_result</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">value</span>: <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Source</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span> {
+        <span class="kw">match</span> <span class="ident">value</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">convert</span>(<span class="ident">val</span>, <span class="ident">py</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">e</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
+                <span class="self">Self</span>::<span class="ident">ERR_VALUE</span>
+            }
+        }
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyObjectCallbackConverter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">CallbackConverter</span> <span class="kw">for</span> <span class="ident">PyObjectCallbackConverter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>,
+{
+    <span class="kw">type</span> <span class="ident">Source</span> <span class="op">=</span> <span class="ident">T</span>;
+    <span class="kw">type</span> <span class="prelude-ty">Result</span> <span class="op">=</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>;
+    <span class="kw">const</span> <span class="ident">ERR_VALUE</span>: <span class="self">Self</span>::<span class="prelude-ty">Result</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">null_mut</span>();
+
+    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">s</span>: <span class="self">Self</span>::<span class="ident">Source</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span> {
+        <span class="ident">s</span>.<span class="ident">into_py</span>(<span class="ident">py</span>).<span class="ident">into_ptr</span>()
     }
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoolCallbackConverter</span>;
 
-<span class="kw">impl</span> <span class="ident">CallbackConverter</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BoolCallbackConverter</span> {
-    <span class="kw">type</span> <span class="ident">R</span> <span class="op">=</span> <span class="ident">c_int</span>;
+<span class="kw">impl</span> <span class="ident">CallbackConverter</span> <span class="kw">for</span> <span class="ident">BoolCallbackConverter</span> {
+    <span class="kw">type</span> <span class="ident">Source</span> <span class="op">=</span> <span class="ident">bool</span>;
+    <span class="kw">type</span> <span class="prelude-ty">Result</span> <span class="op">=</span> <span class="ident">c_int</span>;
+    <span class="kw">const</span> <span class="ident">ERR_VALUE</span>: <span class="self">Self</span>::<span class="prelude-ty">Result</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">val</span>: <span class="ident">bool</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
-        <span class="ident">val</span> <span class="kw">as</span> <span class="ident">c_int</span>
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">error_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
-        <span class="op">-</span><span class="number">1</span>
+    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">s</span>: <span class="self">Self</span>::<span class="ident">Source</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span> {
+        <span class="ident">s</span> <span class="kw">as</span> <span class="ident">c_int</span>
     }
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LenResultConverter</span>;
 
-<span class="kw">impl</span> <span class="ident">CallbackConverter</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LenResultConverter</span> {
-    <span class="kw">type</span> <span class="ident">R</span> <span class="op">=</span> <span class="ident">isize</span>;
+<span class="kw">impl</span> <span class="ident">CallbackConverter</span> <span class="kw">for</span> <span class="ident">LenResultConverter</span> {
+    <span class="kw">type</span> <span class="ident">Source</span> <span class="op">=</span> <span class="ident">usize</span>;
+    <span class="kw">type</span> <span class="prelude-ty">Result</span> <span class="op">=</span> <span class="ident">isize</span>;
+    <span class="kw">const</span> <span class="ident">ERR_VALUE</span>: <span class="self">Self</span>::<span class="prelude-ty">Result</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
 
-    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">val</span>: <span class="ident">usize</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">val</span>: <span class="self">Self</span>::<span class="ident">Source</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">if</span> <span class="ident">val</span> <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">isize</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="ident">usize</span>) {
             <span class="ident">val</span> <span class="kw">as</span> <span class="ident">isize</span>
         } <span class="kw">else</span> {
@@ -216,26 +240,18 @@
             <span class="op">-</span><span class="number">1</span>
         }
     }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">error_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
-        <span class="op">-</span><span class="number">1</span>
-    }
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnitCallbackConverter</span>;
 
-<span class="kw">impl</span> <span class="ident">CallbackConverter</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UnitCallbackConverter</span> {
-    <span class="kw">type</span> <span class="ident">R</span> <span class="op">=</span> <span class="ident">c_int</span>;
+<span class="kw">impl</span> <span class="ident">CallbackConverter</span> <span class="kw">for</span> <span class="ident">UnitCallbackConverter</span> {
+    <span class="kw">type</span> <span class="ident">Source</span> <span class="op">=</span> ();
+    <span class="kw">type</span> <span class="prelude-ty">Result</span> <span class="op">=</span> <span class="ident">c_int</span>;
+    <span class="kw">const</span> <span class="ident">ERR_VALUE</span>: <span class="self">Self</span>::<span class="prelude-ty">Result</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw">_</span>: (), <span class="kw">_</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
+    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">_s</span>: <span class="self">Self</span>::<span class="ident">Source</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span> {
         <span class="number">0</span>
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">error_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
-        <span class="op">-</span><span class="number">1</span>
     }
 }
 
@@ -264,13 +280,15 @@
 <span class="macro">wrapping_cast</span><span class="macro">!</span>(<span class="ident">isize</span>, <span class="ident">Py_hash_t</span>);
 <span class="macro">wrapping_cast</span><span class="macro">!</span>(<span class="ident">i64</span>, <span class="ident">Py_hash_t</span>);
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashConverter</span>;
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashConverter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">CallbackConverter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HashConverter</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">CallbackConverter</span> <span class="kw">for</span> <span class="ident">HashConverter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">WrappingCastTo</span><span class="op">&lt;</span><span class="ident">Py_hash_t</span><span class="op">&gt;</span>,
 {
-    <span class="kw">type</span> <span class="ident">R</span> <span class="op">=</span> <span class="ident">Py_hash_t</span>;
+    <span class="kw">type</span> <span class="ident">Source</span> <span class="op">=</span> <span class="ident">T</span>;
+    <span class="kw">type</span> <span class="prelude-ty">Result</span> <span class="op">=</span> <span class="ident">Py_hash_t</span>;
+    <span class="kw">const</span> <span class="ident">ERR_VALUE</span>: <span class="self">Self</span>::<span class="prelude-ty">Result</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">val</span>: <span class="ident">T</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_hash_t</span> {
@@ -281,25 +299,33 @@
             <span class="ident">hash</span>
         }
     }
+}
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">error_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_hash_t</span> {
-        <span class="op">-</span><span class="number">1</span>
-    }
+<span class="comment">// Short hands methods for macros</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cb_convert</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">_c</span>: <span class="ident">C</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">value</span>: <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">C</span>::<span class="prelude-ty">Result</span>
+<span class="kw">where</span>
+    <span class="ident">C</span>: <span class="ident">CallbackConverter</span><span class="op">&lt;</span><span class="ident">Source</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
+{
+    <span class="ident">C</span>::<span class="ident">convert_result</span>(<span class="ident">py</span>, <span class="ident">value</span>)
+}
+
+<span class="comment">// Same as cb_convert(PyObjectCallbackConverter&lt;T&gt;, py, value)</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cb_obj_convert</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="ident">py</span>: <span class="ident">Python</span>,
+    <span class="ident">value</span>: <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">PyObjectCallbackConverter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">CallbackConverter</span><span class="op">&gt;</span>::<span class="prelude-ty">Result</span> {
+    <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>::<span class="ident">convert_result</span>(<span class="ident">py</span>, <span class="ident">value</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cb_convert</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">_c</span>: <span class="ident">C</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">value</span>: <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">C</span>::<span class="ident">R</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cb_err</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">_c</span>: <span class="ident">C</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">err</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyErr</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">C</span>::<span class="prelude-ty">Result</span>
 <span class="kw">where</span>
-    <span class="ident">C</span>: <span class="ident">CallbackConverter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">C</span>: <span class="ident">CallbackConverter</span>,
 {
-    <span class="kw">match</span> <span class="ident">value</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">C</span>::<span class="ident">convert</span>(<span class="ident">val</span>, <span class="ident">py</span>),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="ident">e</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
-            <span class="ident">C</span>::<span class="ident">error_value</span>()
-        }
-    }
+    <span class="ident">err</span>.<span class="ident">into</span>().<span class="ident">restore</span>(<span class="ident">py</span>);
+    <span class="ident">C</span>::<span class="ident">ERR_VALUE</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "pyo3";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

@@ -541,13 +541,6 @@
 <span id="541">541</span>
 <span id="542">542</span>
 <span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -562,16 +555,10 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::{<span class="ident">BoolCallbackConverter</span>, <span class="ident">HashConverter</span>, <span class="ident">PyObjectCallbackConverter</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::<span class="ident">PyMethodDef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeInfo</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">FromPyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">IntoPyPointer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
 
 <span class="doccomment">/// Operators for the __richcmp__ method</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
@@ -586,7 +573,7 @@
 
 <span class="doccomment">/// Basic python class customization</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyTypeInfo</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
     <span class="kw">fn</span> <span class="ident">__getattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="self">Self</span>::<span class="ident">Name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectGetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
@@ -788,14 +775,15 @@
                 <span class="kw">return</span> <span class="ident">existing</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">mut_from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
+            <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg</span>);
-
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">extract</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">arg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">slf</span>.<span class="ident">__getattr__</span>(<span class="ident">arg</span>).<span class="ident">into</span>(),
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-            };
-            <span class="kw">crate</span>::<span class="ident">callback</span>::<span class="ident">cb_convert</span>(<span class="ident">PyObjectCallbackConverter</span>, <span class="ident">py</span>, <span class="ident">result</span>)
+            <span class="macro">call_ref_with_converter</span><span class="macro">!</span>(
+                <span class="ident">slf</span>,
+                <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>),
+                <span class="ident">py</span>,
+                <span class="ident">__getattr__</span>,
+                <span class="ident">arg</span>
+            )
         }
         <span class="prelude-val">Some</span>(<span class="ident">wrap</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
     }
@@ -916,8 +904,7 @@
         <span class="macro">py_unary_func</span><span class="macro">!</span>(
             <span class="ident">PyObjectStrProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__str__</span>,
-            <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PyObjectStrProtocol</span><span class="op">&gt;</span>::<span class="ident">Success</span>,
-            <span class="ident">PyObjectCallbackConverter</span>
+            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>)
         )
     }
 }
@@ -941,8 +928,7 @@
         <span class="macro">py_unary_func</span><span class="macro">!</span>(
             <span class="ident">PyObjectReprProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__repr__</span>,
-            <span class="ident">T</span>::<span class="ident">Success</span>,
-            <span class="ident">PyObjectCallbackConverter</span>
+            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>)
         )
     }
 }
@@ -1005,8 +991,7 @@
         <span class="macro">py_unary_func</span><span class="macro">!</span>(
             <span class="ident">PyObjectHashProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__hash__</span>,
-            <span class="ident">isize</span>,
-            <span class="ident">HashConverter</span>,
+            <span class="ident">HashConverter</span>::<span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>),
             <span class="ident">ffi</span>::<span class="ident">Py_hash_t</span>
         )
     }
@@ -1031,7 +1016,6 @@
         <span class="macro">py_unary_func</span><span class="macro">!</span>(
             <span class="ident">PyObjectBoolProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__bool__</span>,
-            <span class="ident">bool</span>,
             <span class="ident">BoolCallbackConverter</span>,
             <span class="ident">c_int</span>
         )
@@ -1064,22 +1048,24 @@
         {
             <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>();
             <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
-            <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
+            <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg</span>);
 
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">extract_op</span>(<span class="ident">op</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">extract</span>() {
-                    <span class="prelude-val">Ok</span>(<span class="ident">arg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">slf</span>.<span class="ident">__richcmp__</span>(<span class="ident">arg</span>, <span class="ident">op</span>).<span class="ident">into</span>(),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-                },
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-            };
-            <span class="kw">match</span> <span class="ident">res</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">into_py</span>(<span class="ident">py</span>).<span class="ident">into_ptr</span>(),
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">e</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
-                    <span class="ident">ptr</span>::<span class="ident">null_mut</span>()
+            <span class="kw">match</span> <span class="ident">slf</span>.<span class="ident">try_borrow</span>() {
+                <span class="prelude-val">Ok</span>(<span class="ident">borrowed_slf</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">extract_op</span>(<span class="ident">op</span>) {
+                        <span class="prelude-val">Ok</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">extract</span>() {
+                            <span class="prelude-val">Ok</span>(<span class="ident">arg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">borrowed_slf</span>.<span class="ident">__richcmp__</span>(<span class="ident">arg</span>, <span class="ident">op</span>).<span class="ident">into</span>(),
+                            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                        },
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                    };
+                    <span class="kw">match</span> <span class="ident">res</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">into_py</span>(<span class="ident">py</span>).<span class="ident">into_ptr</span>(),
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">restore_and_null</span>(<span class="ident">py</span>),
+                    }
                 }
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PyErr</span>::<span class="ident">from</span>(<span class="ident">e</span>).<span class="ident">restore_and_null</span>(<span class="ident">py</span>),
             }
         }
         <span class="prelude-val">Some</span>(<span class="ident">wrap</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)

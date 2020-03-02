@@ -520,52 +520,17 @@
 <span id="520">520</span>
 <span id="521">521</span>
 <span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">basic</span>::<span class="ident">CompareOp</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="self">self</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">exceptions</span>::<span class="ident">TypeError</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">PyNativeType</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeInfo</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyIterator</span>, <span class="ident">PyString</span>, <span class="ident">PyTuple</span>, <span class="ident">PyType</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">IntoPyPointer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Py</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">Py</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>,
+    <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
+};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
 
@@ -727,17 +692,6 @@
 
     <span class="doccomment">/// Gets the Python type pointer for this object.</span>
     <span class="kw">fn</span> <span class="ident">get_type_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>;
-
-    <span class="doccomment">/// Gets the Python base object for this object.</span>
-    <span class="kw">fn</span> <span class="ident">get_base</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">PyTypeInfo</span><span class="op">&gt;</span>::<span class="ident">BaseType</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">PyTypeInfo</span>;
-
-    <span class="doccomment">/// Gets the Python base object for this object.</span>
-
-    <span class="kw">fn</span> <span class="ident">get_mut_base</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">PyTypeInfo</span><span class="op">&gt;</span>::<span class="ident">BaseType</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">PyTypeInfo</span>;
 
     <span class="doccomment">/// Casts the PyObject to a concrete Python object type.</span>
     <span class="kw">fn</span> <span class="ident">cast_as</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">D</span>, <span class="ident">PyDowncastError</span><span class="op">&gt;</span>
@@ -1006,20 +960,6 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">get_type_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span> {
         <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">ob_type</span> }
-    }
-
-    <span class="kw">fn</span> <span class="ident">get_base</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">PyTypeInfo</span><span class="op">&gt;</span>::<span class="ident">BaseType</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">PyTypeInfo</span>,
-    {
-        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) }
-    }
-
-    <span class="kw">fn</span> <span class="ident">get_mut_base</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">PyTypeInfo</span><span class="op">&gt;</span>::<span class="ident">BaseType</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">PyTypeInfo</span>,
-    {
-        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">mut_from_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) }
     }
 
     <span class="kw">fn</span> <span class="ident">cast_as</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">D</span>, <span class="ident">PyDowncastError</span><span class="op">&gt;</span>

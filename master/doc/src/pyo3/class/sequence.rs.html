@@ -524,14 +524,6 @@
 <span id="524">524</span>
 <span id="525">525</span>
 <span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -540,18 +532,14 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::{<span class="ident">BoolCallbackConverter</span>, <span class="ident">LenResultConverter</span>, <span class="ident">PyObjectCallbackConverter</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeInfo</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">FromPyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
 
 <span class="doccomment">/// Sequence interface</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PySequenceProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyTypeInfo</span> <span class="op">+</span> <span class="ident">Sized</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PySequenceProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> <span class="op">+</span> <span class="ident">Sized</span> {
     <span class="kw">fn</span> <span class="ident">__len__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceLenProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
@@ -741,8 +729,7 @@
         <span class="macro">py_ssizearg_func</span><span class="macro">!</span>(
             <span class="ident">PySequenceGetItemProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__getitem__</span>,
-            <span class="ident">T</span>::<span class="ident">Success</span>,
-            <span class="ident">PyObjectCallbackConverter</span>
+            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>)
         )
     }
 }
@@ -802,27 +789,29 @@
             {
                 <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>();
                 <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
-                <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">mut_from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
+                <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
 
-                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
-                    <span class="prelude-val">Err</span>(<span class="ident">PyErr</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">exceptions</span>::<span class="ident">NotImplementedError</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
+                    <span class="kw">return</span> <span class="ident">PyErr</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">exceptions</span>::<span class="ident">NotImplementedError</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;Item deletion is not supported by {:?}&quot;</span>,
                         <span class="macro">stringify</span><span class="macro">!</span>(<span class="ident">T</span>)
-                    )))
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">value</span>);
-                    <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">extract</span>() {
-                        <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">slf</span>.<span class="ident">__setitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>(), <span class="ident">value</span>).<span class="ident">into</span>(),
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-                    }
-                };
+                    ))
+                    .<span class="ident">restore_and_minus1</span>(<span class="ident">py</span>);
+                }
 
+                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">slf</span>.<span class="ident">try_borrow_mut</span>() {
+                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">slf</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">value</span>);
+                        <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">extract</span>() {
+                            <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">slf</span>.<span class="ident">__setitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>(), <span class="ident">value</span>).<span class="ident">into</span>(),
+                            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">into</span>(),
+                        }
+                    }
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">PyErr</span>::<span class="ident">from</span>(<span class="ident">e</span>)),
+                };
                 <span class="kw">match</span> <span class="ident">result</span> {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">e</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
-                        <span class="op">-</span><span class="number">1</span>
-                    }
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">restore_and_minus1</span>(<span class="ident">py</span>),
                 }
             }
             <span class="prelude-val">Some</span>(<span class="ident">wrap</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
@@ -857,10 +846,10 @@
             {
                 <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>();
                 <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
-                <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">mut_from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
+                <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
 
                 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
-                    <span class="ident">slf</span>.<span class="ident">__delitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>()).<span class="ident">into</span>()
+                    <span class="ident">slf</span>.<span class="ident">borrow_mut</span>().<span class="ident">__delitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>()).<span class="ident">into</span>()
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Err</span>(<span class="ident">PyErr</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">exceptions</span>::<span class="ident">NotImplementedError</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="macro">format</span><span class="macro">!</span>(
                         <span class="string">&quot;Item assignment not supported by {:?}&quot;</span>,
@@ -870,10 +859,7 @@
 
                 <span class="kw">match</span> <span class="ident">result</span> {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">e</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
-                        <span class="op">-</span><span class="number">1</span>
-                    }
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">restore_and_minus1</span>(<span class="ident">py</span>),
                 }
             }
             <span class="prelude-val">Some</span>(<span class="ident">wrap</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
@@ -908,23 +894,23 @@
             {
                 <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>();
                 <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
-                <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">mut_from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
+                <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
 
                 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
-                    <span class="ident">slf</span>.<span class="ident">__delitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>()).<span class="ident">into</span>()
+                    <span class="macro">call_mut</span><span class="macro">!</span>(<span class="ident">slf</span>, <span class="ident">__delitem__</span>; <span class="ident">key</span>.<span class="ident">into</span>())
                 } <span class="kw">else</span> {
                     <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">value</span>);
-                    <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">extract</span>() {
-                        <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">slf</span>.<span class="ident">__setitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>(), <span class="ident">value</span>).<span class="ident">into</span>(),
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                    <span class="kw">match</span> <span class="ident">slf</span>.<span class="ident">try_borrow_mut</span>() {
+                        <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">slf_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">extract</span>() {
+                            <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">slf_</span>.<span class="ident">__setitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>(), <span class="ident">value</span>).<span class="ident">into</span>(),
+                            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                        },
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
                     }
                 };
                 <span class="kw">match</span> <span class="ident">result</span> {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">e</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
-                        <span class="op">-</span><span class="number">1</span>
-                    }
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">restore_and_minus1</span>(<span class="ident">py</span>),
                 }
             }
             <span class="prelude-val">Some</span>(<span class="ident">wrap</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
@@ -953,7 +939,6 @@
         <span class="macro">py_binary_func</span><span class="macro">!</span>(
             <span class="ident">PySequenceContainsProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__contains__</span>,
-            <span class="ident">bool</span>,
             <span class="ident">BoolCallbackConverter</span>,
             <span class="ident">c_int</span>
         )
@@ -981,8 +966,7 @@
         <span class="macro">py_binary_func</span><span class="macro">!</span>(
             <span class="ident">PySequenceConcatProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__concat__</span>,
-            <span class="ident">T</span>::<span class="ident">Success</span>,
-            <span class="ident">PyObjectCallbackConverter</span>
+            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>)
         )
     }
 }
@@ -1008,8 +992,7 @@
         <span class="macro">py_ssizearg_func</span><span class="macro">!</span>(
             <span class="ident">PySequenceRepeatProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__repeat__</span>,
-            <span class="ident">T</span>::<span class="ident">Success</span>,
-            <span class="ident">PyObjectCallbackConverter</span>
+            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>)
         )
     }
 }
@@ -1035,8 +1018,9 @@
         <span class="macro">py_binary_func</span><span class="macro">!</span>(
             <span class="ident">PySequenceInplaceConcatProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__inplace_concat__</span>,
-            <span class="ident">T</span>,
-            <span class="ident">PyObjectCallbackConverter</span>
+            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>),
+            <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">PyObject</span>,
+            <span class="ident">call_mut_with_converter</span>
         )
     }
 }
@@ -1062,8 +1046,8 @@
         <span class="macro">py_ssizearg_func</span><span class="macro">!</span>(
             <span class="ident">PySequenceInplaceRepeatProtocol</span>,
             <span class="ident">T</span>::<span class="ident">__inplace_repeat__</span>,
-            <span class="ident">T</span>,
-            <span class="ident">PyObjectCallbackConverter</span>
+            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>),
+            <span class="ident">call_mut_with_converter</span>
         )
     }
 }
