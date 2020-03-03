@@ -850,7 +850,6 @@ impl pyo3::class::methods::PyMethodsInventoryDispatch for MyClass {
 }
 
 pyo3::inventory::collect!(MyClassGeneratedPyo3Inventory);
-
 # let gil = Python::acquire_gil();
 # let py = gil.python();
 # let cls = py.get_type::&lt;MyClass&gt;();
@@ -1005,7 +1004,6 @@ or by <code>self_.into_super()</code> as <code>PyRef&lt;Self::BaseClass&gt;</cod
 # #![allow(unused_variables)]
 #fn main() {
 # use pyo3::prelude::*;
-use pyo3::PyCell;
 
 #[pyclass]
 struct BaseClass {
@@ -1061,16 +1059,49 @@ impl SubSubClass {
       SubClass::method2(super_).map(|x| x * v)
    }
 }
-
-
 # let gil = Python::acquire_gil();
 # let py = gil.python();
 # let subsub = pyo3::PyCell::new(py, SubSubClass::new()).unwrap();
 # pyo3::py_run!(py, subsub, &quot;assert subsub.method3() == 3000&quot;)
 #}</code></pre></pre>
+<p>You can also inherit native types such as <code>PyDict</code>, if it implements
+<a href="https://pyo3.rs/master/doc/pyo3/type_object/trait.PySizedLayout.html"><code>PySizedLayout</code></a>.</p>
+<p>However, because of some technical problems, now we don't provide safe upcast methods for types
+that inherit native types. Even in such cases, you can get a base class by raw pointer conversion.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+# use pyo3::prelude::*;
+use pyo3::types::{PyAny, PyDict};
+use pyo3::{AsPyPointer, PyNativeType};
+use std::collections::HashMap;
+
+#[pyclass(extends=PyDict)]
+#[derive(Default)]
+struct DictWithCounter {
+    counter: HashMap&lt;String, usize&gt;,
+}
+
+#[pymethods]
+impl DictWithCounter {
+   #[new]
+   fn new() -&gt; Self {
+       Self::default()
+   }
+   fn set(mut self_: PyRefMut&lt;Self&gt;, key: String, value: &amp;PyAny) -&gt; PyResult&lt;()&gt; {
+       self_.counter.entry(key.clone()).or_insert(0);
+       let py = self_.py();
+       let dict: &amp;PyDict = unsafe { py.from_borrowed_ptr_or_err(self_.as_ptr())? };
+       dict.set_item(key, value)
+   }
+}
+# let gil = Python::acquire_gil();
+# let py = gil.python();
+# let cnt = pyo3::PyCell::new(py, DictWithCounter::new()).unwrap();
+# pyo3::py_run!(py, cnt, &quot;cnt.set('abc', 10); assert cnt['abc'] == 10&quot;)
+#}</code></pre></pre>
 <p>If <code>SubClass</code> does not provide a baseclass initialization, the compilation fails.</p>
 <pre><code class="language-compile_fail"># use pyo3::prelude::*;
-use pyo3::PyCell;
 
 #[pyclass]
 struct BaseClass {
@@ -1097,14 +1128,13 @@ annotated with <code>#[getter]</code> and <code>#[setter]</code> attributes. For
 # #![allow(unused_variables)]
 #fn main() {
 # use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {
-#    num: i32,
-# }
-#
+#[pyclass]
+struct MyClass {
+   num: i32,
+}
+
 #[pymethods]
 impl MyClass {
-
      #[getter]
      fn num(&amp;self) -&gt; PyResult&lt;i32&gt; {
         Ok(self.num)
@@ -1126,10 +1156,8 @@ can be used since Rust 2018).</p>
 # struct MyClass {
 #    num: i32,
 # }
-#
 #[pymethods]
 impl MyClass {
-
      #[getter]
      fn get_num(&amp;self) -&gt; PyResult&lt;i32&gt; {
         Ok(self.num)
@@ -1153,10 +1181,8 @@ If this parameter is specified, it is used as the property name, i.e.</p>
 # struct MyClass {
 #    num: i32,
 # }
-#
 #[pymethods]
 impl MyClass {
-
      #[getter(number)]
      fn num(&amp;self) -&gt; PyResult&lt;i32&gt; {
         Ok(self.num)
@@ -1195,10 +1221,8 @@ block with some variations, like descriptors, class method static methods, etc.<
 # struct MyClass {
 #    num: i32,
 # }
-#
 #[pymethods]
 impl MyClass {
-
      fn method1(&amp;self) -&gt; PyResult&lt;i32&gt; {
         Ok(10)
      }
@@ -1223,7 +1247,6 @@ gets injected by the method wrapper, e.g.</p>
 #    num: i32,
 #    debug: bool,
 # }
-
 #[pymethods]
 impl MyClass {
      fn method2(&amp;self, py: Python) -&gt; PyResult&lt;i32&gt; {
@@ -1245,7 +1268,6 @@ with the <code>#[classmethod]</code> attribute.</p>
 #    num: i32,
 #    debug: bool,
 # }
-
 #[pymethods]
 impl MyClass {
      #[classmethod]
@@ -1275,7 +1297,6 @@ This may be the type object of a derived class.</li>
 #    num: i32,
 #    debug: bool,
 # }
-
 #[pymethods]
 impl MyClass {
      #[staticmethod]
@@ -1297,7 +1318,6 @@ use pyo3::types::PyTuple;
 #    num: i32,
 #    debug: bool,
 # }
-
 #[pymethods]
 impl MyClass {
      #[call]
@@ -1339,7 +1359,6 @@ use pyo3::types::{PyDict, PyTuple};
 #    num: i32,
 #    debug: bool,
 # }
-#
 #[pymethods]
 impl MyClass {
     #[new]
@@ -1518,7 +1537,7 @@ It includes two methods <code>__iter__</code> and <code>__next__</code>:</p>
 # #![allow(unused_variables)]
 #fn main() {
 use pyo3::prelude::*;
-use pyo3::{PyIterProtocol, PyCell};
+use pyo3::PyIterProtocol;
 
 #[pyclass]
 struct MyIterator {
