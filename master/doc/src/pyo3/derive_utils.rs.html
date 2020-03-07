@@ -310,7 +310,7 @@
                 <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">nargs</span> {
                     <span class="macro">raise_error</span><span class="macro">!</span>(<span class="string">&quot;got multiple values for argument: {}&quot;</span>, <span class="ident">p</span>.<span class="ident">name</span>)
                 }
-                <span class="ident">kwargs</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">del_item</span>(<span class="ident">p</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>();
+                <span class="ident">kwargs</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">del_item</span>(<span class="ident">p</span>.<span class="ident">name</span>)<span class="question-mark">?</span>;
                 <span class="prelude-val">Some</span>(<span class="ident">kwarg</span>)
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
