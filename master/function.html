@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Python Function - PyO3 user guide</title>
+        <title>Python Functions - PyO3 user guide</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="PyO3 user guide">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Get Started</a></li><li><a href="conversions.html"><strong aria-hidden="true">2.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">3.</strong> Python Exception</a></li><li><a href="module.html"><strong aria-hidden="true">4.</strong> Python Module</a></li><li><a href="function.html" class="active"><strong aria-hidden="true">5.</strong> Python Function</a></li><li><a href="class.html"><strong aria-hidden="true">6.</strong> Python Class</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Call Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
+            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html" class="active"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -139,17 +139,15 @@
                         <a class="header" href="#python-functions" id="python-functions"><h1>Python Functions</h1></a>
 <p>PyO3 supports two ways to define a free function in Python. Both require registering
 the function to a <a href="./module.html">module</a>.</p>
-<p>One way is defining the function in the module definition.</p>
+<p>One way is defining the function in the module definition, annotated with <code>#[pyfn]</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
 
 #[pymodule]
 fn rust2py(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 
-    // Note that the `#[pyfn()]` annotation automatically converts the arguments from
-    // Python objects to Rust values; and the Rust return value back into a Python object.
     #[pyfn(m, &quot;sum_as_string&quot;)]
     fn sum_as_string_py(_py: Python, a:i64, b:i64) -&gt; PyResult&lt;String&gt; {
-       Ok(format!(&quot;{}&quot;, a + b))
+        Ok(format!(&quot;{}&quot;, a + b))
     }
 
     Ok(())
@@ -203,7 +201,9 @@ fn module_with_functions(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; 
 <a class="header" href="#making-the-function-signature-available-to-python" id="making-the-function-signature-available-to-python"><h2>Making the function signature available to Python</h2></a>
 <p>In order to make the function signature available to Python to be retrieved via
 <code>inspect.signature</code>, use the <code>#[text_signature]</code> annotation as in the example
-below. The <code>/</code> signifies the end of positional-only arguments.</p>
+below. The <code>/</code> signifies the end of positional-only arguments. (This
+is not a feature of this library in particular, but the general format used by
+CPython for annotating signatures of built-in functions.)</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -257,9 +257,7 @@ impl MyClass {
 <a class="header" href="#making-the-function-signature-available-to-python-old-method" id="making-the-function-signature-available-to-python-old-method"><h3>Making the function signature available to Python (old method)</h3></a>
 <p>Alternatively, simply make sure the first line of your docstring is
 formatted like in the following example. Please note that the newline after the
-<code>--</code> is mandatory. The <code>/</code> signifies the end of positional-only arguments. This
-is not a feature of this library in particular, but the general format used by
-CPython for annotating signatures of built-in functions.</p>
+<code>--</code> is mandatory. The <code>/</code> signifies the end of positional-only arguments.</p>
 <p><code>#[text_signature]</code> should be preferred, since it will override automatically
 generated signatures when those are added in a future version of PyO3.</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -295,10 +293,10 @@ Type:      builtin_function_or_method
 </code></pre>
 <a class="header" href="#closures" id="closures"><h2>Closures</h2></a>
 <p>Currently, there are no conversions between <code>Fn</code>s in Rust and callables in Python. This would definitely be possible and very useful, so contributions are welcome. In the meantime, you can do the following:</p>
-<a class="header" href="#calling-a-python-function-in-rust" id="calling-a-python-function-in-rust"><h3>Calling a Python function in Rust</h3></a>
-<p>You can use <code>ObjectProtocol::is_callable</code> to check if you got a callable, which is true for functions (including lambdas), methods and objects with a <code>__call__</code> method. You can call the object with <code>ObjectProtocol::call</code> with the args as first parameter and the kwargs (or <code>None</code>) as second parameter. There are also <code>ObjectProtocol::call0</code> with no args and <code>ObjectProtocol::call1</code> with only the positional args.</p>
-<a class="header" href="#calling-rust-fns-in-python" id="calling-rust-fns-in-python"><h3>Calling Rust <code>Fn</code>s in Python</h3></a>
-<p>If you have a static function, you can expose it with <code>#[pyfunction]</code> and use <code>wrap_pyfunction!</code> to get the corresponding <code>PyObject</code>. For dynamic functions, e.g. lambda and functions that were passed as arguments, you must put them in some kind of owned container, e.g. a box. (A long-term solution will be a special container similar to wasm-bindgen's <code>Closure</code>). You can then use a <code>#[pyclass]</code> struct with that container as a field as a way to pass the function over the FFI barrier. You can even make that class callable with <code>__call__</code> so it looks like a function in Python code.</p>
+<a class="header" href="#calling-python-functions-in-rust" id="calling-python-functions-in-rust"><h3>Calling Python functions in Rust</h3></a>
+<p>You can use <code>ObjectProtocol::is_callable</code> to check if you have a callable object. <code>is_callable</code> will return <code>true</code> for functions (including lambdas), methods and objects with a <code>__call__</code> method. You can call the object with <code>ObjectProtocol::call</code> with the args as first parameter and the kwargs (or <code>None</code>) as second parameter. There are also <code>ObjectProtocol::call0</code> with no args and <code>ObjectProtocol::call1</code> with only positional args.</p>
+<a class="header" href="#calling-rust-functions-in-python" id="calling-rust-functions-in-python"><h3>Calling Rust functions in Python</h3></a>
+<p>If you have a static function, you can expose it with <code>#[pyfunction]</code> and use <code>wrap_pyfunction!</code> to get the corresponding <code>PyObject</code>. For dynamic functions, e.g. lambdas and functions that were passed as arguments, you must put them in some kind of owned container, e.g. a <code>Box</code>. (A long-term solution will be a special container similar to wasm-bindgen's <code>Closure</code>). You can then use a <code>#[pyclass]</code> struct with that container as a field as a way to pass the function over the FFI barrier. You can even make that class callable with <code>__call__</code> so it looks like a function in Python code.</p>
 
                     </main>
 

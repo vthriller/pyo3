@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Get Started</a></li><li><a href="conversions.html" class="active"><strong aria-hidden="true">2.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">3.</strong> Python Exception</a></li><li><a href="module.html"><strong aria-hidden="true">4.</strong> Python Module</a></li><li><a href="function.html"><strong aria-hidden="true">5.</strong> Python Function</a></li><li><a href="class.html"><strong aria-hidden="true">6.</strong> Python Class</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Call Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
+            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html" class="active"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -138,21 +138,34 @@
                     <main>
                         <a class="header" href="#type-conversions" id="type-conversions"><h1>Type Conversions</h1></a>
 <p>PyO3 provides some handy traits to convert between Python types and Rust types.</p>
-<a class="header" href="#extract" id="extract"><h2><code>.extract()</code></h2></a>
-<p>The easiest way to convert a Python object to a Rust value is using <code>.extract()?</code>.</p>
-<a class="header" href="#topyobject-trait" id="topyobject-trait"><h2><code>ToPyObject</code> trait</h2></a>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> trait is a conversion trait that allows various objects to be
+<a class="header" href="#extract-and-the-frompyobject-trait" id="extract-and-the-frompyobject-trait"><h2><code>.extract()</code> and the <code>FromPyObject</code> trait</h2></a>
+<p>The easiest way to convert a Python object to a Rust value is using
+<code>.extract()</code>.  It returns a <code>PyResult</code> with a type error if the conversion
+fails, so usually you will use something like</p>
+<pre><code class="language-ignore">let v: Vec&lt;i32&gt; = obj.extract()?;
+</code></pre>
+<p>This method is available for many Python object types, and can produce a wide
+variety of Rust types, which you can check out in the implementor list of
+[<code>FromPyObject</code>][FromPyObject].</p>
+<p><code>FromPyObject</code> is also implemented for your own Rust types wrapped as Python
+objects (see <a href="class.html">the chapter about classes</a>).  There, in order to both be
+able to operate on mutable references <em>and</em> satisfy Rust's rules of non-aliasing
+mutable references, you have to extract the PyO3 reference wrappers <code>PyRef&lt;T&gt;</code>
+and <code>PyRefMut&lt;T&gt;</code>.  They work like the reference wrappers of
+<code>std::cell::RefCell</code> and ensure (at runtime) that Rust borrows are allowed.</p>
+<a class="header" href="#the-topyobject-trait" id="the-topyobject-trait"><h2>The <code>ToPyObject</code> trait</h2></a>
+<p><a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> is a conversion trait that allows various objects to be
 converted into <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyObject.html"><code>PyObject</code></a>. <code>IntoPy&lt;PyObject&gt;</code> serves the
 same purpose, except that it consumes <code>self</code>.</p>
-<a class="header" href="#frompyobject-and-reffrompyobject-trait" id="frompyobject-and-reffrompyobject-trait"><h2><code>FromPyObject</code> and <code>RefFromPyObject</code> trait</h2></a>
-<a class="header" href="#args-and-kwargs-for-python-object-call" id="args-and-kwargs-for-python-object-call"><h2><code>*args</code> and <code>**kwargs</code> for python object call</h2></a>
+<a class="header" href="#args-and-kwargs-for-python-object-calls" id="args-and-kwargs-for-python-object-calls"><h2><code>*args</code> and <code>**kwargs</code> for Python object calls</h2></a>
 <p>There are several ways how to pass positional and keyword arguments to a Python object call.
 The <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html"><code>ObjectProtocol</code></a> trait provides two methods:</p>
 <ul>
 <li><code>call</code> - call any callable Python object.</li>
 <li><code>call_method</code> - call a specific method on the object, shorthand for <code>get_attr</code> then <code>call</code>.</li>
 </ul>
-<p>Both methods accept <code>args</code> and <code>kwargs</code> arguments.</p>
+<p>Both methods need <code>args</code> and <code>kwargs</code> arguments, but there are variants for less
+complex calls, such as <code>call1</code> for only <code>args</code> and <code>call0</code> for no arguments at all.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyTuple};
 
@@ -186,7 +199,9 @@ fn main() {
 }
 </code></pre></pre>
 <p><code>kwargs</code> can be <code>None</code> or <code>Some(&amp;PyDict)</code>. You can use the
-<a href="https://docs.rs/pyo3/latest/pyo3/types/trait.IntoPyDict.html"><code>IntoPyDict</code></a> trait to convert other dict-like containers, e.g. <code>HashMap</code>, <code>BTreeMap</code> as well as tuples with up to 10 elements and <code>Vec</code>s where each element is a two-element tuple.</p>
+<a href="https://docs.rs/pyo3/latest/pyo3/types/trait.IntoPyDict.html"><code>IntoPyDict</code></a> trait to convert other dict-like containers,
+e.g. <code>HashMap</code> or <code>BTreeMap</code>, as well as tuples with up to 10 elements and
+<code>Vec</code>s where each element is a two-element tuple.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::types::{IntoPyDict, PyDict};
 use std::collections::HashMap;
@@ -225,8 +240,8 @@ fn main() {
 }
 </code></pre></pre>
 <a class="header" href="#frompyt-and-intopyt" id="frompyt-and-intopyt"><h2><code>FromPy&lt;T&gt;</code> and <code>IntoPy&lt;T&gt;</code></h2></a>
-<p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token. The <code>FromPy&lt;T&gt;</code> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument. I.e. FromPy<T> could be converting a rust object into a python object even though it says <code>FromPy</code> - it doesn't say anything about which side of the conversion is a python object.</p>
-<p>(Just like From<T>, if you implement FromPy<T> you gain a blanket implementation of IntoPy<T> for free.)</p>
+<p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token. The <code>FromPy&lt;T&gt;</code> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument. I.e. <code>FromPy&lt;T&gt;</code> could be converting a Rust object into a Python object even though it is called <code>FromPy</code> - it doesn't say anything about which side of the conversion is a Python object.</p>
+<p>Just like From<T>, if you implement FromPy<T> you gain a blanket implementation of IntoPy<T> for free.</p>
 <p>Eventually, traits such as <code>ToPyObject</code> will be replaced by this trait and a <code>FromPy</code> trait will be added that will implement <code>IntoPy</code>, just like with <code>From</code> and <code>Into</code>.</p>
 
                     </main>
@@ -234,7 +249,7 @@ fn main() {
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="get_started.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="class.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
@@ -252,7 +267,7 @@ fn main() {
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="get_started.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="class.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 

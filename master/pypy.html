@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Get Started</a></li><li><a href="conversions.html"><strong aria-hidden="true">2.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">3.</strong> Python Exception</a></li><li><a href="module.html"><strong aria-hidden="true">4.</strong> Python Module</a></li><li><a href="function.html"><strong aria-hidden="true">5.</strong> Python Function</a></li><li><a href="class.html"><strong aria-hidden="true">6.</strong> Python Class</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Call Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html" class="active"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
+            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html" class="active"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -138,11 +138,11 @@
                     <main>
                         <a class="header" href="#pypy-support" id="pypy-support"><h1>PyPy Support</h1></a>
 <p>Using PyPy is supported via cpyext.</p>
-<p>Support is only provided for building rust extension for code running under PyPy. This means PyPy <strong>cannot</strong> be called from rust via cpyext. Note that there some differences in the ffi module between pypy and cpython.</p>
-<p>This is a limitation of cpyext and supported for embedding cpyext is not planned.</p>
-<p>Compilation against PyPy is done by exporting the <code>PYTHON_SYS_EXECUTABLE</code> to a pypy binary or by compiling in a PyPy virtualenv.</p>
+<p>Support is only provided for building Rust extension for code running under PyPy. This means that PyPy <strong>cannot</strong> be called from rust via cpyext. Note that there some differences in the ffi module between PyPy and CPython.</p>
+<p>This is a limitation of cpyext and support for embedding cpyext is not planned.</p>
+<p>Compilation against PyPy is done by exporting the <code>PYTHON_SYS_EXECUTABLE</code> to point to a PyPy binary or by compiling in a PyPy virtualenv.</p>
 <p>For example, <code>PYTHON_SYS_EXECUTABLE=&quot;/path/to/pypy3&quot; /path/to/pypy3 setup.py install</code></p>
-<a class="header" href="#unsupported-features" id="unsupported-features"><h2>Unsupported Features</h2></a>
+<a class="header" href="#unsupported-features" id="unsupported-features"><h2>Unsupported features</h2></a>
 <p>These are features currently supported by PyO3, but not yet implemented in cpyext.</p>
 <ul>
 <li>Complex number functions (<code>_Py_c_sum</code>, <code>_Py_c_sum</code> ..)</li>

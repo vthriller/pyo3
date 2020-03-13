@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Python Exception - PyO3 user guide</title>
+        <title>Python Exceptions - PyO3 user guide</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="PyO3 user guide">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Get Started</a></li><li><a href="conversions.html"><strong aria-hidden="true">2.</strong> Type Conversions</a></li><li><a href="exception.html" class="active"><strong aria-hidden="true">3.</strong> Python Exception</a></li><li><a href="module.html"><strong aria-hidden="true">4.</strong> Python Module</a></li><li><a href="function.html"><strong aria-hidden="true">5.</strong> Python Function</a></li><li><a href="class.html"><strong aria-hidden="true">6.</strong> Python Class</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Call Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
+            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html" class="active"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -137,7 +137,7 @@
                 <div id="content" class="content">
                     <main>
                         <a class="header" href="#python-exceptions" id="python-exceptions"><h1>Python Exceptions</h1></a>
-<a class="header" href="#define-a-new-exception" id="define-a-new-exception"><h2>Define a new exception</h2></a>
+<a class="header" href="#defining-a-new-exception" id="defining-a-new-exception"><h2>Defining a new exception</h2></a>
 <p>You can use the <code>create_exception!</code> macro to define a new exception type:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -167,7 +167,7 @@ fn main() {
     py.run(&quot;assert CustomError('oops').args == ('oops',)&quot;, None, Some(&amp;ctx)).unwrap();
 }
 </code></pre></pre>
-<a class="header" href="#raise-an-exception" id="raise-an-exception"><h2>Raise an exception</h2></a>
+<a class="header" href="#raising-an-exception" id="raising-an-exception"><h2>Raising an exception</h2></a>
 <p>To raise an exception, first you need to obtain an exception type and construct a new <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a>, then call the <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.restore"><code>PyErr::restore()</code></a> method to write the exception back to the Python interpreter's global state.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::{Python, PyErr};
 use pyo3::exceptions;
@@ -180,10 +180,13 @@ fn main() {
     drop(PyErr::fetch(py));
 }
 </code></pre></pre>
-<p>If you already have a Python exception instance, you can simply call <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.from_instance"><code>PyErr::from_instance()</code></a>.</p>
+<p>From <code>pyfunction</code>s and <code>pyclass</code> methods, returning an <code>Err(PyErr)</code> is enough;
+PyO3 will handle restoring the exception on the Python interpreter side.</p>
+<p>If you already have a Python exception instance, you can simply call
+<a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.from_instance"><code>PyErr::from_instance()</code></a>.</p>
 <pre><code class="language-rust ignore">PyErr::from_instance(py, err).restore(py);
 </code></pre>
-<p>If a Rust type exists for the exception, then it is possible to use the <code>new</code> method.
+<p>If a Rust type exists for the exception, then it is possible to use the <code>py_err</code> method.
 For example, each standard exception defined in the <code>pyo3::exceptions</code> module
 has a corresponding Rust type, exceptions defined by <code>create_exception!</code> and <code>import_exception!</code> macro
 have Rust types as well.</p>
@@ -201,7 +204,7 @@ fn my_func(arg: PyObject) -&gt; PyResult&lt;()&gt; {
     }
 }
 #}</code></pre></pre>
-<a class="header" href="#check-exception-type" id="check-exception-type"><h2>Check exception type</h2></a>
+<a class="header" href="#checking-exception-types" id="checking-exception-types"><h2>Checking exception types</h2></a>
 <p>Python has an <a href="https://docs.python.org/3/library/functions.html#isinstance"><code>isinstance</code></a> method to check an object's type,
 in PyO3 there is a <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.is_instance"><code>Python::is_instance()</code></a> method which does the same thing.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::Python;
@@ -227,7 +230,7 @@ fn main() {
 err.is_instance::&lt;exceptions::TypeError&gt;(py);
 # }
 </code></pre></pre>
-<a class="header" href="#handle-rust-errors" id="handle-rust-errors"><h2>Handle Rust Errors</h2></a>
+<a class="header" href="#handling-rust-errors" id="handling-rust-errors"><h2>Handling Rust errors</h2></a>
 <p>The vast majority of operations in this library will return <a href="https://docs.rs/pyo3/latest/pyo3/prelude/type.PyResult.html"><code>PyResult&lt;T&gt;</code></a>.
 This is an alias for the type <code>Result&lt;T, PyErr&gt;</code>.</p>
 <p>A <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a> represents a Python exception.
@@ -277,7 +280,7 @@ fn connect(s: String) -&gt; PyResult&lt;bool&gt; {
 #}</code></pre></pre>
 <p>The code snippet above will raise an <code>OSError</code> in Python if <code>bind()</code> returns a <code>CustomIOError</code>.</p>
 <p>The <code>std::convert::From&lt;T&gt;</code> trait is implemented for most of the Rust standard library's error
-types so the <code>try!</code> macro or the <code>?</code> operator can be used.</p>
+types so the <code>?</code> operator can be used.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -288,7 +291,7 @@ fn parse_int(s: String) -&gt; PyResult&lt;usize&gt; {
 }
 #}</code></pre></pre>
 <p>The code snippet above will raise a <code>ValueError</code> in Python if <code>String::parse()</code> returns an error.</p>
-<a class="header" href="#using-exceptions-defined-in-python-code" id="using-exceptions-defined-in-python-code"><h2>Using exceptions defined in python code</h2></a>
+<a class="header" href="#using-exceptions-defined-in-python-code" id="using-exceptions-defined-in-python-code"><h2>Using exceptions defined in Python code</h2></a>
 <p>It is possible to use an exception defined in Python code as a native Rust type.
 The <code>import_exception!</code> macro allows importing a specific exception class and defines a zero-sized Rust type
 for that exception.</p>
@@ -327,7 +330,7 @@ defines exceptions for several standard library modules.</p>
                         
 
                         
-                            <a rel="next" href="module.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="python_from_rust.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -345,7 +348,7 @@ defines exceptions for several standard library modules.</p>
                 
 
                 
-                    <a href="module.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="python_from_rust.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
