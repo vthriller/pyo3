@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Get Started</a></li><li><a href="conversions.html"><strong aria-hidden="true">2.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">3.</strong> Python Exception</a></li><li><a href="module.html"><strong aria-hidden="true">4.</strong> Python Module</a></li><li><a href="function.html"><strong aria-hidden="true">5.</strong> Python Function</a></li><li><a href="class.html"><strong aria-hidden="true">6.</strong> Python Class</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Call Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix: PyO3 and rust-cpython</a></li></ol>
+            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Get Started</a></li><li><a href="conversions.html"><strong aria-hidden="true">2.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">3.</strong> Python Exception</a></li><li><a href="module.html"><strong aria-hidden="true">4.</strong> Python Module</a></li><li><a href="function.html"><strong aria-hidden="true">5.</strong> Python Function</a></li><li><a href="class.html"><strong aria-hidden="true">6.</strong> Python Class</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Call Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -805,6 +805,7 @@ unsafe impl pyo3::PyTypeInfo for MyClass {
     type BaseLayout = pyo3::pycell::PyCellBase&lt;PyAny&gt;;
     type Layout = PyCell&lt;Self&gt;;
     type Initializer = PyClassInitializer&lt;Self&gt;;
+    type AsRefTarget = PyCell&lt;Self&gt;;
 
     const NAME: &amp;'static str = &quot;MyClass&quot;;
     const MODULE: Option&lt;&amp;'static str&gt; = None;
@@ -1789,7 +1790,7 @@ cargo build --target armv7-unknown-linux-gnueabihf
 <li><code>PySequence_Count</code> (which is used to count number of element in array)</li>
 <li><code>PyDict_MergeFromSeq2</code> (used in <code>PyDict::from_sequence</code>)</li>
 </ul>
-<a class="header" href="#appendix-pyo3-and-rust-cpython" id="appendix-pyo3-and-rust-cpython"><h1>Appendix: PyO3 and rust-cpython</h1></a>
+<a class="header" href="#appendix-a-pyo3-and-rust-cpython" id="appendix-a-pyo3-and-rust-cpython"><h1>Appendix A: PyO3 and rust-cpython</h1></a>
 <p>PyO3 began as fork of <a href="https://github.com/dgrunwald/rust-cpython">rust-cpython</a> when rust-cpython wasn't maintained. Over the time PyO3 has become fundamentally different from rust-cpython.</p>
 <p>This chapter is based on the discussion in <a href="https://github.com/PyO3/pyo3/issues/55">PyO3/pyo3#55</a>.</p>
 <a class="header" href="#macros-1" id="macros-1"><h2>Macros</h2></a>
@@ -1851,6 +1852,169 @@ impl MyClass {
 <a class="header" href="#error-handling" id="error-handling"><h2>Error handling</h2></a>
 <p>rust-cpython requires a <code>Python</code> parameter for constructing a <code>PyErr</code>, so error handling ergonomics is pretty bad. It is not possible to use <code>?</code> with Rust errors.</p>
 <p>PyO3 on other hand does not require <code>Python</code> for constructing a <code>PyErr</code>, it is only required if you want to raise an exception in Python with the <code>PyErr::restore()</code> method. Due to various <code>std::convert::From&lt;E&gt; for PyErr</code> implementations for Rust standard error types <code>E</code>, propagating <code>?</code> is supported automatically.</p>
+<a class="header" href="#appendix-b-migrating-from-older-pyo3-versions" id="appendix-b-migrating-from-older-pyo3-versions"><h1>Appendix B: Migrating from older PyO3 versions</h1></a>
+<p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next. For a detailed list of all changes, see <a href="https://github.com/PyO3/pyo3/blob/master/CHANGELOG.md">CHANGELOG.md</a></p>
+<a class="header" href="#from-08-to-09" id="from-08-to-09"><h2>from 0.8.* to 0.9</h2></a>
+<a class="header" href="#new-interface" id="new-interface"><h3><code>#[new]</code> interface</h3></a>
+<p><a href="https://docs.rs/pyo3/0.8.5/pyo3/type_object/struct.PyRawObject.html"><code>PyRawObject</code></a>
+is now removed and our syntax for constructors has changed.</p>
+<p>Before:</p>
+<pre><code class="language-compile_fail">#[pyclass]
+struct MyClass {}
+
+#[pymethods]
+impl MyClass {
+   #[new]
+   fn new(obj: &amp;PyRawObject) {
+       obj.init(MyClass { })
+   }
+}
+</code></pre>
+<p>After:</p>
+<pre><code># use pyo3::prelude::*;
+#[pyclass]
+struct MyClass {}
+
+#[pymethods]
+impl MyClass {
+   #[new]
+   fn new() -&gt; Self {
+       MyClass {}
+   }
+}
+</code></pre>
+<p>Basically you can return <code>Self</code> or <code>Result&lt;Self&gt;</code> directly.
+For more, see <a href="https://pyo3.rs/master/class.html#constructor">the constructor section</a> of this guide.</p>
+<a class="header" href="#pycell" id="pycell"><h3>PyCell</h3></a>
+<p>PyO3 0.9 introduces <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is
+a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
+for ensuring Rust's rules regarding aliasing of references are upheld.
+For more detail, see the
+<a href="https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html#the-rules-of-references">Rust Book's section on Rust's rules of references</a></p>
+<p>For <code>#[pymethods]</code> or <code>#[pyfunction]</code>s, your existing code should continue to work without any change.
+Python exceptions will automatically be raised when your functions are used in a way which breaks Rust's
+rules of references.</p>
+<p>Here is an example.</p>
+<pre><code># use pyo3::prelude::*;
+#[pyclass]
+struct Names {
+    names: Vec&lt;String&gt;
+}
+
+#[pymethods]
+impl Names {
+    #[new]
+    fn new() -&gt; Self {
+        Names { names: vec![] }
+    }
+    fn merge(&amp;mut self, other: &amp;mut Names) {
+        self.names.append(&amp;mut other.names)
+    }
+}
+# let gil = Python::acquire_gil();
+# let py = gil.python();
+# let names = PyCell::new(py, Names::new()).unwrap();
+# let borrow_mut_err = py.get_type::&lt;pyo3::pycell::PyBorrowMutError&gt;();
+# pyo3::py_run!(py, names borrow_mut_err, r&quot;
+# try:
+#    names.merge(names)
+#    assert False, 'Unreachable'
+# except Exception as e:
+#    isinstance(e, borrow_mut_err)
+# &quot;);
+</code></pre>
+<p><code>Names</code> has a <code>merge</code> method, which takes <code>&amp;mut self</code> and another argument of type <code>&amp;mut Self</code>.
+Given this <code>#[pyclass]</code>, calling <code>names.merge(names)</code> in Python raises a <code>PyBorrowMutError</code> exception,
+since it requires two mutable borrows of <code>names</code>.</p>
+<p>However, for <code>#[pyproto]</code> and some functions, you need to manually fix the code.</p>
+<a class="header" href="#object-creation" id="object-creation"><h4>Object creation</h4></a>
+<p>In 0.8 object creation was done with <code>PyRef::new</code> and <code>PyRefMut::new</code>.
+In 0.9 these have both been removed.
+To upgrade code, please use <code>PyCell::new</code> instead.
+If a <code>PyRef</code> or <code>PyRefMut</code> is needed, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
+on the newly-created <code>PyCell</code>.</p>
+<p>Before:</p>
+<pre><code class="language-compile_fail"># use pyo3::prelude::*;
+# #[pyclass]
+# struct MyClass {}
+let gil = Python::acquire_gil();
+let py = gil.python();
+let obj_ref = PyRef::new(py, MyClass {}).unwrap();
+</code></pre>
+<p>After:</p>
+<pre><code># use pyo3::prelude::*;
+# #[pyclass]
+# struct MyClass {}
+let gil = Python::acquire_gil();
+let py = gil.python();
+let obj = PyCell::new(py, MyClass {}).unwrap();
+let obj_ref = obj.borrow();
+</code></pre>
+<a class="header" href="#object-extraction" id="object-extraction"><h4>Object extraction</h4></a>
+<p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <code>FromPyObject</code> implementations.
+Instead you should extract <code>PyRef&lt;T&gt;</code> or <code>PyRefMut&lt;T&gt;</code>, respectively.
+If <code>T</code> implements <code>Clone</code>, you can extract <code>T</code> itself.
+In addition, you can also extract <code>&amp;PyCell&lt;T&gt;</code>, though you rarely need it.</p>
+<p>Before:</p>
+<pre><code class="language-ignore">let obj: &amp;PyAny = create_obj();
+let obj_ref: &amp;MyClass = obj.extract().unwrap();
+let obj_ref_mut: &amp;mut MyClass = obj.extract().unwrap();
+</code></pre>
+<p>After:</p>
+<pre><code># use pyo3::prelude::*;
+# use pyo3::types::{PyAny, IntoPyDict};
+# #[pyclass] #[derive(Clone)] struct MyClass {}
+# #[pymethods] impl MyClass { #[new]fn new() -&gt; Self { MyClass {} }}
+# let gil = Python::acquire_gil();
+# let py = gil.python();
+# let typeobj = py.get_type::&lt;MyClass&gt;();
+# let d = [(&quot;c&quot;, typeobj)].into_py_dict(py);
+# let create_obj = || py.eval(&quot;c()&quot;, None, Some(d)).unwrap();
+let obj: &amp;PyAny = create_obj();
+let obj_cell: &amp;PyCell&lt;MyClass&gt; = obj.extract().unwrap();
+let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the object
+{
+    let obj_ref: PyRef&lt;MyClass&gt; = obj.extract().unwrap();
+    // we need to drop obj_ref before we can extract a PyRefMut due to Rust's rules of references
+}
+let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
+</code></pre>
+<a class="header" href="#pyproto" id="pyproto"><h4><code>#[pyproto]</code></h4></a>
+<p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a [<code>FromPyObject</code>] implementation.
+So if your protocol methods take <code>&amp;T</code> or <code>&amp;mut T</code> (where <code>T: PyClass</code>),
+please use <code>PyRef</code> or <code>PyRefMut</code> instead.</p>
+<p>Before:</p>
+<pre><code class="language-compile_fail"># use pyo3::prelude::*;
+# use pyo3::class::PySequenceProtocol;
+#[pyclass]
+struct ByteSequence {
+    elements: Vec&lt;u8&gt;,
+}
+#[pyproto]
+impl PySequenceProtocol for ByteSequence {
+    fn __concat__(&amp;self, other: &amp;Self) -&gt; PyResult&lt;Self&gt; {
+        let mut elements = self.elements.clone();
+        elements.extend_from_slice(&amp;other.elements);
+        Ok(Self { elements })
+    }
+}
+</code></pre>
+<p>After:</p>
+<pre><code># use pyo3::prelude::*;
+# use pyo3::class::PySequenceProtocol;
+#[pyclass]
+struct ByteSequence {
+    elements: Vec&lt;u8&gt;,
+}
+#[pyproto]
+impl PySequenceProtocol for ByteSequence {
+    fn __concat__(&amp;self, other: PyRef&lt;'p, Self&gt;) -&gt; PyResult&lt;Self&gt; {
+        let mut elements = self.elements.clone();
+        elements.extend_from_slice(&amp;other.elements);
+        Ok(Self { elements })
+    }
+}
+</code></pre>
 
                     </main>
 
