@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li></ol>
+            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -1676,6 +1676,113 @@ let lrelu_result: f64 = activators
 assert_eq!(lrelu_result, -0.2);
 # Ok(()) }
 </code></pre></pre>
+<a class="header" href="#gil-lifetimes-mutability-and-python-object-types" id="gil-lifetimes-mutability-and-python-object-types"><h1>GIL lifetimes, mutability and Python object types</h1></a>
+<p>On first glance, PyO3 provides a huge number of different types that can be used
+to wrap or refer to Python objects.  This page delves into the details and gives
+an overview of their intended meaning, with examples when each type is best
+used.</p>
+<a class="header" href="#mutability-and-rust-types" id="mutability-and-rust-types"><h2>Mutability and Rust types</h2></a>
+<p>Since Python has no concept of ownership, and works solely with boxed objects,
+any Python object can be referenced any number of times, and mutation is allowed
+from any reference.</p>
+<p>The situation is helped a little by the Global Interpreter Lock (GIL), which
+ensures that only one thread can use the Python interpreter and its API at the
+same time, while non-Python operations (system calls and extension code) can
+unlock the GIL.  (See <a href="parallelism.html">the section on parallelism</a> for how to do
+that in PyO3.)</p>
+<p>In PyO3, holding the GIL is modeled by acquiring a token of the type
+<code>Python&lt;'py&gt;</code>, which serves three purposes:</p>
+<ul>
+<li>It provides some global API for the Python interpreter, such as
+<a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.eval"><code>eval</code></a>.</li>
+<li>It can be passed to functions that require a proof of holding the GIL,
+such as <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyObject.html#method.clone_ref"><code>PyObject::clone_ref</code></a>.</li>
+<li>Its lifetime can be used to create Rust references that implicitly guarantee
+holding the GIL, such as <a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyAny.html"><code>&amp;'py PyAny</code></a>.</li>
+</ul>
+<p>The latter two points are the reason why some APIs in PyO3 require the <code>py: Python</code> argument, while others don't.</p>
+<p>The PyO3 API for Python objects is written such that instead of requiring a
+mutable Rust reference for mutating operations such as
+<a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyList.html#method.append"><code>PyList::append</code></a>, a shared reference (which, in turn, can only
+be created through <code>Python&lt;'_&gt;</code> with a GIL lifetime) is sufficient.</p>
+<p>However, Rust structs wrapped as Python objects (called <code>pyclass</code> types) usually
+<em>do</em> need <code>&amp;mut</code> access.  Due to the GIL, PyO3 <em>can</em> guarantee thread-safe acces
+to them, but it cannot statically guarantee uniqueness of <code>&amp;mut</code> references once
+an object's ownership has been passed to the Python interpreter, ensuring
+references is done at runtime using <code>PyCell</code>, a scheme very similar to
+<code>std::cell::RefCell</code>.</p>
+<a class="header" href="#object-types" id="object-types"><h2>Object types</h2></a>
+<a class="header" href="#pyobject" id="pyobject"><h3><code>PyObject</code></h3></a>
+<p><strong>Represents:</strong> a GIL independent reference to a Python object of unspecified
+type.</p>
+<p><strong>Used:</strong> Whenever you want to carry around references to &quot;some&quot; Python object,
+without caring about a GIL lifetime.  For example, storing Python object
+references in a Rust struct that outlives the Python-Rust FFI boundary.</p>
+<p>Can be cloned using Python reference counts with <code>.clone_ref()</code>.</p>
+<p><strong>Conversions:</strong></p>
+<ul>
+<li>To <code>&amp;PyAny</code>: <code>obj.as_ref(py)</code></li>
+<li>To <code>Py&lt;ConcreteType&gt;</code>: <code>obj.as_ref(py).extract::&lt;Py&lt;ConcreteType&gt;&gt;</code></li>
+<li>To <code>&amp;ConcreteType</code> (which must be a Python native type): <code>obj.cast_as(py)</code></li>
+</ul>
+<a class="header" href="#pysometype" id="pysometype"><h3><code>Py&lt;SomeType&gt;</code></h3></a>
+<p><strong>Represents:</strong> a GIL independent reference to a Python object of known type.
+This can be a Python native type (like <code>PyTuple</code>), or a <code>pyclass</code> type
+implemented in Rust.</p>
+<p><strong>Used:</strong> Like <code>PyObject</code>, but with a known inner type.</p>
+<p><strong>Conversions:</strong></p>
+<ul>
+<li>To <code>PyObject</code>: <code>obj.to_object(py)</code></li>
+<li>To <code>&amp;SomeType</code> or <code>&amp;PyCell&lt;SomeType&gt;</code>: <code>obj.as_ref(py)</code>.  For <code>pyclass</code> types
+implemented in Rust, you get a <code>PyCell</code> (see below).  For Python native types,
+mutating operations through PyO3's API don't require <code>&amp;mut</code> access.</li>
+</ul>
+<p><strong>Note:</strong> <code>PyObject</code> is semantically equivalent to <code>Py&lt;PyAny&gt;</code> and might be
+merged with it in the future.</p>
+<a class="header" href="#pyany" id="pyany"><h3><code>PyAny</code></h3></a>
+<p><strong>Represents:</strong> a Python object of unspecified type, restricted to a GIL
+lifetime.  Currently, <code>PyAny</code> can only ever occur as a reference, usually
+<code>&amp;PyAny</code>.</p>
+<p><strong>Used:</strong> Whenever you want to refer to some Python object only as long as
+holding the GIL.  For example, intermediate values and arguments to
+<code>pyfunction</code>s or <code>pymethod</code>s implemented in Rust where any type is allowed.</p>
+<p><strong>Conversions:</strong></p>
+<ul>
+<li>To <code>PyObject</code>: <code>obj.to_object(py)</code></li>
+</ul>
+<a class="header" href="#pytuple-pydict-and-many-more" id="pytuple-pydict-and-many-more"><h3><code>PyTuple</code>, <code>PyDict</code>, and many more</h3></a>
+<p><strong>Represents:</strong> a native Python object of known type, restricted to a GIL
+lifetime just like <code>PyAny</code>.</p>
+<p><strong>Used:</strong> Whenever you want to operate with native Python types while holding
+the GIL.  Like <code>PyAny</code>, this is the most convenient form to use for function
+arguments and intermediate values.</p>
+<p><strong>Conversions:</strong></p>
+<ul>
+<li>To <code>PyAny</code>: <code>obj.as_ref()</code></li>
+<li>To <code>Py&lt;T&gt;</code>: <code>Py::from(obj)</code></li>
+</ul>
+<a class="header" href="#pycellsometype" id="pycellsometype"><h3><code>PyCell&lt;SomeType&gt;</code></h3></a>
+<p><strong>Represents:</strong> a reference to a Rust object (instance of <code>PyClass</code>) which is
+wrapped in a Python object.  The cell part is an analog to stdlib's
+<a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a> to allow access to <code>&amp;mut</code> references.</p>
+<p><strong>Used:</strong> for accessing pure-Rust API of the instance (members and functions
+taking <code>&amp;SomeType</code> or <code>&amp;mut SomeType</code>) while maintaining the aliasing rules of
+Rust references.</p>
+<p><strong>Conversions:</strong></p>
+<ul>
+<li>From <code>PyAny</code>: <code>.downcast()</code></li>
+</ul>
+<a class="header" href="#pyrefsometype-and-pyrefmutsometype" id="pyrefsometype-and-pyrefmutsometype"><h3><code>PyRef&lt;SomeType&gt;</code> and <code>PyRefMut&lt;SomeType&gt;</code></h3></a>
+<p><strong>Represents:</strong> reference wrapper types employed by <code>PyCell</code> to keep track of
+borrows, analog to <code>Ref</code> and <code>RefMut</code> used by <code>RefCell</code>.</p>
+<p><strong>Used:</strong> while borrowing a <code>PyCell</code>.  They can also be used with <code>.extract()</code>
+on types like <code>Py&lt;T&gt;</code> and <code>PyAny</code> to get a reference quickly.</p>
+<a class="header" href="#related-traits-and-types" id="related-traits-and-types"><h2>Related traits and types</h2></a>
+<a class="header" href="#pyclass" id="pyclass"><h3><code>PyClass</code></h3></a>
+<p>This trait marks structs defined in Rust that are also usable as Python classes,
+usually defined using the <code>#[pyclass]</code> macro.</p>
+<a class="header" href="#pynativetype" id="pynativetype"><h3><code>PyNativeType</code></h3></a>
+<p>This trait marks structs that mirror native Python types, such as <code>PyList</code>.</p>
 <a class="header" href="#parallelism" id="parallelism"><h1>Parallelism</h1></a>
 <p>CPython has the infamous GIL (Global Interpreter Lock), which prevents developers
 from getting true parallelism when running pure Python code. While PyO3 needs to
