@@ -45,8 +45,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass_init</span>::<span class="ident">PyClassInitializer</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">python</span>::<span class="ident">Python</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPy</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">PyTryInto</span>, <span class="ident">ToPyObject</span>};
-<span class="comment">// This is only part of the prelude because we need it for the pymodule function</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyModule</span>;
+<span class="comment">// PyModule is only part of the prelude because we need it for the pymodule function</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyModule</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3cls</span>::<span class="ident">pymodule</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3cls</span>::{<span class="ident">pyclass</span>, <span class="ident">pyfunction</span>, <span class="ident">pymethods</span>, <span class="ident">pyproto</span>};
 </pre></div>

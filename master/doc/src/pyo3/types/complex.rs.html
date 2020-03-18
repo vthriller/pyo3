@@ -323,9 +323,6 @@
 <span id="323">323</span>
 <span id="324">324</span>
 <span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
@@ -462,10 +459,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;num-complex&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">complex_conversion</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::<span class="ident">PyErr</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">PyResult</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">ToPyObject</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">PyAny</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>, <span class="ident">ToPyObject</span>};
     <span class="kw">use</span> <span class="ident">num_complex</span>::<span class="ident">Complex</span>;
 
     <span class="kw">impl</span> <span class="ident">PyComplex</span> {

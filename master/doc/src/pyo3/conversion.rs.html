@@ -501,7 +501,6 @@
 <span id="501">501</span>
 <span id="502">502</span>
 <span id="503">503</span>
-<span id="504">504</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -509,9 +508,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="self">self</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyDowncastImpl</span>, <span class="ident">PyTypeInfo</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyTuple</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">gil</span>, <span class="ident">Py</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">gil</span>, <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
 
 <span class="doccomment">/// This trait represents that **we can do zero-cost conversion from the object</span>

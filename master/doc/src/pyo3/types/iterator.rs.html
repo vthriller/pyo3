@@ -183,22 +183,12 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">PyNativeType</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyResult</span>, <span class="ident">Python</span>};
 
 <span class="doccomment">/// A Python iterator object.</span>
 <span class="doccomment">///</span>

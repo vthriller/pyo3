@@ -518,7 +518,6 @@ and <code>PyClass</code> for <code>MyClass</code>.</p>
 # #![allow(unused_variables)]
 #fn main() {
 use pyo3::prelude::*;
-use pyo3::types::PyAny;
 
 /// Class for demonstration
 struct MyClass {
@@ -805,7 +804,7 @@ that inherit native types. Even in such cases, you can unsafely get a base class
 # #![allow(unused_variables)]
 #fn main() {
 # use pyo3::prelude::*;
-use pyo3::types::{PyAny, PyDict};
+use pyo3::types::PyDict;
 use pyo3::{AsPyPointer, PyNativeType};
 use std::collections::HashMap;
 
@@ -2100,7 +2099,7 @@ let obj_ref_mut: &amp;mut MyClass = obj.extract().unwrap();
 </code></pre>
 <p>After:</p>
 <pre><code># use pyo3::prelude::*;
-# use pyo3::types::{PyAny, IntoPyDict};
+# use pyo3::types::IntoPyDict;
 # #[pyclass] #[derive(Clone)] struct MyClass {}
 # #[pymethods] impl MyClass { #[new]fn new() -&gt; Self { MyClass {} }}
 # let gil = Python::acquire_gil();

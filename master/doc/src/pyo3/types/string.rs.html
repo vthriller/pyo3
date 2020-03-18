@@ -257,20 +257,14 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conversion</span>::<span class="ident">FromPyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conversion</span>::{<span class="ident">PyTryFrom</span>, <span class="ident">ToPyObject</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">PyNativeType</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">internal_tricks</span>::<span class="ident">Unsendable</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">gil</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPy</span>, <span class="ident">IntoPy</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">ffi</span>, <span class="ident">gil</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPy</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyAny</span>, <span class="ident">PyErr</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>,
+    <span class="ident">PyResult</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>,
+};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_char</span>;

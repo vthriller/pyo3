@@ -697,15 +697,13 @@
 <span id="697">697</span>
 <span id="698">698</span>
 <span id="699">699</span>
-<span id="700">700</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Includes `PyCell` implementation.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conversion</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">FromPyPointer</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass_init</span>::<span class="ident">PyClassInitializer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass_slots</span>::{<span class="ident">PyClassDict</span>, <span class="ident">PyClassWeakRef</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyBorrowFlagLayout</span>, <span class="ident">PyDowncastImpl</span>, <span class="ident">PyLayout</span>, <span class="ident">PySizedLayout</span>, <span class="ident">PyTypeInfo</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">FromPy</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">FromPy</span>, <span class="ident">PyAny</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">UnsafeCell</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">ManuallyDrop</span>;

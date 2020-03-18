@@ -457,7 +457,6 @@
 <span id="457">457</span>
 <span id="458">458</span>
 <span id="459">459</span>
-<span id="460">460</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
@@ -465,10 +464,9 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyBorrowFlagLayout</span>, <span class="ident">PyDowncastImpl</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyClassInitializer</span>,
-    <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>,
+    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>,
+    <span class="ident">PyClassInitializer</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;

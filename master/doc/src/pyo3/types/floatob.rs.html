@@ -115,31 +115,15 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
-
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::<span class="ident">PyErr</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">PyNativeType</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">internal_tricks</span>::<span class="ident">Unsendable</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyAny</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">FromPyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">PyResult</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ToPyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">FromPy</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPy</span>, <span class="ident">FromPyObject</span>, <span class="ident">ObjectProtocol</span>, <span class="ident">PyAny</span>, <span class="ident">PyErr</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>,
+    <span class="ident">PyResult</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>,
+};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_double</span>;
 
 <span class="doccomment">/// Represents a Python `float` object.</span>
