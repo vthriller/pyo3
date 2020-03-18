@@ -1716,7 +1716,8 @@ references is done at runtime using <code>PyCell</code>, a scheme very similar t
 type.</p>
 <p><strong>Used:</strong> Whenever you want to carry around references to &quot;some&quot; Python object,
 without caring about a GIL lifetime.  For example, storing Python object
-references in a Rust struct that outlives the Python-Rust FFI boundary.</p>
+references in a Rust struct that outlives the Python-Rust FFI boundary,
+or returning objects from functions implemented in Rust back to Python.</p>
 <p>Can be cloned using Python reference counts with <code>.clone_ref()</code>.</p>
 <p><strong>Conversions:</strong></p>
 <ul>
