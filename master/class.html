@@ -1,9 +1,11 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Python Classes - PyO3 user guide</title>
+        
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="PyO3 user guide">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,9 +32,12 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">var path_to_root = "";</script>
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
@@ -53,10 +58,13 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script type="text/javascript">
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
-            if (theme === null || theme === undefined) { theme = 'light'; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -72,7 +80,10 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html" class="active"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li class="expanded "><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li class="expanded "><a href="class.html" class="active"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -89,7 +100,7 @@
                                 <i class="fa fa-paint-brush"></i>
                             </button>
                             <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -102,12 +113,13 @@
                             
                         </div>
 
-                        <h1 class="menu-title">PyO3 user guide</h1> 
+                        <h1 class="menu-title">PyO3 user guide</h1>
 
                         <div class="right-buttons">
                             <a href="print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
+                            
                         </div>
                     </div>
                 </div>
@@ -136,28 +148,29 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#python-classes" id="python-classes"><h1>Python Classes</h1></a>
-<a class="header" href="#defining-a-new-class" id="defining-a-new-class"><h2>Defining a new class</h2></a>
+                        <h1><a class="header" href="#python-classes" id="python-classes">Python Classes</a></h1>
+<h2><a class="header" href="#defining-a-new-class" id="defining-a-new-class">Defining a new class</a></h2>
 <p>To define a custom Python class, a Rust struct needs to be annotated with the
 <code>#[pyclass]</code> attribute.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>
 #[pyclass]
 struct MyClass {
     num: i32,
     debug: bool,
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>The above example generates implementations for <code>PyTypeInfo</code>, <code>PyTypeObject</code>,
 and <code>PyClass</code> for <code>MyClass</code>.</p>
 <p>Specifically, the following implementation is generated:</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-use pyo3::prelude::*;
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 
 /// Class for demonstration
 struct MyClass {
@@ -219,29 +232,31 @@ impl pyo3::class::methods::PyMethodsInventoryDispatch for MyClass {
 }
 
 pyo3::inventory::collect!(MyClassGeneratedPyo3Inventory);
-# let gil = Python::acquire_gil();
-# let py = gil.python();
-# let cls = py.get_type::&lt;MyClass&gt;();
-# pyo3::py_run!(py, cls, &quot;assert cls.__name__ == 'MyClass'&quot;)
-#}</code></pre></pre>
-<a class="header" href="#adding-the-class-to-a-module" id="adding-the-class-to-a-module"><h2>Adding the class to a module</h2></a>
+<span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span><span class="boring">let cls = py.get_type::&lt;MyClass&gt;();
+</span><span class="boring">pyo3::py_run!(py, cls, &quot;assert cls.__name__ == 'MyClass'&quot;)
+</span><span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#adding-the-class-to-a-module" id="adding-the-class-to-a-module">Adding the class to a module</a></h2>
 <p>Custom Python classes can then be added to a module using <code>add_class()</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {
-#    num: i32,
-#    debug: bool,
-# }
-#[pymodule]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">   num: i32,
+</span><span class="boring">   debug: bool,
+</span><span class="boring">}
+</span>#[pymodule]
 fn mymodule(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_class::&lt;MyClass&gt;()?;
     Ok(())
 }
-#}</code></pre></pre>
-<a class="header" href="#pycell-and-interior-mutability" id="pycell-and-interior-mutability"><h2>PyCell and interior mutability</h2></a>
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#pycell-and-interior-mutability" id="pycell-and-interior-mutability">PyCell and interior mutability</a></h2>
 <p>You sometimes need to convert your <code>pyclass</code> into a Python object and access it
 from Rust code (e.g., for testing it).
 <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a> is the primary interface for that.</p>
@@ -258,11 +273,11 @@ like <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html">std::cell:
 </ul>
 <p><code>PyCell</code>, like <code>RefCell</code>, ensures these borrowing rules by tracking references at runtime.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-# use pyo3::types::PyDict;
-#[pyclass]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::PyDict;
+</span>#[pyclass]
 struct MyClass {
     #[pyo3(get)]
     num: i32,
@@ -287,16 +302,17 @@ let obj = PyCell::new(py, MyClass { num: 3, debug: true }).unwrap();
 
 // You can convert `&amp;PyCell` to a Python object
 pyo3::py_run!(py, obj, &quot;assert obj.num == 5&quot;)
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p><code>&amp;PyCell&lt;T&gt;</code> is bounded by the same lifetime as a <code>GILGuard</code>.
 To make the object longer lived (for example, to store it in a struct on the
 Rust side), you can use <code>Py&lt;T&gt;</code>, which stores an object longer than the GIL
 lifetime, and therefore needs a <code>Python&lt;'_&gt;</code> token to access.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-#[pyclass]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
 struct MyClass {
     num: i32,
 }
@@ -310,8 +326,9 @@ let obj = return_myclass();
 let cell = obj.as_ref(gil.python()); // AsPyRef::as_ref returns &amp;PyCell
 let obj_ref = cell.borrow(); // Get PyRef&lt;T&gt;
 assert_eq!(obj_ref.num, 1);
-#}</code></pre></pre>
-<a class="header" href="#customizing-the-class" id="customizing-the-class"><h2>Customizing the class</h2></a>
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#customizing-the-class" id="customizing-the-class">Customizing the class</a></h2>
 <p>The <code>#[pyclass]</code> macro accepts the following parameters:</p>
 <ul>
 <li><code>name=XXX</code> - Set the class name shown in Python code. By default, the struct name is used as the class name.</li>
@@ -327,15 +344,15 @@ If a custom class contains references to other Python objects that can be collec
 <li><code>module=&quot;XXX&quot;</code> - Set the name of the module the class will be shown as defined in. If not given, the class
 will be a virtual member of the <code>builtins</code> module.</li>
 </ul>
-<a class="header" href="#constructor" id="constructor"><h2>Constructor</h2></a>
+<h2><a class="header" href="#constructor" id="constructor">Constructor</a></h2>
 <p>By default it is not possible to create an instance of a custom class from Python code.
 To declare a constructor, you need to define a method and annotate it with the <code>#[new]</code>
 attribute. Only Python's <code>__new__</code> method can be specified, <code>__init__</code> is not available.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-#[pyclass]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
 struct MyClass {
     num: i32,
 }
@@ -347,21 +364,22 @@ impl MyClass {
         MyClass { num }
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>If no method marked with <code>#[new]</code> is declared, object instances can only be
 created from Rust, but not from Python.</p>
 <p>For arguments, see the <code>Method arguments</code> section below.</p>
-<a class="header" href="#return-type" id="return-type"><h3>Return type</h3></a>
+<h3><a class="header" href="#return-type" id="return-type">Return type</a></h3>
 <p>Generally, <code>#[new]</code> method have to return <code>T: Into&lt;PyClassInitializer&lt;Self&gt;&gt;</code> or
 <code>PyResult&lt;T&gt; where T: Into&lt;PyClassInitializer&lt;Self&gt;&gt;</code>.</p>
 <p>For constructors that may fail, you should wrap the return type in a PyResult as well.
 Consult the table below to determine which type your constructor should return:</p>
-<table><thead><tr><th>                             </th><th> <strong>Cannot fail</strong>         </th><th> <strong>May fail</strong>                      </th></tr></thead><tbody>
-<tr><td><strong>No inheritance</strong>           </td><td> <code>T</code>                     </td><td> <code>PyResult&lt;T&gt;</code>                     </td></tr>
-<tr><td><strong>Inheritance(T Inherits U)</strong></td><td> <code>(T, U)</code>                </td><td> <code>PyResult&lt;(T, U)&gt;</code>                </td></tr>
-<tr><td><strong>Inheritance(General Case)</strong></td><td> <code>PyClassInitializer&lt;T&gt;</code> </td><td> <code>PyResult&lt;PyClassInitializer&lt;T&gt;&gt;</code> </td></tr>
+<table><thead><tr><th></th><th><strong>Cannot fail</strong></th><th><strong>May fail</strong></th></tr></thead><tbody>
+<tr><td><strong>No inheritance</strong></td><td><code>T</code></td><td><code>PyResult&lt;T&gt;</code></td></tr>
+<tr><td><strong>Inheritance(T Inherits U)</strong></td><td><code>(T, U)</code></td><td><code>PyResult&lt;(T, U)&gt;</code></td></tr>
+<tr><td><strong>Inheritance(General Case)</strong></td><td><code>PyClassInitializer&lt;T&gt;</code></td><td><code>PyResult&lt;PyClassInitializer&lt;T&gt;&gt;</code></td></tr>
 </tbody></table>
-<a class="header" href="#inheritance" id="inheritance"><h2>Inheritance</h2></a>
+<h2><a class="header" href="#inheritance" id="inheritance">Inheritance</a></h2>
 <p>By default, <code>PyAny</code> is used as the base class. To override this default,
 use the <code>extends</code> parameter for <code>pyclass</code> with the full path to the base class.</p>
 <p>For convenience, <code>(T, U)</code> implements <code>Into&lt;PyClassInitializer&lt;T&gt;&gt;</code> where <code>U</code> is the
@@ -373,10 +391,10 @@ or <code>PyRefMut&lt;T&gt;</code> instead of <code>&amp;mut self</code>.
 Then you can access a parent class by <code>self_.as_ref()</code> as <code>&amp;Self::BaseClass</code>,
 or by <code>self_.into_super()</code> as <code>PyRef&lt;Self::BaseClass&gt;</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>
 #[pyclass]
 struct BaseClass {
     val1: usize,
@@ -431,20 +449,21 @@ impl SubSubClass {
         SubClass::method2(super_).map(|x| x * v)
     }
 }
-# let gil = Python::acquire_gil();
-# let py = gil.python();
-# let subsub = pyo3::PyCell::new(py, SubSubClass::new()).unwrap();
-# pyo3::py_run!(py, subsub, &quot;assert subsub.method3() == 3000&quot;)
-#}</code></pre></pre>
+<span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span><span class="boring">let subsub = pyo3::PyCell::new(py, SubSubClass::new()).unwrap();
+</span><span class="boring">pyo3::py_run!(py, subsub, &quot;assert subsub.method3() == 3000&quot;)
+</span><span class="boring">}
+</span></code></pre></pre>
 <p>You can also inherit native types such as <code>PyDict</code>, if they implement
 <a href="https://pyo3.rs/master/doc/pyo3/type_object/trait.PySizedLayout.html"><code>PySizedLayout</code></a>.</p>
 <p>However, because of some technical problems, we don't currently provide safe upcasting methods for types
 that inherit native types. Even in such cases, you can unsafely get a base class by raw pointer conversion.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-use pyo3::types::PyDict;
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>use pyo3::types::PyDict;
 use pyo3::{AsPyPointer, PyNativeType};
 use std::collections::HashMap;
 
@@ -467,11 +486,12 @@ impl DictWithCounter {
         dict.set_item(key, value)
     }
 }
-# let gil = Python::acquire_gil();
-# let py = gil.python();
-# let cnt = pyo3::PyCell::new(py, DictWithCounter::new()).unwrap();
-# pyo3::py_run!(py, cnt, &quot;cnt.set('abc', 10); assert cnt['abc'] == 10&quot;)
-#}</code></pre></pre>
+<span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span><span class="boring">let cnt = pyo3::PyCell::new(py, DictWithCounter::new()).unwrap();
+</span><span class="boring">pyo3::py_run!(py, cnt, &quot;cnt.set('abc', 10); assert cnt['abc'] == 10&quot;)
+</span><span class="boring">}
+</span></code></pre></pre>
 <p>If <code>SubClass</code> does not provide a baseclass initialization, the compilation fails.</p>
 <pre><code class="language-compile_fail"># use pyo3::prelude::*;
 
@@ -493,14 +513,14 @@ impl SubClass {
     }
 }
 </code></pre>
-<a class="header" href="#object-properties" id="object-properties"><h2>Object properties</h2></a>
+<h2><a class="header" href="#object-properties" id="object-properties">Object properties</a></h2>
 <p>Property descriptor methods can be defined in a <code>#[pymethods]</code> <code>impl</code> block only and have to be
 annotated with <code>#[getter]</code> and <code>#[setter]</code> attributes. For example:</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-#[pyclass]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
 struct MyClass {
     num: i32,
 }
@@ -512,7 +532,8 @@ impl MyClass {
         Ok(self.num)
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>A getter or setter's function name is used as the property name by default. There are several
 ways how to override the name.</p>
 <p>If a function name starts with <code>get_</code> or <code>set_</code> for getter or setter respectively,
@@ -521,14 +542,14 @@ Rust keywords like <code>type</code>
 (<a href="https://doc.rust-lang.org/edition-guide/rust-2018/module-system/raw-identifiers.html">raw identifiers</a>
 can be used since Rust 2018).</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {
-#     num: i32,
-# }
-#[pymethods]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">    num: i32,
+</span><span class="boring">}
+</span>#[pymethods]
 impl MyClass {
     #[getter]
     fn get_num(&amp;self) -&gt; PyResult&lt;i32&gt; {
@@ -541,19 +562,20 @@ impl MyClass {
         Ok(())
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>In this case, a property <code>num</code> is defined and available from Python code as <code>self.num</code>.</p>
 <p>Both the <code>#[getter]</code> and <code>#[setter]</code> attributes accept one parameter.
 If this parameter is specified, it is used as the property name, i.e.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {
-#    num: i32,
-# }
-#[pymethods]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">   num: i32,
+</span><span class="boring">}
+</span>#[pymethods]
 impl MyClass {
     #[getter(number)]
     fn num(&amp;self) -&gt; PyResult&lt;i32&gt; {
@@ -566,36 +588,38 @@ impl MyClass {
         Ok(())
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>In this case, the property <code>number</code> is defined and available from Python code as <code>self.number</code>.</p>
 <p>For simple cases where a member variable is just read and written with no side effects, you
 can also declare getters and setters in your Rust struct field definition, for example:</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-#[pyclass]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
 struct MyClass {
     #[pyo3(get, set)]
     num: i32
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Then it is available from Python code as <code>self.num</code>.</p>
-<a class="header" href="#instance-methods" id="instance-methods"><h2>Instance methods</h2></a>
+<h2><a class="header" href="#instance-methods" id="instance-methods">Instance methods</a></h2>
 <p>To define a Python compatible method, an <code>impl</code> block for your struct has to be annotated with the
 <code>#[pymethods]</code> attribute. PyO3 generates Python compatible wrappers for all functions in this
 block with some variations, like descriptors, class method static methods, etc.</p>
 <p>Since Rust allows any number of <code>impl</code> blocks, you can easily split methods
 between those accessible to Python (and Rust) and those accessible only to Rust.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {
-#     num: i32,
-# }
-#[pymethods]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">    num: i32,
+</span><span class="boring">}
+</span>#[pymethods]
 impl MyClass {
     fn method1(&amp;self) -&gt; PyResult&lt;i32&gt; {
         Ok(10)
@@ -606,50 +630,53 @@ impl MyClass {
         Ok(())
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Calls to these methods are protected by the GIL, so both <code>&amp;self</code> and <code>&amp;mut self</code> can be used.
 The return type must be <code>PyResult&lt;T&gt;</code> or <code>T</code> for some <code>T</code> that implements <code>IntoPy&lt;PyObject&gt;</code>;
 the latter is allowed if the method cannot raise Python exceptions.</p>
 <p>A <code>Python</code> parameter can be specified as part of method signature, in this case the <code>py</code> argument
 gets injected by the method wrapper, e.g.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {
-#     num: i32,
-#     debug: bool,
-# }
-#[pymethods]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">    num: i32,
+</span><span class="boring">    debug: bool,
+</span><span class="boring">}
+</span>#[pymethods]
 impl MyClass {
     fn method2(&amp;self, py: Python) -&gt; PyResult&lt;i32&gt; {
         Ok(10)
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>From the Python perspective, the <code>method2</code> in this example does not accept any arguments.</p>
-<a class="header" href="#class-methods" id="class-methods"><h2>Class methods</h2></a>
+<h2><a class="header" href="#class-methods" id="class-methods">Class methods</a></h2>
 <p>To create a class method for a custom class, the method needs to be annotated
 with the <code>#[classmethod]</code> attribute.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-# use pyo3::types::PyType;
-# #[pyclass]
-# struct MyClass {
-#     num: i32,
-#     debug: bool,
-# }
-#[pymethods]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::PyType;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">    num: i32,
+</span><span class="boring">    debug: bool,
+</span><span class="boring">}
+</span>#[pymethods]
 impl MyClass {
     #[classmethod]
     fn cls_method(cls: &amp;PyType) -&gt; PyResult&lt;i32&gt; {
         Ok(10)
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Declares a class method callable from Python.</p>
 <ul>
 <li>The first parameter is the type object of the class on which the method is called.
@@ -658,41 +685,42 @@ This may be the type object of a derived class.</li>
 <li>For details on <code>parameter-list</code>, see the documentation of <code>Method arguments</code> section.</li>
 <li>The return type must be <code>PyResult&lt;T&gt;</code> or <code>T</code> for some <code>T</code> that implements <code>IntoPy&lt;PyObject&gt;</code>.</li>
 </ul>
-<a class="header" href="#static-methods" id="static-methods"><h2>Static methods</h2></a>
+<h2><a class="header" href="#static-methods" id="static-methods">Static methods</a></h2>
 <p>To create a static method for a custom class, the method needs to be annotated with the
 <code>#[staticmethod]</code> attribute. The return type must be <code>T</code> or <code>PyResult&lt;T&gt;</code> for some <code>T</code> that implements
 <code>IntoPy&lt;PyObject&gt;</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {
-#     num: i32,
-#     debug: bool,
-# }
-#[pymethods]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">    num: i32,
+</span><span class="boring">    debug: bool,
+</span><span class="boring">}
+</span>#[pymethods]
 impl MyClass {
     #[staticmethod]
     fn static_method(param1: i32, param2: &amp;str) -&gt; PyResult&lt;i32&gt; {
         Ok(10)
     }
 }
-#}</code></pre></pre>
-<a class="header" href="#callable-objects" id="callable-objects"><h2>Callable objects</h2></a>
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#callable-objects" id="callable-objects">Callable objects</a></h2>
 <p>To specify a custom <code>__call__</code> method for a custom class, the method needs to be annotated with
 the <code>#[call]</code> attribute. Arguments of the method are specified as for instance methods.</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-use pyo3::types::PyTuple;
-# #[pyclass]
-# struct MyClass {
-#     num: i32,
-#     debug: bool,
-# }
-#[pymethods]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>use pyo3::types::PyTuple;
+<span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">    num: i32,
+</span><span class="boring">    debug: bool,
+</span><span class="boring">}
+</span>#[pymethods]
 impl MyClass {
     #[call]
     #[args(args=&quot;*&quot;)]
@@ -701,8 +729,9 @@ impl MyClass {
         Ok(self.num)
     }
 }
-#}</code></pre></pre>
-<a class="header" href="#method-arguments" id="method-arguments"><h2>Method arguments</h2></a>
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#method-arguments" id="method-arguments">Method arguments</a></h2>
 <p>By default, PyO3 uses function signatures to determine which arguments are required. Then it scans
 the incoming <code>args</code> and <code>kwargs</code> parameters. If it can not find all required
 parameters, it raises a <code>TypeError</code> exception. It is possible to override the default behavior
@@ -723,17 +752,17 @@ code unmodified.</li>
 </ul>
 <p>Example:</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-# use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyTuple};
-#
-# #[pyclass]
-# struct MyClass {
-#     num: i32,
-#     debug: bool,
-# }
-#[pymethods]
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>use pyo3::types::{PyDict, PyTuple};
+<span class="boring">
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {
+</span><span class="boring">    num: i32,
+</span><span class="boring">    debug: bool,
+</span><span class="boring">}
+</span>#[pymethods]
 impl MyClass {
     #[new]
     #[args(num = &quot;-1&quot;, debug = &quot;true&quot;)]
@@ -770,7 +799,8 @@ impl MyClass {
         Ok(format!(&quot;num={}, debug={}&quot;, self.num, self.debug))
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>N.B. the position of the <code>&quot;*&quot;</code> argument (if included) controls the system of handling positional and keyword arguments. In Python:</p>
 <pre><code class="language-python">import mymodule
 
@@ -786,14 +816,14 @@ py_args=(), py_kwargs=None, name=World, num=-1, debug=true
 num=44, debug=false
 num=-1, debug=false
 </code></pre>
-<a class="header" href="#class-customizations" id="class-customizations"><h2>Class customizations</h2></a>
+<h2><a class="header" href="#class-customizations" id="class-customizations">Class customizations</a></h2>
 <p>Python's object model defines several protocols for different object behavior, like sequence,
 mapping or number protocols. PyO3 defines separate traits for each of them. To provide specific
 Python object behavior, you need to implement the specific trait for your struct. Important note,
 each protocol implementation block has to be annotated with the <code>#[pyproto]</code> attribute.</p>
-<a class="header" href="#basic-object-customization" id="basic-object-customization"><h3>Basic object customization</h3></a>
+<h3><a class="header" href="#basic-object-customization" id="basic-object-customization">Basic object customization</a></h3>
 <p>The <a href="https://docs.rs/pyo3/latest/pyo3/class/basic/trait.PyObjectProtocol.html"><code>PyObjectProtocol</code></a> trait provides several basic customizations.</p>
-<a class="header" href="#attribute-access" id="attribute-access"><h4>Attribute access</h4></a>
+<h4><a class="header" href="#attribute-access" id="attribute-access">Attribute access</a></h4>
 <p>To customize object attribute access, define the following methods:</p>
 <ul>
 <li><code>fn __getattr__(&amp;self, name: FromPyObject) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
@@ -801,7 +831,7 @@ each protocol implementation block has to be annotated with the <code>#[pyproto]
 <li><code>fn __delattr__(&amp;mut self, name: FromPyObject) -&gt; PyResult&lt;()&gt;</code></li>
 </ul>
 <p>Each method corresponds to Python's <code>self.attr</code>, <code>self.attr = value</code> and <code>del self.attr</code> code.</p>
-<a class="header" href="#string-conversions" id="string-conversions"><h4>String Conversions</h4></a>
+<h4><a class="header" href="#string-conversions" id="string-conversions">String Conversions</a></h4>
 <ul>
 <li>
 <p><code>fn __repr__(&amp;self) -&gt; PyResult&lt;impl ToPyObject&lt;ObjectType=PyString&gt;&gt;</code></p>
@@ -820,7 +850,7 @@ each protocol implementation block has to be annotated with the <code>#[pyproto]
 Possible return types are <code>PyResult&lt;String&gt;</code> or <code>PyResult&lt;PyString&gt;</code>.</p>
 </li>
 </ul>
-<a class="header" href="#comparison-operators" id="comparison-operators"><h4>Comparison operators</h4></a>
+<h4><a class="header" href="#comparison-operators" id="comparison-operators">Comparison operators</a></h4>
 <ul>
 <li>
 <p><code>fn __richcmp__(&amp;self, other: impl FromPyObject, op: CompareOp) -&gt; PyResult&lt;impl ToPyObject&gt;</code></p>
@@ -836,14 +866,14 @@ automatically <code>return NotImplemented</code>.</p>
 The return type must be <code>PyResult&lt;T&gt;</code> where <code>T</code> is one of Rust's primitive integer types.</p>
 </li>
 </ul>
-<a class="header" href="#other-methods" id="other-methods"><h4>Other methods</h4></a>
+<h4><a class="header" href="#other-methods" id="other-methods">Other methods</a></h4>
 <ul>
 <li>
 <p><code>fn __bool__(&amp;self) -&gt; PyResult&lt;bool&gt;</code></p>
 <p>Determines the &quot;truthyness&quot; of the object.</p>
 </li>
 </ul>
-<a class="header" href="#garbage-collector-integration" id="garbage-collector-integration"><h3>Garbage Collector Integration</h3></a>
+<h3><a class="header" href="#garbage-collector-integration" id="garbage-collector-integration">Garbage Collector Integration</a></h3>
 <p>If your type owns references to other Python objects, you will need to
 integrate with Python's garbage collector so that the GC is aware of
 those references.
@@ -856,9 +886,9 @@ These correspond to the slots <code>tp_traverse</code> and <code>tp_clear</code>
 as every cycle must contain at least one mutable reference.
 Example:</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-extern crate pyo3;
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>extern crate pyo3;
 
 use pyo3::prelude::*;
 use pyo3::PyTraverseError;
@@ -887,7 +917,8 @@ impl PyGCProtocol for ClassWithGCSupport {
         }
     }
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Special protocol trait implementations have to be annotated with the <code>#[pyproto]</code> attribute.</p>
 <p>It is also possible to enable GC for custom classes using the <code>gc</code> parameter of the <code>pyclass</code> attribute.
 i.e. <code>#[pyclass(gc)]</code>. In that case instances of custom class participate in Python garbage
@@ -897,7 +928,7 @@ at compile time:</p>
 <pre><code class="language-compile_fail">#[pyclass(gc)]
 struct GCTracked {} // Fails because it does not implement PyGCProtocol
 </code></pre>
-<a class="header" href="#iterator-types" id="iterator-types"><h3>Iterator Types</h3></a>
+<h3><a class="header" href="#iterator-types" id="iterator-types">Iterator Types</a></h3>
 <p>Iterators can be defined using the
 <a href="https://docs.rs/pyo3/latest/pyo3/class/iter/trait.PyIterProtocol.html"><code>PyIterProtocol</code></a> trait.
 It includes two methods <code>__iter__</code> and <code>__next__</code>:</p>
@@ -908,9 +939,9 @@ It includes two methods <code>__iter__</code> and <code>__next__</code>:</p>
 <p>Returning <code>Ok(None)</code> from <code>__next__</code> indicates that that there are no further items.</p>
 <p>Example:</p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-use pyo3::prelude::*;
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 use pyo3::PyIterProtocol;
 
 #[pyclass]
@@ -927,8 +958,9 @@ impl PyIterProtocol for MyIterator {
         Ok(slf.iter.next())
     }
 }
-#}</code></pre></pre>
-<a class="header" href="#how-methods-are-implemented" id="how-methods-are-implemented"><h2>How methods are implemented</h2></a>
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#how-methods-are-implemented" id="how-methods-are-implemented">How methods are implemented</a></h2>
 <p>Users should be able to define a <code>#[pyclass]</code> with or without <code>#[pymethods]</code>, while PyO3 needs a
 trait with a function that returns all methods. Since it's impossible to make the code generation in
 pyclass dependent on whether there is an impl block, we'd need to implement the trait on
@@ -975,6 +1007,14 @@ only possible with the specialization feature, which can't be used on stable.</p
 
         
 
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
         
 
         

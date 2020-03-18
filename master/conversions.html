@@ -1,9 +1,11 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Type Conversions - PyO3 user guide</title>
+        
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="PyO3 user guide">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,9 +32,12 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">var path_to_root = "";</script>
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
@@ -53,10 +58,13 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script type="text/javascript">
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
-            if (theme === null || theme === undefined) { theme = 'light'; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -72,7 +80,10 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html" class="active"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li class="expanded "><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html" class="active"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -89,7 +100,7 @@
                                 <i class="fa fa-paint-brush"></i>
                             </button>
                             <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -102,12 +113,13 @@
                             
                         </div>
 
-                        <h1 class="menu-title">PyO3 user guide</h1> 
+                        <h1 class="menu-title">PyO3 user guide</h1>
 
                         <div class="right-buttons">
                             <a href="print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
+                            
                         </div>
                     </div>
                 </div>
@@ -136,9 +148,9 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#type-conversions" id="type-conversions"><h1>Type Conversions</h1></a>
+                        <h1><a class="header" href="#type-conversions" id="type-conversions">Type Conversions</a></h1>
 <p>PyO3 provides some handy traits to convert between Python types and Rust types.</p>
-<a class="header" href="#extract-and-the-frompyobject-trait" id="extract-and-the-frompyobject-trait"><h2><code>.extract()</code> and the <code>FromPyObject</code> trait</h2></a>
+<h2><a class="header" href="#extract-and-the-frompyobject-trait" id="extract-and-the-frompyobject-trait"><code>.extract()</code> and the <code>FromPyObject</code> trait</a></h2>
 <p>The easiest way to convert a Python object to a Rust value is using
 <code>.extract()</code>.  It returns a <code>PyResult</code> with a type error if the conversion
 fails, so usually you will use something like</p>
@@ -153,11 +165,11 @@ able to operate on mutable references <em>and</em> satisfy Rust's rules of non-a
 mutable references, you have to extract the PyO3 reference wrappers <code>PyRef&lt;T&gt;</code>
 and <code>PyRefMut&lt;T&gt;</code>.  They work like the reference wrappers of
 <code>std::cell::RefCell</code> and ensure (at runtime) that Rust borrows are allowed.</p>
-<a class="header" href="#the-topyobject-trait" id="the-topyobject-trait"><h2>The <code>ToPyObject</code> trait</h2></a>
+<h2><a class="header" href="#the-topyobject-trait" id="the-topyobject-trait">The <code>ToPyObject</code> trait</a></h2>
 <p><a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> is a conversion trait that allows various objects to be
 converted into <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyObject.html"><code>PyObject</code></a>. <code>IntoPy&lt;PyObject&gt;</code> serves the
 same purpose, except that it consumes <code>self</code>.</p>
-<a class="header" href="#args-and-kwargs-for-python-object-calls" id="args-and-kwargs-for-python-object-calls"><h2><code>*args</code> and <code>**kwargs</code> for Python object calls</h2></a>
+<h2><a class="header" href="#args-and-kwargs-for-python-object-calls" id="args-and-kwargs-for-python-object-calls"><code>*args</code> and <code>**kwargs</code> for Python object calls</a></h2>
 <p>There are several ways how to pass positional and keyword arguments to a Python object call.
 The <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html"><code>ObjectProtocol</code></a> trait provides two methods:</p>
 <ul>
@@ -239,7 +251,7 @@ fn main() {
     obj.call(py, (), Some(kwargs.into_py_dict(py)));
 }
 </code></pre></pre>
-<a class="header" href="#frompyt-and-intopyt" id="frompyt-and-intopyt"><h2><code>FromPy&lt;T&gt;</code> and <code>IntoPy&lt;T&gt;</code></h2></a>
+<h2><a class="header" href="#frompyt-and-intopyt" id="frompyt-and-intopyt"><code>FromPy&lt;T&gt;</code> and <code>IntoPy&lt;T&gt;</code></a></h2>
 <p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token. The <code>FromPy&lt;T&gt;</code> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument. I.e. <code>FromPy&lt;T&gt;</code> could be converting a Rust object into a Python object even though it is called <code>FromPy</code> - it doesn't say anything about which side of the conversion is a Python object.</p>
 <p>Just like From<T>, if you implement FromPy<T> you gain a blanket implementation of IntoPy<T> for free.</p>
 <p>Eventually, traits such as <code>ToPyObject</code> will be replaced by this trait and a <code>FromPy</code> trait will be added that will implement <code>IntoPy</code>, just like with <code>From</code> and <code>Into</code>.</p>
@@ -283,6 +295,14 @@ fn main() {
 
         
 
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
         
 
         

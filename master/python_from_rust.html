@@ -1,9 +1,11 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Calling Python from Rust - PyO3 user guide</title>
+        
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="PyO3 user guide">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,9 +32,12 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">var path_to_root = "";</script>
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
@@ -53,10 +58,13 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script type="text/javascript">
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
-            if (theme === null || theme === undefined) { theme = 'light'; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -72,7 +80,10 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html" class="active"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li class="expanded "><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html" class="active"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -89,7 +100,7 @@
                                 <i class="fa fa-paint-brush"></i>
                             </button>
                             <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -102,12 +113,13 @@
                             
                         </div>
 
-                        <h1 class="menu-title">PyO3 user guide</h1> 
+                        <h1 class="menu-title">PyO3 user guide</h1>
 
                         <div class="right-buttons">
                             <a href="print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
+                            
                         </div>
                     </div>
                 </div>
@@ -136,10 +148,10 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#calling-python-in-rust-code" id="calling-python-in-rust-code"><h1>Calling Python in Rust code</h1></a>
+                        <h1><a class="header" href="#calling-python-in-rust-code" id="calling-python-in-rust-code">Calling Python in Rust code</a></h1>
 <p>These APIs work from Rust whenever you have a <code>Python</code> object handy, whether
 PyO3 is built for an extension module or not.</p>
-<a class="header" href="#want-to-run-just-an-expression-then-use-eval" id="want-to-run-just-an-expression-then-use-eval"><h2>Want to run just an expression? Then use <code>eval</code>.</h2></a>
+<h2><a class="header" href="#want-to-run-just-an-expression-then-use-eval" id="want-to-run-just-an-expression-then-use-eval">Want to run just an expression? Then use <code>eval</code>.</a></h2>
 <p><a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.eval"><code>Python::eval</code></a> is
 a method to execute a <a href="https://docs.python.org/3.7/reference/expressions.html">Python expression</a>
 and return the evaluated value as a <code>&amp;PyAny</code> object.</p>
@@ -157,7 +169,7 @@ fn main() -&gt; Result&lt;(), ()&gt; {
     Ok(())
 }
 </code></pre></pre>
-<a class="header" href="#want-to-run-statements-then-use-run" id="want-to-run-statements-then-use-run"><h2>Want to run statements? Then use <code>run</code>.</h2></a>
+<h2><a class="header" href="#want-to-run-statements-then-use-run" id="want-to-run-statements-then-use-run">Want to run statements? Then use <code>run</code>.</a></h2>
 <p><a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a>
 is a method to execute one or more
 <a href="https://docs.python.org/3.7/reference/simple_stmts.html">Python statements</a>.
@@ -169,8 +181,8 @@ Since <code>py_run!</code> panics on exceptions, we recommend you use this macro
 quickly testing your Python extensions.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::{PyCell, PyObjectProtocol, py_run};
-#  fn main() {
-#[pyclass]
+<span class="boring"> fn main() {
+</span>#[pyclass]
 struct UserData {
     id: u32,
     name: String,
@@ -199,14 +211,14 @@ py_run!(py, userdata userdata_as_tuple, r#&quot;
 assert repr(userdata) == &quot;User Yu(id: 34)&quot;
 assert userdata.as_tuple() == userdata_as_tuple
 &quot;#);
-# }
-</code></pre></pre>
-<a class="header" href="#you-have-a-python-file-or-python-function-then-use-pymodule" id="you-have-a-python-file-or-python-function-then-use-pymodule"><h2>You have a Python file or Python function? Then use <code>PyModule</code>.</h2></a>
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#you-have-a-python-file-or-python-function-then-use-pymodule" id="you-have-a-python-file-or-python-function-then-use-pymodule">You have a Python file or Python function? Then use <code>PyModule</code>.</a></h2>
 <p><a href="https://pyo3.rs/master/doc/pyo3/types/struct.PyModule.html">PyModule</a> also can
 execute Python code by calling its methods.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::{prelude::*, types::{IntoPyDict, PyModule}};
-#  fn main() -&gt; PyResult&lt;()&gt; {
-let gil = Python::acquire_gil();
+<span class="boring"> fn main() -&gt; PyResult&lt;()&gt; {
+</span>let gil = Python::acquire_gil();
 let py = gil.python();
 let activators = PyModule::from_code(py, r#&quot;
 def relu(x):
@@ -225,8 +237,8 @@ let lrelu_result: f64 = activators
     .call(&quot;leaky_relu&quot;, (-1.0,), Some(kwargs))?
     .extract()?;
 assert_eq!(lrelu_result, -0.2);
-# Ok(()) }
-</code></pre></pre>
+<span class="boring">Ok(()) }
+</span></code></pre></pre>
 
                     </main>
 
@@ -267,6 +279,14 @@ assert_eq!(lrelu_result, -0.2);
 
         
 
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
         
 
         

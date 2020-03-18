@@ -1,9 +1,11 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Getting Started - PyO3 user guide</title>
+        
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="PyO3 user guide">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,9 +32,12 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">var path_to_root = "";</script>
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
@@ -53,10 +58,13 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script type="text/javascript">
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
-            if (theme === null || theme === undefined) { theme = 'light'; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -72,7 +80,10 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li class="expanded "><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -89,7 +100,7 @@
                                 <i class="fa fa-paint-brush"></i>
                             </button>
                             <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -102,12 +113,13 @@
                             
                         </div>
 
-                        <h1 class="menu-title">PyO3 user guide</h1> 
+                        <h1 class="menu-title">PyO3 user guide</h1>
 
                         <div class="right-buttons">
                             <a href="print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
+                            
                         </div>
                     </div>
                 </div>
@@ -136,7 +148,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#pyo3" id="pyo3"><h1>PyO3</h1></a>
+                        <h1><a class="header" href="#pyo3" id="pyo3">PyO3</a></h1>
 <p><a href="http://www.rust-lang.org/">Rust</a> bindings for <a href="https://www.python.org/">Python</a>. This includes running and interacting with Python code from a Rust binary, as well as writing native Python modules.</p>
 <ul>
 <li>
@@ -147,7 +159,7 @@
 </li>
 </ul>
 <p>A comparison with rust-cpython can be found <a href="https://pyo3.rs/master/rust_cpython.html">in the guide</a>.</p>
-<a class="header" href="#usage" id="usage"><h2>Usage</h2></a>
+<h2><a class="header" href="#usage" id="usage">Usage</a></h2>
 <p>PyO3 supports Python 3.5 and up. The minimum required Rust version is 1.42.0-nightly 2019-01-21.</p>
 <p>If you have never used nightly Rust, the official guide has
 <a href="https://doc.rust-lang.org/book/appendix-07-nightly-rust.html#rustup-and-the-role-of-rust-nightly">a great section</a>
@@ -158,7 +170,7 @@ Please refer to the <a href="https://pyo3.rs/master/pypy.html">pypy section</a>.
 <p>However, on some OSs, you need some additional packages. E.g. if you are on <em>Ubuntu 18.04</em>, please run</p>
 <pre><code class="language-bash">sudo apt install python3-dev python-dev
 </code></pre>
-<a class="header" href="#using-rust-from-python" id="using-rust-from-python"><h2>Using Rust from Python</h2></a>
+<h2><a class="header" href="#using-rust-from-python" id="using-rust-from-python">Using Rust from Python</a></h2>
 <p>PyO3 can be used to generate a native Python module.</p>
 <p><strong><code>Cargo.toml</code></strong></p>
 <pre><code class="language-toml">[package]
@@ -176,9 +188,9 @@ features = [&quot;extension-module&quot;]
 </code></pre>
 <p><strong><code>src/lib.rs</code></strong></p>
 <pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-use pyo3::prelude::*;
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
 #[pyfunction]
@@ -194,7 +206,8 @@ fn string_sum(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 
     Ok(())
 }
-#}</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>On Windows and Linux, you can build normally with <code>cargo build --release</code>. On macOS, you need to set additional linker arguments. One option is to compile with <code>cargo rustc --release -- -C link-arg=-undefined -C link-arg=dynamic_lookup</code>, the other is to create a <code>.cargo/config</code> with the following content:</p>
 <pre><code class="language-toml">[target.x86_64-apple-darwin]
 rustflags = [
@@ -204,7 +217,7 @@ rustflags = [
 </code></pre>
 <p>While developing, you can symlink (or copy) and rename the shared library from the target folder: On MacOS, rename <code>libstring_sum.dylib</code> to <code>string_sum.so</code>, on Windows <code>libstring_sum.dll</code> to <code>string_sum.pyd</code>, and on Linux <code>libstring_sum.so</code> to <code>string_sum.so</code>. Then open a Python shell in the same folder and you'll be able to <code>import string_sum</code>.</p>
 <p>To build, test and publish your crate as a Python module, you can use <a href="https://github.com/PyO3/maturin">maturin</a> or <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a>. You can find an example for setuptools-rust in <a href="https://github.com/PyO3/pyo3/tree/master/examples/word-count">examples/word-count</a>, while maturin should work on your crate without any configuration.</p>
-<a class="header" href="#using-python-from-rust" id="using-python-from-rust"><h2>Using Python from Rust</h2></a>
+<h2><a class="header" href="#using-python-from-rust" id="using-python-from-rust">Using Python from Rust</a></h2>
 <p>If you want your Rust application to create a Python interpreter internally and
 use it to run Python code, add <code>pyo3</code> to your <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies]
@@ -236,7 +249,7 @@ fn main_(py: Python) -&gt; PyResult&lt;()&gt; {
 </code></pre></pre>
 <p>Our guide has <a href="https://pyo3.rs/master/python_from_rust.html">a section</a> with lots of examples
 about this topic.</p>
-<a class="header" href="#examples-and-tooling" id="examples-and-tooling"><h2>Examples and tooling</h2></a>
+<h2><a class="header" href="#examples-and-tooling" id="examples-and-tooling">Examples and tooling</a></h2>
 <ul>
 <li><a href="https://github.com/PyO3/pyo3/tree/master/examples/word-count">examples/word-count</a> <em>Counting the occurrences of a word in a text file</em></li>
 <li><a href="https://github.com/mre/hyperjson">hyperjson</a> <em>A hyper-fast Python module for reading/writing JSON data using Rust's serde-json</em></li>
@@ -268,6 +281,10 @@ about this topic.</p>
                         
 
                         
+                            <a rel="next" href="module.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -278,12 +295,24 @@ about this topic.</p>
                 
 
                 
+                    <a href="module.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
             </nav>
 
         </div>
 
         
 
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
         
 
         

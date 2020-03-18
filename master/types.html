@@ -1,9 +1,11 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>GIL, mutability and object types - PyO3 user guide</title>
+        
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="PyO3 user guide">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,9 +32,12 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">var path_to_root = "";</script>
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
@@ -53,10 +58,13 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script type="text/javascript">
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
-            if (theme === null || theme === undefined) { theme = 'light'; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -72,7 +80,10 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="types.html" class="active"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li class="expanded "><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html" class="active"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -89,7 +100,7 @@
                                 <i class="fa fa-paint-brush"></i>
                             </button>
                             <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -102,12 +113,13 @@
                             
                         </div>
 
-                        <h1 class="menu-title">PyO3 user guide</h1> 
+                        <h1 class="menu-title">PyO3 user guide</h1>
 
                         <div class="right-buttons">
                             <a href="print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
+                            
                         </div>
                     </div>
                 </div>
@@ -136,12 +148,12 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#gil-lifetimes-mutability-and-python-object-types" id="gil-lifetimes-mutability-and-python-object-types"><h1>GIL lifetimes, mutability and Python object types</h1></a>
+                        <h1><a class="header" href="#gil-lifetimes-mutability-and-python-object-types" id="gil-lifetimes-mutability-and-python-object-types">GIL lifetimes, mutability and Python object types</a></h1>
 <p>On first glance, PyO3 provides a huge number of different types that can be used
 to wrap or refer to Python objects.  This page delves into the details and gives
 an overview of their intended meaning, with examples when each type is best
 used.</p>
-<a class="header" href="#mutability-and-rust-types" id="mutability-and-rust-types"><h2>Mutability and Rust types</h2></a>
+<h2><a class="header" href="#mutability-and-rust-types" id="mutability-and-rust-types">Mutability and Rust types</a></h2>
 <p>Since Python has no concept of ownership, and works solely with boxed objects,
 any Python object can be referenced any number of times, and mutation is allowed
 from any reference.</p>
@@ -171,8 +183,8 @@ to them, but it cannot statically guarantee uniqueness of <code>&amp;mut</code> 
 an object's ownership has been passed to the Python interpreter, ensuring
 references is done at runtime using <code>PyCell</code>, a scheme very similar to
 <code>std::cell::RefCell</code>.</p>
-<a class="header" href="#object-types" id="object-types"><h2>Object types</h2></a>
-<a class="header" href="#pyobject" id="pyobject"><h3><code>PyObject</code></h3></a>
+<h2><a class="header" href="#object-types" id="object-types">Object types</a></h2>
+<h3><a class="header" href="#pyobject" id="pyobject"><code>PyObject</code></a></h3>
 <p><strong>Represents:</strong> a GIL independent reference to a Python object of unspecified
 type.</p>
 <p><strong>Used:</strong> Whenever you want to carry around references to &quot;some&quot; Python object,
@@ -186,7 +198,7 @@ or returning objects from functions implemented in Rust back to Python.</p>
 <li>To <code>Py&lt;ConcreteType&gt;</code>: <code>obj.as_ref(py).extract::&lt;Py&lt;ConcreteType&gt;&gt;</code></li>
 <li>To <code>&amp;ConcreteType</code> (which must be a Python native type): <code>obj.cast_as(py)</code></li>
 </ul>
-<a class="header" href="#pysometype" id="pysometype"><h3><code>Py&lt;SomeType&gt;</code></h3></a>
+<h3><a class="header" href="#pysometype" id="pysometype"><code>Py&lt;SomeType&gt;</code></a></h3>
 <p><strong>Represents:</strong> a GIL independent reference to a Python object of known type.
 This can be a Python native type (like <code>PyTuple</code>), or a <code>pyclass</code> type
 implemented in Rust.</p>
@@ -200,7 +212,7 @@ mutating operations through PyO3's API don't require <code>&amp;mut</code> acces
 </ul>
 <p><strong>Note:</strong> <code>PyObject</code> is semantically equivalent to <code>Py&lt;PyAny&gt;</code> and might be
 merged with it in the future.</p>
-<a class="header" href="#pyany" id="pyany"><h3><code>PyAny</code></h3></a>
+<h3><a class="header" href="#pyany" id="pyany"><code>PyAny</code></a></h3>
 <p><strong>Represents:</strong> a Python object of unspecified type, restricted to a GIL
 lifetime.  Currently, <code>PyAny</code> can only ever occur as a reference, usually
 <code>&amp;PyAny</code>.</p>
@@ -211,7 +223,7 @@ holding the GIL.  For example, intermediate values and arguments to
 <ul>
 <li>To <code>PyObject</code>: <code>obj.to_object(py)</code></li>
 </ul>
-<a class="header" href="#pytuple-pydict-and-many-more" id="pytuple-pydict-and-many-more"><h3><code>PyTuple</code>, <code>PyDict</code>, and many more</h3></a>
+<h3><a class="header" href="#pytuple-pydict-and-many-more" id="pytuple-pydict-and-many-more"><code>PyTuple</code>, <code>PyDict</code>, and many more</a></h3>
 <p><strong>Represents:</strong> a native Python object of known type, restricted to a GIL
 lifetime just like <code>PyAny</code>.</p>
 <p><strong>Used:</strong> Whenever you want to operate with native Python types while holding
@@ -222,7 +234,7 @@ arguments and intermediate values.</p>
 <li>To <code>PyAny</code>: <code>obj.as_ref()</code></li>
 <li>To <code>Py&lt;T&gt;</code>: <code>Py::from(obj)</code></li>
 </ul>
-<a class="header" href="#pycellsometype" id="pycellsometype"><h3><code>PyCell&lt;SomeType&gt;</code></h3></a>
+<h3><a class="header" href="#pycellsometype" id="pycellsometype"><code>PyCell&lt;SomeType&gt;</code></a></h3>
 <p><strong>Represents:</strong> a reference to a Rust object (instance of <code>PyClass</code>) which is
 wrapped in a Python object.  The cell part is an analog to stdlib's
 <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a> to allow access to <code>&amp;mut</code> references.</p>
@@ -233,16 +245,16 @@ Rust references.</p>
 <ul>
 <li>From <code>PyAny</code>: <code>.downcast()</code></li>
 </ul>
-<a class="header" href="#pyrefsometype-and-pyrefmutsometype" id="pyrefsometype-and-pyrefmutsometype"><h3><code>PyRef&lt;SomeType&gt;</code> and <code>PyRefMut&lt;SomeType&gt;</code></h3></a>
+<h3><a class="header" href="#pyrefsometype-and-pyrefmutsometype" id="pyrefsometype-and-pyrefmutsometype"><code>PyRef&lt;SomeType&gt;</code> and <code>PyRefMut&lt;SomeType&gt;</code></a></h3>
 <p><strong>Represents:</strong> reference wrapper types employed by <code>PyCell</code> to keep track of
 borrows, analog to <code>Ref</code> and <code>RefMut</code> used by <code>RefCell</code>.</p>
 <p><strong>Used:</strong> while borrowing a <code>PyCell</code>.  They can also be used with <code>.extract()</code>
 on types like <code>Py&lt;T&gt;</code> and <code>PyAny</code> to get a reference quickly.</p>
-<a class="header" href="#related-traits-and-types" id="related-traits-and-types"><h2>Related traits and types</h2></a>
-<a class="header" href="#pyclass" id="pyclass"><h3><code>PyClass</code></h3></a>
+<h2><a class="header" href="#related-traits-and-types" id="related-traits-and-types">Related traits and types</a></h2>
+<h3><a class="header" href="#pyclass" id="pyclass"><code>PyClass</code></a></h3>
 <p>This trait marks structs defined in Rust that are also usable as Python classes,
 usually defined using the <code>#[pyclass]</code> macro.</p>
-<a class="header" href="#pynativetype" id="pynativetype"><h3><code>PyNativeType</code></h3></a>
+<h3><a class="header" href="#pynativetype" id="pynativetype"><code>PyNativeType</code></a></h3>
 <p>This trait marks structs that mirror native Python types, such as <code>PyList</code>.</p>
 
                     </main>
@@ -284,6 +296,14 @@ usually defined using the <code>#[pyclass]</code> macro.</p>
 
         
 
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
         
 
         

@@ -1,9 +1,11 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Appendix B: Migration Guide - PyO3 user guide</title>
+        
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="PyO3 user guide">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,9 +32,12 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">var path_to_root = "";</script>
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
@@ -53,10 +58,13 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script type="text/javascript">
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
-            if (theme === null || theme === undefined) { theme = 'light'; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -72,7 +80,10 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li><a href="migration.html" class="active"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="get_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li class="expanded "><a href="module.html"><strong aria-hidden="true">2.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">3.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">4.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">5.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">6.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">7.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">8.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">9.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">10.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">11.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">12.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">13.</strong> PyPy support</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html" class="active"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -89,7 +100,7 @@
                                 <i class="fa fa-paint-brush"></i>
                             </button>
                             <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -102,12 +113,13 @@
                             
                         </div>
 
-                        <h1 class="menu-title">PyO3 user guide</h1> 
+                        <h1 class="menu-title">PyO3 user guide</h1>
 
                         <div class="right-buttons">
                             <a href="print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
+                            
                         </div>
                     </div>
                 </div>
@@ -136,10 +148,10 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#appendix-b-migrating-from-older-pyo3-versions" id="appendix-b-migrating-from-older-pyo3-versions"><h1>Appendix B: Migrating from older PyO3 versions</h1></a>
+                        <h1><a class="header" href="#appendix-b-migrating-from-older-pyo3-versions" id="appendix-b-migrating-from-older-pyo3-versions">Appendix B: Migrating from older PyO3 versions</a></h1>
 <p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next. For a detailed list of all changes, see <a href="https://github.com/PyO3/pyo3/blob/master/CHANGELOG.md">CHANGELOG.md</a></p>
-<a class="header" href="#from-08-to-09" id="from-08-to-09"><h2>from 0.8.* to 0.9</h2></a>
-<a class="header" href="#new-interface" id="new-interface"><h3><code>#[new]</code> interface</h3></a>
+<h2><a class="header" href="#from-08-to-09" id="from-08-to-09">from 0.8.* to 0.9</a></h2>
+<h3><a class="header" href="#new-interface" id="new-interface"><code>#[new]</code> interface</a></h3>
 <p><a href="https://docs.rs/pyo3/0.8.5/pyo3/type_object/struct.PyRawObject.html"><code>PyRawObject</code></a>
 is now removed and our syntax for constructors has changed.</p>
 <p>Before:</p>
@@ -169,7 +181,7 @@ impl MyClass {
 </code></pre>
 <p>Basically you can return <code>Self</code> or <code>Result&lt;Self&gt;</code> directly.
 For more, see <a href="https://pyo3.rs/master/class.html#constructor">the constructor section</a> of this guide.</p>
-<a class="header" href="#pycell" id="pycell"><h3>PyCell</h3></a>
+<h3><a class="header" href="#pycell" id="pycell">PyCell</a></h3>
 <p>PyO3 0.9 introduces <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is
 a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
 for ensuring Rust's rules regarding aliasing of references are upheld.
@@ -211,7 +223,7 @@ impl Names {
 Given this <code>#[pyclass]</code>, calling <code>names.merge(names)</code> in Python raises a <code>PyBorrowMutError</code> exception,
 since it requires two mutable borrows of <code>names</code>.</p>
 <p>However, for <code>#[pyproto]</code> and some functions, you need to manually fix the code.</p>
-<a class="header" href="#object-creation" id="object-creation"><h4>Object creation</h4></a>
+<h4><a class="header" href="#object-creation" id="object-creation">Object creation</a></h4>
 <p>In 0.8 object creation was done with <code>PyRef::new</code> and <code>PyRefMut::new</code>.
 In 0.9 these have both been removed.
 To upgrade code, please use <code>PyCell::new</code> instead.
@@ -234,7 +246,7 @@ let py = gil.python();
 let obj = PyCell::new(py, MyClass {}).unwrap();
 let obj_ref = obj.borrow();
 </code></pre>
-<a class="header" href="#object-extraction" id="object-extraction"><h4>Object extraction</h4></a>
+<h4><a class="header" href="#object-extraction" id="object-extraction">Object extraction</a></h4>
 <p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <code>FromPyObject</code> implementations.
 Instead you should extract <code>PyRef&lt;T&gt;</code> or <code>PyRefMut&lt;T&gt;</code>, respectively.
 If <code>T</code> implements <code>Clone</code>, you can extract <code>T</code> itself.
@@ -263,7 +275,7 @@ let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the ob
 }
 let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
 </code></pre>
-<a class="header" href="#pyproto" id="pyproto"><h4><code>#[pyproto]</code></h4></a>
+<h4><a class="header" href="#pyproto" id="pyproto"><code>#[pyproto]</code></a></h4>
 <p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a [<code>FromPyObject</code>] implementation.
 So if your protocol methods take <code>&amp;T</code> or <code>&amp;mut T</code> (where <code>T: PyClass</code>),
 please use <code>PyRef</code> or <code>PyRefMut</code> instead.</p>
@@ -331,6 +343,14 @@ impl PySequenceProtocol for ByteSequence {
 
         
 
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
         
 
         
