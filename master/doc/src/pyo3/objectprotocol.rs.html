@@ -520,6 +520,32 @@
 <span id="520">520</span>
 <span id="521">521</span>
 <span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -537,18 +563,21 @@
 <span class="doccomment">/// Python object model helper methods</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ObjectProtocol</span> {
     <span class="doccomment">/// Determines whether this object has the given attribute.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `hasattr(self, attr_name)`.</span>
     <span class="kw">fn</span> <span class="ident">hasattr</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attr_name</span>: <span class="ident">N</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>;
 
     <span class="doccomment">/// Retrieves an attribute value.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.attr_name`.</span>
     <span class="kw">fn</span> <span class="ident">getattr</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attr_name</span>: <span class="ident">N</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>;
 
     <span class="doccomment">/// Sets an attribute value.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.attr_name = value`.</span>
     <span class="kw">fn</span> <span class="ident">setattr</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attr_name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -556,6 +585,7 @@
         <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>;
 
     <span class="doccomment">/// Deletes an attribute.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `del self.attr_name`.</span>
     <span class="kw">fn</span> <span class="ident">delattr</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attr_name</span>: <span class="ident">N</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -580,7 +610,8 @@
 
     <span class="doccomment">/// Compares two Python objects.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Depending on the value of `compare_op`, equivalent to one of the following Python expressions:</span>
+    <span class="doccomment">/// Depending on the value of `compare_op`, this is equivalent to one of the</span>
+    <span class="doccomment">/// following Python expressions:</span>
     <span class="doccomment">///   * CompareOp::Eq: `self == other`</span>
     <span class="doccomment">///   * CompareOp::Ne: `self != other`</span>
     <span class="doccomment">///   * CompareOp::Lt: `self &lt; other`</span>
@@ -591,11 +622,13 @@
     <span class="kw">where</span>
         <span class="ident">O</span>: <span class="ident">ToPyObject</span>;
 
-    <span class="doccomment">/// Compute the string representation of self.</span>
+    <span class="doccomment">/// Computes the &quot;repr&quot; representation of self.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `repr(self)`.</span>
     <span class="kw">fn</span> <span class="ident">repr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyString</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Compute the string representation of self.</span>
+    <span class="doccomment">/// Computes the &quot;str&quot; representation of self.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `str(self)`.</span>
     <span class="kw">fn</span> <span class="ident">str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyString</span><span class="op">&gt;</span>;
 
@@ -603,19 +636,23 @@
     <span class="kw">fn</span> <span class="ident">is_callable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
 
     <span class="doccomment">/// Calls the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `self(*args, **kwargs)`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self(*args, **kwargs)`.</span>
     <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">args</span>: <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">kwargs</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyDict</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Calls the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `self()`.</span>
-    <span class="kw">fn</span> <span class="ident">call0</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>;
-
-    <span class="doccomment">/// Calls the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `self(*args)`.</span>
+    <span class="doccomment">/// Calls the object with only positional arguments.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self(*args)`.</span>
     <span class="kw">fn</span> <span class="ident">call1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">args</span>: <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>;
 
+    <span class="doccomment">/// Calls the object without arguments.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self()`.</span>
+    <span class="kw">fn</span> <span class="ident">call0</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>;
+
     <span class="doccomment">/// Calls a method on the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `self.name(*args, **kwargs)`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.name(*args, **kwargs)`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">/// ```rust</span>
@@ -636,77 +673,92 @@
         <span class="ident">kwargs</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyDict</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Calls a method on the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `self.name()`.</span>
-    <span class="kw">fn</span> <span class="ident">call_method0</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>;
-
-    <span class="doccomment">/// Calls a method on the object with positional arguments only.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `self.name(*args)`.</span>
+    <span class="doccomment">/// Calls a method on the object with only positional arguments.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.name(*args)`.</span>
     <span class="kw">fn</span> <span class="ident">call_method1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">args</span>: <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>;
 
+    <span class="doccomment">/// Calls a method on the object without arguments.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.name()`.</span>
+    <span class="kw">fn</span> <span class="ident">call_method0</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>;
+
     <span class="doccomment">/// Retrieves the hash code of the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `hash(self)`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `hash(self)`.</span>
     <span class="kw">fn</span> <span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns whether the object is considered to be true.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `not not self`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `bool(self)`.</span>
     <span class="kw">fn</span> <span class="ident">is_true</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns whether the object is considered to be None.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `is None`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self is None`.</span>
     <span class="kw">fn</span> <span class="ident">is_none</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
 
     <span class="doccomment">/// Returns the length of the sequence or mapping.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `len(self)`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `len(self)`.</span>
     <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns true if the sequence or mapping has a length of 0.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: `len(self) == 0`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `len(self) == 0`.</span>
     <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// This is equivalent to the Python expression: `self[key]`.</span>
+    <span class="doccomment">/// Gets an item from the collections.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self[key]`.</span>
     <span class="kw">fn</span> <span class="ident">get_item</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>;
 
-    <span class="doccomment">/// Sets an item value.</span>
+    <span class="doccomment">/// Sets a collection item value.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self[key] = value`.</span>
     <span class="kw">fn</span> <span class="ident">set_item</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>,
         <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>;
 
-    <span class="doccomment">/// Deletes an item.</span>
+    <span class="doccomment">/// Deletes an item from the collection.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `del self[key]`.</span>
     <span class="kw">fn</span> <span class="ident">del_item</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>;
 
     <span class="doccomment">/// Takes an object and returns an iterator for it.</span>
-    <span class="doccomment">/// This is typically a new iterator but if the argument</span>
-    <span class="doccomment">/// is an iterator, this returns itself.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is typically a new iterator but if the argument is an iterator,</span>
+    <span class="doccomment">/// this returns itself.</span>
     <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyIterator</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Gets the Python type object for this object&#39;s type.</span>
+    <span class="doccomment">/// Returns the Python type object for this object&#39;s type.</span>
     <span class="kw">fn</span> <span class="ident">get_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PyType</span>;
 
-    <span class="doccomment">/// Gets the Python type pointer for this object.</span>
+    <span class="doccomment">/// Returns the Python type pointer for this object.</span>
     <span class="kw">fn</span> <span class="ident">get_type_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>;
 
     <span class="doccomment">/// Casts the PyObject to a concrete Python object type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This can cast only to native Python types, not types implemented in Rust.</span>
     <span class="kw">fn</span> <span class="ident">cast_as</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">D</span>, <span class="ident">PyDowncastError</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>: <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">Self</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Extracts some type from the Python object.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is a wrapper function around `FromPyObject::extract()`.</span>
     <span class="kw">fn</span> <span class="ident">extract</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>: <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">Self</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Returns reference count for python object.</span>
+    <span class="doccomment">/// Returns the reference count for the Python object.</span>
     <span class="kw">fn</span> <span class="ident">get_refcnt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span>;
 
     <span class="doccomment">/// Gets the Python builtin value `None`.</span>

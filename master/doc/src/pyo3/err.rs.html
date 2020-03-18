@@ -565,6 +565,20 @@
 <span id="565">565</span>
 <span id="566">566</span>
 <span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -584,9 +598,9 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_char</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
 
-<span class="doccomment">/// Represents a `PyErr` value</span>
+<span class="doccomment">/// Represents a `PyErr` value.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// **CAUTION**</span>
+<span class="doccomment">/// **Caution:**</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// When you construct an instance of `PyErrValue`, we highly recommend to use `from_err_args`</span>
 <span class="doccomment">/// method.  If you want to to construct `PyErrValue::ToArgs` directly, please do not forget to</span>
@@ -637,13 +651,22 @@
     <span class="doccomment">/// Creates a new PyErr of type `T`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// `value` can be:</span>
-    <span class="doccomment">/// * a tuple: the exception instance will be created using python `T(*tuple)`</span>
-    <span class="doccomment">/// * any other value: the exception instance will be created using python `T(value)`</span>
+    <span class="doccomment">/// * a tuple: the exception instance will be created using Python `T(*tuple)`</span>
+    <span class="doccomment">/// * any other value: the exception instance will be created using Python `T(value)`</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if `T` is not a python class derived from `BaseException`.</span>
+    <span class="doccomment">/// Panics if `T` is not a Python class derived from `BaseException`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Example:</span>
-    <span class="doccomment">///  `return Err(PyErr::new::&lt;exceptions::TypeError, _&gt;(&quot;Error message&quot;));`</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// return Err(PyErr::new::&lt;exceptions::TypeError, _&gt;(&quot;Error message&quot;));</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// In most cases, you can use a concrete exception&#39;s constructors instead:</span>
+    <span class="doccomment">/// the example is equivalent to</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// return Err(exceptions::TypeError::py_err(&quot;Error message&quot;));</span>
+    <span class="doccomment">/// return exceptions::TypeError::into(&quot;Error message&quot;);</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">PyTypeObject</span>,
@@ -659,7 +682,8 @@
         }
     }
 
-    <span class="doccomment">/// Construct a new error, with the usual lazy initialization of Python exceptions.</span>
+    <span class="doccomment">/// Constructs a new error, with the usual lazy initialization of Python exceptions.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// `exc` is the exception type; usually one of the standard exceptions</span>
     <span class="doccomment">/// like `exceptions::RuntimeError`.</span>
     <span class="doccomment">/// `args` is the a tuple of arguments to pass to the exception constructor.</span>
@@ -726,6 +750,7 @@
     }
 
     <span class="doccomment">/// Retrieves the current error from the Python interpreter&#39;s global state.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// The error is cleared from the Python interpreter.</span>
     <span class="doccomment">/// If no error is set, returns a `SystemError`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fetch</span>(<span class="kw">_</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
@@ -800,19 +825,21 @@
         }
     }
 
-    <span class="doccomment">/// Print a standard traceback to sys.stderr.</span>
+    <span class="doccomment">/// Prints a standard traceback to `sys.stderr`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">print</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) {
         <span class="self">self</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
         <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">PyErr_PrintEx</span>(<span class="number">0</span>) }
     }
 
-    <span class="doccomment">/// Print a standard traceback to sys.stderr.</span>
+    <span class="doccomment">/// Prints a standard traceback to `sys.stderr`, and sets</span>
+    <span class="doccomment">/// `sys.last_{type,value,traceback}` attributes to this exception&#39;s data.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">print_and_set_sys_last_vars</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) {
         <span class="self">self</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
         <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">PyErr_PrintEx</span>(<span class="number">1</span>) }
     }
 
-    <span class="doccomment">/// Return true if the current exception matches the exception in `exc`.</span>
+    <span class="doccomment">/// Returns true if the current exception matches the exception in `exc`.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// If `exc` is a class object, this also returns `true` when `self` is an instance of a subclass.</span>
     <span class="doccomment">/// If `exc` is a tuple, all exceptions in the tuple (and recursively in subtuples) are searched for a match.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">matches</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">exc</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
@@ -824,7 +851,7 @@
         })
     }
 
-    <span class="doccomment">/// Return true if the current exception is instance of `T`</span>
+    <span class="doccomment">/// Returns true if the current exception is instance of `T`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_instance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">PyTypeObject</span>,
@@ -845,8 +872,8 @@
         <span class="comment">// This is safe as long as normalized() doesn&#39;t unwind due to a panic.</span>
     }
 
-    <span class="doccomment">/// Helper function for normalizing the error by deconstructing and reconstructing the PyErr.</span>
-    <span class="doccomment">/// Must not panic for safety in normalize()</span>
+    <span class="doccomment">/// Helper function for normalizing the error by deconstructing and reconstructing the `PyErr`.</span>
+    <span class="doccomment">/// Must not panic for safety in `normalize()`.</span>
     <span class="kw">fn</span> <span class="ident">into_normalized</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
         <span class="kw">let</span> <span class="ident">PyErr</span> {
             <span class="ident">ptype</span>,
@@ -870,6 +897,7 @@
     }
 
     <span class="doccomment">/// Retrieves the exception instance for this error.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This method takes `mut self` because the error might need</span>
     <span class="doccomment">/// to be normalized in order to create the exception instance.</span>
     <span class="kw">fn</span> <span class="ident">instance</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
@@ -913,8 +941,8 @@
         <span class="op">-</span><span class="number">1</span>
     }
 
-    <span class="doccomment">/// Issue a warning message.</span>
-    <span class="doccomment">/// May return a PyErr if warnings-as-errors is enabled.</span>
+    <span class="doccomment">/// Issues a warning message.</span>
+    <span class="doccomment">/// May return a `PyErr` if warnings-as-errors is enabled.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">warn</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">category</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span>, <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">stacklevel</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">CString</span>::<span class="ident">new</span>(<span class="ident">message</span>)<span class="question-mark">?</span>;
         <span class="kw">unsafe</span> {

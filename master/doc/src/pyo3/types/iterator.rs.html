@@ -187,6 +187,7 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
+<span id="190">190</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -199,10 +200,10 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
 
-<span class="doccomment">/// A python iterator object.</span>
+<span class="doccomment">/// A Python iterator object.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Unlike other python objects, this class includes a `Python&lt;&#39;p&gt;` token</span>
-<span class="doccomment">/// so that `PyIterator` can implement the rust `Iterator` trait.</span>
+<span class="doccomment">/// Unlike other Python objects, this class includes a `Python&lt;&#39;p&gt;` token</span>
+<span class="doccomment">/// so that `PyIterator` can implement the Rust `Iterator` trait.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
@@ -250,6 +251,7 @@
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyAny</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Retrieves the next item from an iterator.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` when the iterator is exhausted.</span>
     <span class="doccomment">/// If an exception occurs, returns `Some(Err(..))`.</span>
     <span class="doccomment">/// Further `next()` calls after an exception occurs are likely</span>

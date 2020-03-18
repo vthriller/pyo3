@@ -725,6 +725,24 @@
 <span id="725">725</span>
 <span id="726">726</span>
 <span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -740,13 +758,15 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>};
 
-<span class="doccomment">/// Represents a reference to a python object supporting the sequence protocol.</span>
+<span class="doccomment">/// Represents a reference to a Python object supporting the sequence protocol.</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySequence</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 <span class="macro">pyobject_native_type_named</span><span class="macro">!</span>(<span class="ident">PySequence</span>);
 
 <span class="kw">impl</span> <span class="ident">PySequence</span> {
-    <span class="doccomment">/// Returns the number of objects in sequence. This is equivalent to Python `len()`.</span>
+    <span class="doccomment">/// Returns the number of objects in sequence.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `len(self)`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">PySequence_Size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) };
@@ -762,7 +782,9 @@
         <span class="self">self</span>.<span class="ident">len</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Return the concatenation of o1 and o2. Equivalent to python `o1 + o2`</span>
+    <span class="doccomment">/// Returns the concatenation of `self` and `other`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self + other`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
@@ -776,8 +798,9 @@
         }
     }
 
-    <span class="doccomment">/// Return the result of repeating sequence object o count times.</span>
-    <span class="doccomment">/// Equivalent to python `o * count`</span>
+    <span class="doccomment">/// Returns the result of repeating a sequence object `count` times.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self * count`.</span>
     <span class="doccomment">/// NB: Python accepts negative counts; it returns an empty Sequence.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">repeat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">count</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
@@ -792,7 +815,9 @@
         }
     }
 
-    <span class="doccomment">/// Concatenate of o1 and o2 on success. Equivalent to python `o1 += o2`</span>
+    <span class="doccomment">/// Concatenates `self` and `other` in place.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `self += other`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">in_place_concat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
@@ -805,8 +830,9 @@
         }
     }
 
-    <span class="doccomment">/// Repeate sequence object o count times and store in self.</span>
-    <span class="doccomment">/// Equivalent to python `o *= count`</span>
+    <span class="doccomment">/// Repeats the sequence object `count` times and updates `self`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `self *= count`.</span>
     <span class="doccomment">/// NB: Python accepts negative counts; it empties the Sequence.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">in_place_repeat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">count</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -820,7 +846,9 @@
         }
     }
 
-    <span class="doccomment">/// Return the ith element of the Sequence. Equivalent to python `o[index]`</span>
+    <span class="doccomment">/// Returns the `index`th element of the Sequence.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self[index]`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
@@ -829,8 +857,9 @@
         }
     }
 
-    <span class="doccomment">/// Return the slice of sequence object o between begin and end.</span>
-    <span class="doccomment">/// This is the equivalent of the Python expression `o[begin:end]`</span>
+    <span class="doccomment">/// Returns the slice of sequence object between `begin` and `end`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self[begin:end]`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">begin</span>: <span class="ident">isize</span>, <span class="ident">end</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
@@ -842,8 +871,9 @@
         }
     }
 
-    <span class="doccomment">/// Assign object v to the ith element of o.</span>
-    <span class="doccomment">/// Equivalent to Python statement `o[i] = v`</span>
+    <span class="doccomment">/// Assigns object `item` to the `i`th element of self.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `self[i] = v`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_item</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">isize</span>, <span class="ident">item</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -859,8 +889,9 @@
         }
     }
 
-    <span class="doccomment">/// Delete the ith element of object o.</span>
-    <span class="doccomment">/// Python statement `del o[i]`</span>
+    <span class="doccomment">/// Deletes the `i`th element of self.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `del self[i]`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
@@ -871,8 +902,9 @@
         }
     }
 
-    <span class="doccomment">/// Assign the sequence object v to the slice in sequence object o from i1 to i2.</span>
-    <span class="doccomment">/// This is the equivalent of the Python statement `o[i1:i2] = v`</span>
+    <span class="doccomment">/// Assigns the sequence `v` to the slice of `self` from `i1` to `i2`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `self[i1:i2] = v`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">isize</span>, <span class="ident">i2</span>: <span class="ident">isize</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
@@ -888,8 +920,9 @@
         }
     }
 
-    <span class="doccomment">/// Delete the slice in sequence object o from i1 to i2.</span>
-    <span class="doccomment">/// equivalent of the Python statement `del o[i1:i2]`</span>
+    <span class="doccomment">/// Deletes the slice from `i1` to `i2` from `self`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `del self[i1:i2]`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">isize</span>, <span class="ident">i2</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
@@ -900,8 +933,8 @@
         }
     }
 
-    <span class="doccomment">/// Return the number of occurrences of value in o, that is, return the number of keys for</span>
-    <span class="doccomment">/// which `o[key] == value`</span>
+    <span class="doccomment">/// Returns the number of occurrences of `value` in self, that is, return the</span>
+    <span class="doccomment">/// number of keys for which `self[key] == value`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
@@ -918,7 +951,9 @@
         }
     }
 
-    <span class="doccomment">/// Determine if o contains value. this is equivalent to the Python expression `value in o`</span>
+    <span class="doccomment">/// Determines if self contains `value`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `value in self`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -934,8 +969,9 @@
         }
     }
 
-    <span class="doccomment">/// Return the first index `i` for which `o[i] == value`.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression `o.index(value)`</span>
+    <span class="doccomment">/// Returns the first index `i` for which `self[i] == value`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.index(value)`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -951,7 +987,7 @@
         }
     }
 
-    <span class="doccomment">/// Return a fresh list based on the Sequence.</span>
+    <span class="doccomment">/// Returns a fresh list based on the Sequence.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyList</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
@@ -960,7 +996,7 @@
         }
     }
 
-    <span class="doccomment">/// Return a fresh tuple based on the Sequence.</span>
+    <span class="doccomment">/// Returns a fresh tuple based on the Sequence.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tuple</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTuple</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {

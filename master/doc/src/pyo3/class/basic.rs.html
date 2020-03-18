@@ -546,7 +546,7 @@
 
 <span class="doccomment">//! Basic Python Object customization</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Check [python c-api information](https://docs.python.org/3/reference/datamodel.html#basic-customization)</span>
+<span class="doccomment">//! Check [the Python C API information](https://docs.python.org/3/reference/datamodel.html#basic-customization)</span>
 <span class="doccomment">//! for more information.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Parts of the documentation are copied from the respective methods from the</span>
@@ -571,7 +571,7 @@
     <span class="ident">Ge</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">Py_GE</span> <span class="kw">as</span> <span class="ident">isize</span>,
 }
 
-<span class="doccomment">/// Basic python class customization</span>
+<span class="doccomment">/// Basic Python class customization</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
     <span class="kw">fn</span> <span class="ident">__getattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="self">Self</span>::<span class="ident">Name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
@@ -790,8 +790,8 @@
 }
 
 <span class="doccomment">/// An object may support setting attributes (by implementing PyObjectSetAttrProtocol)</span>
-<span class="doccomment">/// and may support deleting attributes (by implementing PyObjectDelAttrProtocol)</span>
-<span class="doccomment">/// and we need to generate a single extern c function that supports only setting, only deleting</span>
+<span class="doccomment">/// and may support deleting attributes (by implementing PyObjectDelAttrProtocol).</span>
+<span class="doccomment">/// We need to generate a single &quot;extern C&quot; function that supports only setting, only deleting</span>
 <span class="doccomment">/// or both, and return None in case none of the two is supported.</span>
 <span class="kw">mod</span> <span class="ident">tp_setattro_impl</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;

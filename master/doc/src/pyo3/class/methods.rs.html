@@ -159,8 +159,8 @@
 <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">c_int</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>;
 
-<span class="doccomment">/// `PyMethodDefType` represents different types of python callable objects.</span>
-<span class="doccomment">/// It is used by `#[pymethods]` and `#[pyproto]` annotations.</span>
+<span class="doccomment">/// `PyMethodDefType` represents different types of Python callable objects.</span>
+<span class="doccomment">/// It is used by the `#[pymethods]` and `#[pyproto]` annotations.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PyMethodDefType</span> {
     <span class="doccomment">/// Represents class `__new__` method</span>
@@ -288,7 +288,7 @@
     <span class="kw">fn</span> <span class="ident">get_methods</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">PyMethodDefType</span>];
 }
 
-<span class="doccomment">/// The implementation of tis trait defines which methods a python type has.</span>
+<span class="doccomment">/// The implementation of this trait defines which methods a Python type has.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// For pyclass derived structs this is implemented by collecting all impl blocks through inventory</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMethodsProtocol</span> {

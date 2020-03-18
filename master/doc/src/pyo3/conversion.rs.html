@@ -493,10 +493,19 @@
 <span id="493">493</span>
 <span id="494">494</span>
 <span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
-<span class="doccomment">//! Conversions between various states of rust and python types and their wrappers.</span>
+<span class="doccomment">//! Conversions between various states of Rust and Python types and their wrappers.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="self">self</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyDowncastImpl</span>, <span class="ident">PyTypeInfo</span>};
@@ -505,9 +514,10 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">gil</span>, <span class="ident">Py</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
 
-<span class="doccomment">/// This trait represents that, **we can do zero-cost conversion from the object to FFI pointer**.</span>
+<span class="doccomment">/// This trait represents that **we can do zero-cost conversion from the object</span>
+<span class="doccomment">/// to a FFI pointer**.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This trait is implemented for types that internally wrap a pointer to a python object.</span>
+<span class="doccomment">/// This trait is implemented for types that internally wrap a pointer to a Python object.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
@@ -573,7 +583,7 @@
     }
 }
 
-<span class="doccomment">/// Conversion trait that allows various objects to be converted into `PyObject`</span>
+<span class="doccomment">/// Conversion trait that allows various objects to be converted into `PyObject`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ToPyObject</span> {
     <span class="doccomment">/// Converts self into a Python object.</span>
     <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span>;
@@ -657,23 +667,31 @@
 <span class="doccomment">/// `FromPyObject` is implemented by various types that can be extracted from</span>
 <span class="doccomment">/// a Python object reference.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Normal usage is through the `PyObject::extract` helper method:</span>
+<span class="doccomment">/// Normal usage is through the helper methods `PyObject::extract` or</span>
+<span class="doccomment">/// `PyAny::extract`:</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// ```let obj: PyObject = ...;</span>
 <span class="doccomment">/// let value: &amp;TargetType = obj.extract(py)?;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let any: &amp;PyAny = ...;</span>
+<span class="doccomment">/// let value: &amp;TargetType = any.extract()?;</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note: depending on the implementation, the lifetime of the extracted result may</span>
 <span class="doccomment">/// depend on the lifetime of the `obj` or the `prepared` variable.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// For example, when extracting `&amp;str` from a python byte string, the resulting string slice will</span>
+<span class="doccomment">/// For example, when extracting `&amp;str` from a Python byte string, the resulting string slice will</span>
 <span class="doccomment">/// point to the existing string data (lifetime: `&#39;source`).</span>
-<span class="doccomment">/// On the other hand, when extracting `&amp;str` from a python unicode string, the preparation step</span>
+<span class="doccomment">/// On the other hand, when extracting `&amp;str` from a Python Unicode string, the preparation step</span>
 <span class="doccomment">/// will convert the string to UTF-8, and the resulting string slice will have lifetime `&#39;prepared`.</span>
-<span class="doccomment">/// Since only which of these cases applies depends on the runtime type of the python object,</span>
+<span class="doccomment">/// Since which case applies depends on the runtime type of the Python object,</span>
 <span class="doccomment">/// both the `obj` and `prepared` variables must outlive the resulting string slice.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// In cases where the result does not depend on the `&#39;prepared` lifetime,</span>
 <span class="doccomment">/// the inherent method `PyObject::extract()` can be used.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The trait&#39;s conversion method takes a `&amp;PyAny` argument but is called</span>
+<span class="doccomment">/// `FromPyObject` for historical reasons.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;source</span><span class="op">&gt;</span>: <span class="ident">Sized</span> {
     <span class="doccomment">/// Extracts `Self` from the source `PyObject`.</span>
     <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">ob</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;

@@ -327,6 +327,21 @@
 <span id="327">327</span>
 <span id="328">328</span>
 <span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -339,17 +354,20 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
 
-<span class="doccomment">/// A python object</span>
+<span class="doccomment">/// A Python object of any type.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The python object&#39;s lifetime is managed by python&#39;s garbage</span>
-<span class="doccomment">/// collector.</span>
+<span class="doccomment">/// The Python object&#39;s lifetime is managed by Python&#39;s garbage collector,</span>
+<span class="doccomment">/// so to access the object API, a `Python&lt;&#39;py&gt;` GIL token is required.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See [the guide](https://pyo3.rs/master/types.html) for an explanation</span>
+<span class="doccomment">/// of the different Python object types.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Technically, it is a safe wrapper around `NonNull&lt;ffi::PyObject&gt;`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyObject</span>(<span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span>);
 
-<span class="comment">// `PyObject` is thread-safe, any python related operations require a Python&lt;&#39;p&gt; token.</span>
+<span class="comment">// `PyObject` is thread-safe, any Python related operations require a Python&lt;&#39;p&gt; token.</span>
 <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">PyObject</span> {}
 <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">PyObject</span> {}
 
@@ -378,7 +396,7 @@
     }
 
     <span class="doccomment">/// Creates a `PyObject` instance for the given FFI pointer.</span>
-    <span class="doccomment">/// Panics if the pointer is `null`.</span>
+    <span class="doccomment">/// Panics if the pointer is NULL.</span>
     <span class="doccomment">/// Undefined behavior if the pointer is invalid.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_owned_ptr_or_panic</span>(<span class="ident">_py</span>: <span class="ident">Python</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
@@ -390,9 +408,9 @@
         }
     }
 
-    <span class="doccomment">/// Construct `PyObject` from the result of a Python FFI call that</span>
+    <span class="doccomment">/// Constructs a `PyObject` from the result of a Python FFI call that</span>
     <span class="doccomment">/// returns a new reference (owned pointer).</span>
-    <span class="doccomment">/// Returns `Err(PyErr)` if the pointer is `null`.</span>
+    <span class="doccomment">/// Returns `Err(PyErr)` if the pointer is NULL.</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_owned_ptr_or_err</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">NonNull</span>::<span class="ident">new</span>(<span class="ident">ptr</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">nonnull_ptr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">PyObject</span>(<span class="ident">nonnull_ptr</span>)),
@@ -400,9 +418,9 @@
         }
     }
 
-    <span class="doccomment">/// Construct `PyObject` from the result of a Python FFI call that</span>
+    <span class="doccomment">/// Constructs a `PyObject` from the result of a Python FFI call that</span>
     <span class="doccomment">/// returns a new reference (owned pointer).</span>
-    <span class="doccomment">/// Returns `None` if the pointer is `null`.</span>
+    <span class="doccomment">/// Returns `None` if the pointer is NULL.</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_owned_ptr_or_opt</span>(<span class="ident">_py</span>: <span class="ident">Python</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">NonNull</span>::<span class="ident">new</span>(<span class="ident">ptr</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">nonnull_ptr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">PyObject</span>(<span class="ident">nonnull_ptr</span>)),
@@ -411,7 +429,7 @@
     }
 
     <span class="doccomment">/// Creates a `PyObject` instance for the given Python FFI pointer.</span>
-    <span class="doccomment">/// Calls Py_INCREF() on the ptr.</span>
+    <span class="doccomment">/// Calls `Py_INCREF()` on the ptr.</span>
     <span class="doccomment">/// Undefined behavior if the pointer is NULL or invalid.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_borrowed_ptr</span>(<span class="ident">_py</span>: <span class="ident">Python</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
@@ -424,8 +442,8 @@
     }
 
     <span class="doccomment">/// Creates a `PyObject` instance for the given Python FFI pointer.</span>
-    <span class="doccomment">/// Calls Py_INCREF() on the ptr.</span>
-    <span class="doccomment">/// Returns `Err(PyErr)` if the pointer is `null`.</span>
+    <span class="doccomment">/// Calls `Py_INCREF()` on the ptr.</span>
+    <span class="doccomment">/// Returns `Err(PyErr)` if the pointer is NULL.</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_borrowed_ptr_or_err</span>(
         <span class="ident">py</span>: <span class="ident">Python</span>,
         <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>,
@@ -438,8 +456,8 @@
     }
 
     <span class="doccomment">/// Creates a `PyObject` instance for the given Python FFI pointer.</span>
-    <span class="doccomment">/// Calls Py_INCREF() on the ptr.</span>
-    <span class="doccomment">/// Returns `None` if the pointer is `null`.</span>
+    <span class="doccomment">/// Calls `Py_INCREF()` on the ptr.</span>
+    <span class="doccomment">/// Returns `None` if the pointer is NULL.</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_borrowed_ptr_or_opt</span>(
         <span class="ident">py</span>: <span class="ident">Python</span>,
         <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>,
@@ -456,19 +474,21 @@
         <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">Py_REFCNT</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>()) }
     }
 
-    <span class="doccomment">/// Clone self, Calls Py_INCREF() on the ptr.</span>
+    <span class="doccomment">/// Clones self by calling `Py_INCREF()` on the ptr.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clone_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">unsafe</span> { <span class="ident">PyObject</span>::<span class="ident">from_borrowed_ptr</span>(<span class="ident">py</span>, <span class="self">self</span>.<span class="ident">as_ptr</span>()) }
     }
 
     <span class="doccomment">/// Returns whether the object is considered to be None.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: &#39;is None&#39;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self is None`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_none</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">Py_None</span>() <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ptr</span>() }
     }
 
     <span class="doccomment">/// Returns whether the object is considered to be true.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: &#39;not not self&#39;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `bool(self)`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_true</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">PyObject_IsTrue</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) };
         <span class="kw">if</span> <span class="ident">v</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
@@ -479,6 +499,8 @@
     }
 
     <span class="doccomment">/// Casts the PyObject to a concrete Python object type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This can cast only to native Python types, not types implemented in Rust.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_as</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">D</span>, <span class="ident">PyDowncastError</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
@@ -487,6 +509,7 @@
     }
 
     <span class="doccomment">/// Extracts some type from the Python object.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This is a wrapper function around `FromPyObject::extract()`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -496,7 +519,8 @@
     }
 
     <span class="doccomment">/// Retrieves an attribute value.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression &#39;self.attr_name&#39;.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.attr_name`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">getattr</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">attr_name</span>: <span class="ident">N</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>,
@@ -507,7 +531,8 @@
     }
 
     <span class="doccomment">/// Calls the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: &#39;self(*args, **kwargs)&#39;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self(*args, **kwargs)`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">py</span>: <span class="ident">Python</span>,
@@ -526,20 +551,23 @@
         <span class="ident">result</span>
     }
 
-    <span class="doccomment">/// Calls the object without arguments.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: &#39;self()&#39;</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call0</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">call</span>(<span class="ident">py</span>, (), <span class="prelude-val">None</span>)
-    }
-
-    <span class="doccomment">/// Calls the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: &#39;self(*args)&#39;</span>
+    <span class="doccomment">/// Calls the object with only positional arguments.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self(*args)`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">args</span>: <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">call</span>(<span class="ident">py</span>, <span class="ident">args</span>, <span class="prelude-val">None</span>)
     }
 
+    <span class="doccomment">/// Calls the object without arguments.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self()`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call0</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">call</span>(<span class="ident">py</span>, (), <span class="prelude-val">None</span>)
+    }
+
     <span class="doccomment">/// Calls a method on the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: &#39;self.name(*args, **kwargs)&#39;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.name(*args, **kwargs)`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">py</span>: <span class="ident">Python</span>,
@@ -562,14 +590,9 @@
         })
     }
 
-    <span class="doccomment">/// Calls a method on the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: &#39;self.name()&#39;</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method0</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">call_method</span>(<span class="ident">py</span>, <span class="ident">name</span>, (), <span class="prelude-val">None</span>)
-    }
-
-    <span class="doccomment">/// Calls a method on the object.</span>
-    <span class="doccomment">/// This is equivalent to the Python expression: &#39;self.name(*args)&#39;</span>
+    <span class="doccomment">/// Calls a method on the object with only positional arguments.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.name(*args)`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method1</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">py</span>: <span class="ident">Python</span>,
@@ -577,6 +600,13 @@
         <span class="ident">args</span>: <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">call_method</span>(<span class="ident">py</span>, <span class="ident">name</span>, <span class="ident">args</span>, <span class="prelude-val">None</span>)
+    }
+
+    <span class="doccomment">/// Calls a method on the object with no arguments.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.name()`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method0</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">call_method</span>(<span class="ident">py</span>, <span class="ident">name</span>, (), <span class="prelude-val">None</span>)
     }
 }
 
@@ -614,7 +644,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">PyObject</span> {
-    <span class="doccomment">/// Checks for identity, not python&#39;s `__eq__`</span>
+    <span class="doccomment">/// Checks for pointer identity, not equivalent to Python&#39;s `__eq__`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">o</span>: <span class="kw-2">&amp;</span><span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">o</span>.<span class="number">0</span>
