@@ -697,6 +697,10 @@
 <span id="697">697</span>
 <span id="698">698</span>
 <span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Includes `PyCell` implementation.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conversion</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">FromPyPointer</span>, <span class="ident">ToPyObject</span>};
@@ -1362,6 +1366,8 @@
 }
 
 <span class="doccomment">/// An error returned by [`PyCell::try_borrow`](struct.PyCell.html#method.try_borrow).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In Python, you can catch this error by `except RuntimeError`.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyBorrowError</span> {
     <span class="ident">_private</span>: (),
 }
@@ -1379,6 +1385,8 @@
 }
 
 <span class="doccomment">/// An error returned by [`PyCell::try_borrow_mut`](struct.PyCell.html#method.try_borrow_mut).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In Python, you can catch this error by `except RuntimeError`.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyBorrowMutError</span> {
     <span class="ident">_private</span>: (),
 }
@@ -1395,7 +1403,7 @@
     }
 }
 
-<span class="macro">pyo3_exception</span><span class="macro">!</span>(<span class="ident">PyBorrowError</span>, <span class="kw">crate</span>::<span class="ident">exceptions</span>::<span class="ident">Exception</span>);
-<span class="macro">pyo3_exception</span><span class="macro">!</span>(<span class="ident">PyBorrowMutError</span>, <span class="kw">crate</span>::<span class="ident">exceptions</span>::<span class="ident">Exception</span>);
+<span class="macro">pyo3_exception</span><span class="macro">!</span>(<span class="ident">PyBorrowError</span>, <span class="kw">crate</span>::<span class="ident">exceptions</span>::<span class="ident">RuntimeError</span>);
+<span class="macro">pyo3_exception</span><span class="macro">!</span>(<span class="ident">PyBorrowMutError</span>, <span class="kw">crate</span>::<span class="ident">exceptions</span>::<span class="ident">RuntimeError</span>);
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "pyo3";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

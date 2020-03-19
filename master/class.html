@@ -156,16 +156,15 @@
 <span class="boring">#![allow(unused_variables)]
 </span><span class="boring">fn main() {
 </span><span class="boring">use pyo3::prelude::*;
-</span>
-#[pyclass]
+</span>#[pyclass]
 struct MyClass {
     num: i32,
     debug: bool,
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>The above example generates implementations for <code>PyTypeInfo</code>, <code>PyTypeObject</code>,
-and <code>PyClass</code> for <code>MyClass</code>.</p>
+<p>The above example generates implementations for <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PyTypeInfo.html"><code>PyTypeInfo</code></a>, <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PyTypeObject.html"><code>PyTypeObject</code></a>,
+and <a href="https://pyo3.rs/master/doc/pyo3/pyclass/trait.PyClass.html"><code>PyClass</code></a> for <code>MyClass</code>.</p>
 <p>Specifically, the following implementation is generated:</p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
@@ -264,7 +263,7 @@ from Rust code (e.g., for testing it).
 In other words, Rust code can only extract a <code>&amp;PyCell&lt;T&gt;</code>, not a <code>PyCell&lt;T&gt;</code>.</p>
 <p>Thus, to mutate data behind <code>&amp;PyCell</code> safely, PyO3 employs the
 <a href="https://doc.rust-lang.org/book/ch15-05-interior-mutability.html">Interior Mutability Pattern</a>
-like <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html">std::cell::RefCell</a>.</p>
+like <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>.</p>
 <p>Users who are familiar with <code>RefCell</code> can use <code>PyCell</code> just like <code>RefCell</code>.</p>
 <p>For users who are not very familiar with <code>RefCell</code>, here is a reminder of Rust's rules of borrowing:</p>
 <ul>
@@ -304,7 +303,7 @@ let obj = PyCell::new(py, MyClass { num: 3, debug: true }).unwrap();
 pyo3::py_run!(py, obj, &quot;assert obj.num == 5&quot;)
 <span class="boring">}
 </span></code></pre></pre>
-<p><code>&amp;PyCell&lt;T&gt;</code> is bounded by the same lifetime as a <code>GILGuard</code>.
+<p><code>&amp;PyCell&lt;T&gt;</code> is bounded by the same lifetime as a <a href="https://docs.rs/pyo3/latest/pyo3/struct.GILGuard.html"><code>GILGuard</code></a>.
 To make the object longer lived (for example, to store it in a struct on the
 Rust side), you can use <code>Py&lt;T&gt;</code>, which stores an object longer than the GIL
 lifetime, and therefore needs a <code>Python&lt;'_&gt;</code> token to access.</p>
@@ -336,7 +335,7 @@ assert_eq!(obj_ref.num, 1);
 The performance improvement applies to types that are often created and deleted in a row,
 so that they can benefit from a freelist. <code>XXX</code> is a number of items for the free list.</li>
 <li><code>gc</code> - Classes with the <code>gc</code> parameter participate in Python garbage collection.
-If a custom class contains references to other Python objects that can be collected, the <code>PyGCProtocol</code> trait has to be implemented.</li>
+If a custom class contains references to other Python objects that can be collected, the <a href="https://docs.rs/pyo3/latest/pyo3/class/gc/trait.PyGCProtocol.html"><code>PyGCProtocol</code></a> trait has to be implemented.</li>
 <li><code>weakref</code> - Adds support for Python weak references.</li>
 <li><code>extends=BaseType</code> - Use a custom base class. The base <code>BaseType</code> must implement <code>PyTypeInfo</code>.</li>
 <li><code>subclass</code> - Allows Python classes to inherit from this class.</li>
@@ -377,7 +376,7 @@ Consult the table below to determine which type your constructor should return:<
 <table><thead><tr><th></th><th><strong>Cannot fail</strong></th><th><strong>May fail</strong></th></tr></thead><tbody>
 <tr><td><strong>No inheritance</strong></td><td><code>T</code></td><td><code>PyResult&lt;T&gt;</code></td></tr>
 <tr><td><strong>Inheritance(T Inherits U)</strong></td><td><code>(T, U)</code></td><td><code>PyResult&lt;(T, U)&gt;</code></td></tr>
-<tr><td><strong>Inheritance(General Case)</strong></td><td><code>PyClassInitializer&lt;T&gt;</code></td><td><code>PyResult&lt;PyClassInitializer&lt;T&gt;&gt;</code></td></tr>
+<tr><td><strong>Inheritance(General Case)</strong></td><td><a href="https://pyo3.rs/master/doc/pyo3/pyclass_init/struct.PyClassInitializer.html"><code>PyClassInitializer&lt;T&gt;</code></a></td><td><code>PyResult&lt;PyClassInitializer&lt;T&gt;&gt;</code></td></tr>
 </tbody></table>
 <h2><a class="header" href="#inheritance" id="inheritance">Inheritance</a></h2>
 <p>By default, <code>PyAny</code> is used as the base class. To override this default,
@@ -386,8 +385,8 @@ use the <code>extends</code> parameter for <code>pyclass</code> with the full pa
 baseclass of <code>T</code>.
 But for more deeply nested inheritance, you have to return <code>PyClassInitializer&lt;T&gt;</code>
 explicitly.</p>
-<p>To get a parent class from a child, use <code>PyRef&lt;T&gt;</code> instead of <code>&amp;self</code> for methods,
-or <code>PyRefMut&lt;T&gt;</code> instead of <code>&amp;mut self</code>.
+<p>To get a parent class from a child, use <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> instead of <code>&amp;self</code> for methods,
+or <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a> instead of <code>&amp;mut self</code>.
 Then you can access a parent class by <code>self_.as_ref()</code> as <code>&amp;Self::BaseClass</code>,
 or by <code>self_.into_super()</code> as <code>PyRef&lt;Self::BaseClass&gt;</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">

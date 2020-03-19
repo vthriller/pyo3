@@ -155,7 +155,10 @@
 <p><a href="https://docs.rs/pyo3/0.8.5/pyo3/type_object/struct.PyRawObject.html"><code>PyRawObject</code></a>
 is now removed and our syntax for constructors has changed.</p>
 <p>Before:</p>
-<pre><code class="language-compile_fail">#[pyclass]
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>#[pyclass]
 struct MyClass {}
 
 #[pymethods]
@@ -165,10 +168,14 @@ impl MyClass {
        obj.init(MyClass { })
    }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
-<pre><code># use pyo3::prelude::*;
-#[pyclass]
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
 struct MyClass {}
 
 #[pymethods]
@@ -178,12 +185,12 @@ impl MyClass {
        MyClass {}
    }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Basically you can return <code>Self</code> or <code>Result&lt;Self&gt;</code> directly.
 For more, see <a href="https://pyo3.rs/master/class.html#constructor">the constructor section</a> of this guide.</p>
 <h3><a class="header" href="#pycell" id="pycell">PyCell</a></h3>
-<p>PyO3 0.9 introduces <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is
-a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
+<p>PyO3 0.9 introduces <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
 for ensuring Rust's rules regarding aliasing of references are upheld.
 For more detail, see the
 <a href="https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html#the-rules-of-references">Rust Book's section on Rust's rules of references</a></p>
@@ -191,8 +198,11 @@ For more detail, see the
 Python exceptions will automatically be raised when your functions are used in a way which breaks Rust's
 rules of references.</p>
 <p>Here is an example.</p>
-<pre><code># use pyo3::prelude::*;
-#[pyclass]
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
 struct Names {
     names: Vec&lt;String&gt;
 }
@@ -207,47 +217,57 @@ impl Names {
         self.names.append(&amp;mut other.names)
     }
 }
-# let gil = Python::acquire_gil();
-# let py = gil.python();
-# let names = PyCell::new(py, Names::new()).unwrap();
-# let borrow_mut_err = py.get_type::&lt;pyo3::pycell::PyBorrowMutError&gt;();
-# pyo3::py_run!(py, names borrow_mut_err, r&quot;
-# try:
-#    names.merge(names)
-#    assert False, 'Unreachable'
-# except Exception as e:
-#    isinstance(e, borrow_mut_err)
-# &quot;);
-</code></pre>
+<span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span><span class="boring">let names = PyCell::new(py, Names::new()).unwrap();
+</span><span class="boring">let borrow_mut_err = py.get_type::&lt;pyo3::pycell::PyBorrowMutError&gt;();
+</span><span class="boring">pyo3::py_run!(py, names borrow_mut_err, r&quot;
+</span><span class="boring">try:
+</span><span class="boring">   names.merge(names)
+</span><span class="boring">   assert False, 'Unreachable'
+</span><span class="boring">except RuntimeError as e:
+</span><span class="boring">   isinstance(e, borrow_mut_err)
+</span><span class="boring">&quot;);
+</span><span class="boring">}
+</span></code></pre></pre>
 <p><code>Names</code> has a <code>merge</code> method, which takes <code>&amp;mut self</code> and another argument of type <code>&amp;mut Self</code>.
-Given this <code>#[pyclass]</code>, calling <code>names.merge(names)</code> in Python raises a <code>PyBorrowMutError</code> exception,
-since it requires two mutable borrows of <code>names</code>.</p>
+Given this <code>#[pyclass]</code>, calling <code>names.merge(names)</code> in Python raises
+a <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyBorrowMutError.html"><code>PyBorrowMutError</code></a> exception, since it requires two mutable borrows of <code>names</code>.</p>
 <p>However, for <code>#[pyproto]</code> and some functions, you need to manually fix the code.</p>
 <h4><a class="header" href="#object-creation" id="object-creation">Object creation</a></h4>
 <p>In 0.8 object creation was done with <code>PyRef::new</code> and <code>PyRefMut::new</code>.
 In 0.9 these have both been removed.
-To upgrade code, please use <code>PyCell::new</code> instead.
-If a <code>PyRef</code> or <code>PyRefMut</code> is needed, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
+To upgrade code, please use
+<a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html#method.new"><code>PyCell::new</code></a> instead.
+If you need <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a>, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
 on the newly-created <code>PyCell</code>.</p>
 <p>Before:</p>
-<pre><code class="language-compile_fail"># use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {}
-let gil = Python::acquire_gil();
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {}
+</span>let gil = Python::acquire_gil();
 let py = gil.python();
 let obj_ref = PyRef::new(py, MyClass {}).unwrap();
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
-<pre><code># use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {}
-let gil = Python::acquire_gil();
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {}
+</span>let gil = Python::acquire_gil();
 let py = gil.python();
 let obj = PyCell::new(py, MyClass {}).unwrap();
 let obj_ref = obj.borrow();
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h4><a class="header" href="#object-extraction" id="object-extraction">Object extraction</a></h4>
-<p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <code>FromPyObject</code> implementations.
+<p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementations.
 Instead you should extract <code>PyRef&lt;T&gt;</code> or <code>PyRefMut&lt;T&gt;</code>, respectively.
 If <code>T</code> implements <code>Clone</code>, you can extract <code>T</code> itself.
 In addition, you can also extract <code>&amp;PyCell&lt;T&gt;</code>, though you rarely need it.</p>
@@ -257,16 +277,19 @@ let obj_ref: &amp;MyClass = obj.extract().unwrap();
 let obj_ref_mut: &amp;mut MyClass = obj.extract().unwrap();
 </code></pre>
 <p>After:</p>
-<pre><code># use pyo3::prelude::*;
-# use pyo3::types::IntoPyDict;
-# #[pyclass] #[derive(Clone)] struct MyClass {}
-# #[pymethods] impl MyClass { #[new]fn new() -&gt; Self { MyClass {} }}
-# let gil = Python::acquire_gil();
-# let py = gil.python();
-# let typeobj = py.get_type::&lt;MyClass&gt;();
-# let d = [(&quot;c&quot;, typeobj)].into_py_dict(py);
-# let create_obj = || py.eval(&quot;c()&quot;, None, Some(d)).unwrap();
-let obj: &amp;PyAny = create_obj();
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::IntoPyDict;
+</span><span class="boring">#[pyclass] #[derive(Clone)] struct MyClass {}
+</span><span class="boring">#[pymethods] impl MyClass { #[new]fn new() -&gt; Self { MyClass {} }}
+</span><span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span><span class="boring">let typeobj = py.get_type::&lt;MyClass&gt;();
+</span><span class="boring">let d = [(&quot;c&quot;, typeobj)].into_py_dict(py);
+</span><span class="boring">let create_obj = || py.eval(&quot;c()&quot;, None, Some(d)).unwrap();
+</span>let obj: &amp;PyAny = create_obj();
 let obj_cell: &amp;PyCell&lt;MyClass&gt; = obj.extract().unwrap();
 let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the object
 {
@@ -274,15 +297,20 @@ let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the ob
     // we need to drop obj_ref before we can extract a PyRefMut due to Rust's rules of references
 }
 let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h4><a class="header" href="#pyproto" id="pyproto"><code>#[pyproto]</code></a></h4>
-<p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a [<code>FromPyObject</code>] implementation.
+<p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a
+<a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementation.
 So if your protocol methods take <code>&amp;T</code> or <code>&amp;mut T</code> (where <code>T: PyClass</code>),
-please use <code>PyRef</code> or <code>PyRefMut</code> instead.</p>
+please use <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a> instead.</p>
 <p>Before:</p>
-<pre><code class="language-compile_fail"># use pyo3::prelude::*;
-# use pyo3::class::PySequenceProtocol;
-#[pyclass]
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::class::PySequenceProtocol;
+</span>#[pyclass]
 struct ByteSequence {
     elements: Vec&lt;u8&gt;,
 }
@@ -294,11 +322,15 @@ impl PySequenceProtocol for ByteSequence {
         Ok(Self { elements })
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
-<pre><code># use pyo3::prelude::*;
-# use pyo3::class::PySequenceProtocol;
-#[pyclass]
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::class::PySequenceProtocol;
+</span>#[pyclass]
 struct ByteSequence {
     elements: Vec&lt;u8&gt;,
 }
@@ -310,7 +342,8 @@ impl PySequenceProtocol for ByteSequence {
         Ok(Self { elements })
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 
                     </main>
 

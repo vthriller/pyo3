@@ -170,14 +170,12 @@ fn main() -&gt; Result&lt;(), ()&gt; {
 }
 </code></pre></pre>
 <h2><a class="header" href="#want-to-run-statements-then-use-run" id="want-to-run-statements-then-use-run">Want to run statements? Then use <code>run</code>.</a></h2>
-<p><a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a>
-is a method to execute one or more
+<p><a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a> is a method to execute one or more
 <a href="https://docs.python.org/3.7/reference/simple_stmts.html">Python statements</a>.
 This method returns nothing (like any Python statement), but you can get
 access to manipulated objects via the <code>locals</code> dict.</p>
-<p>You can also use the <a href="https://pyo3.rs/master/doc/pyo3/macro.py_run.html"><code>py_run!</code></a>
-macro, which is a shorthand for <code>Python::run</code>.
-Since <code>py_run!</code> panics on exceptions, we recommend you use this macro only for
+<p>You can also use the <a href="https://pyo3.rs/master/doc/pyo3/macro.py_run.html"><code>py_run!</code></a> macro, which is a shorthand for <a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a>.
+Since <a href="https://pyo3.rs/master/doc/pyo3/macro.py_run.html"><code>py_run!</code></a> panics on exceptions, we recommend you use this macro only for
 quickly testing your Python extensions.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::{PyCell, PyObjectProtocol, py_run};

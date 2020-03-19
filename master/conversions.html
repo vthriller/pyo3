@@ -158,12 +158,12 @@ fails, so usually you will use something like</p>
 </code></pre>
 <p>This method is available for many Python object types, and can produce a wide
 variety of Rust types, which you can check out in the implementor list of
-[<code>FromPyObject</code>][FromPyObject].</p>
-<p><code>FromPyObject</code> is also implemented for your own Rust types wrapped as Python
+<a href="https://docs.rs/pyo3/latest/pyo3/types/trait.FromPyObject.html"><code>FromPyObject</code></a>.</p>
+<p><a href="https://docs.rs/pyo3/latest/pyo3/types/trait.FromPyObject.html"><code>FromPyObject</code></a> is also implemented for your own Rust types wrapped as Python
 objects (see <a href="class.html">the chapter about classes</a>).  There, in order to both be
 able to operate on mutable references <em>and</em> satisfy Rust's rules of non-aliasing
-mutable references, you have to extract the PyO3 reference wrappers <code>PyRef&lt;T&gt;</code>
-and <code>PyRefMut&lt;T&gt;</code>.  They work like the reference wrappers of
+mutable references, you have to extract the PyO3 reference wrappers <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a>
+and <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a>.  They work like the reference wrappers of
 <code>std::cell::RefCell</code> and ensure (at runtime) that Rust borrows are allowed.</p>
 <h2><a class="header" href="#the-topyobject-trait" id="the-topyobject-trait">The <code>ToPyObject</code> trait</a></h2>
 <p><a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> is a conversion trait that allows various objects to be
@@ -252,9 +252,12 @@ fn main() {
 }
 </code></pre></pre>
 <h2><a class="header" href="#frompyt-and-intopyt" id="frompyt-and-intopyt"><code>FromPy&lt;T&gt;</code> and <code>IntoPy&lt;T&gt;</code></a></h2>
-<p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token. The <code>FromPy&lt;T&gt;</code> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument. I.e. <code>FromPy&lt;T&gt;</code> could be converting a Rust object into a Python object even though it is called <code>FromPy</code> - it doesn't say anything about which side of the conversion is a Python object.</p>
-<p>Just like From<T>, if you implement FromPy<T> you gain a blanket implementation of IntoPy<T> for free.</p>
-<p>Eventually, traits such as <code>ToPyObject</code> will be replaced by this trait and a <code>FromPy</code> trait will be added that will implement <code>IntoPy</code>, just like with <code>From</code> and <code>Into</code>.</p>
+<p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token.
+The <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument.
+I.e. <code>FromPy&lt;T&gt;</code> could be converting a Rust object into a Python object even though it is called <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> - it doesn't say anything about which side of the conversion is a Python object.</p>
+<p>Just like <code>From&lt;T&gt;</code>, if you implement <code>FromPy&lt;T&gt;</code> you gain a blanket implementation of <a href="https://docs.rs/pyo3/latest/pyo3/trait.IntoPy.html"><code>IntoPy</code></a> for free.</p>
+<p>Eventually, traits such as <a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> will be replaced by this trait and a <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> trait will be added that will implement
+<a href="https://docs.rs/pyo3/latest/pyo3/trait.IntoPy.html"><code>IntoPy</code></a>, just like with <code>From</code> and <code>Into</code>.</p>
 
                     </main>
 

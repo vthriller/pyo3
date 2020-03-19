@@ -154,8 +154,7 @@ from getting true parallelism when running pure Python code. While PyO3 needs to
 hold the GIL by default when called from Python, in order to allow manipulation
 of Python objects, you can release the GIL when executing Rust-only code to
 achieve true parallelism.</p>
-<p>The <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a>
-method temporarily releases the GIL, thus allowing other Python threads to run.</p>
+<p>The <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> method temporarily releases the GIL, thus allowing other Python threads to run.</p>
 <pre><code class="language-rust ignore">impl Python {
     pub fn allow_threads&lt;T, F&gt;(self, f: F) -&gt; T where F: Send + FnOnce() -&gt; T {}
 }
@@ -168,7 +167,8 @@ where we have a <code>wc_parallel</code> function that utilizes the <a href="htt
          .sum()
 }
 </code></pre>
-<p>Then in the Python bridge, we have a function <code>search</code> exposed to the Python runtime which calls <code>wc_parallel</code> inside a closure passed to <code>Python::allow_threads</code> to enable true parallelism:</p>
+<p>Then in the Python bridge, we have a function <code>search</code> exposed to the Python runtime which calls
+<code>wc_parallel</code> inside a closure passed to <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> to enable true parallelism:</p>
 <pre><code class="language-rust ignore">#[pymodule]
 fn word_count(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 

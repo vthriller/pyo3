@@ -185,7 +185,7 @@ name = &quot;string_sum&quot;
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies.pyo3]
-version = &quot;0.9.0-alpha.1&quot;
+version = &quot;0.9.0&quot;
 features = [&quot;extension-module&quot;]
 </code></pre>
 <p><strong><code>src/lib.rs</code></strong></p>
@@ -223,7 +223,7 @@ rustflags = [
 <p>If you want your Rust application to create a Python interpreter internally and
 use it to run Python code, add <code>pyo3</code> to your <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies]
-pyo3 = &quot;0.9.0-alpha.1&quot;
+pyo3 = &quot;0.9.0&quot;
 </code></pre>
 <p>Example program displaying the value of <code>sys.version</code> and the current user name:</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
@@ -512,9 +512,9 @@ Type:      builtin_function_or_method
 <h2><a class="header" href="#closures" id="closures">Closures</a></h2>
 <p>Currently, there are no conversions between <code>Fn</code>s in Rust and callables in Python. This would definitely be possible and very useful, so contributions are welcome. In the meantime, you can do the following:</p>
 <h3><a class="header" href="#calling-python-functions-in-rust" id="calling-python-functions-in-rust">Calling Python functions in Rust</a></h3>
-<p>You can use <code>ObjectProtocol::is_callable</code> to check if you have a callable object. <code>is_callable</code> will return <code>true</code> for functions (including lambdas), methods and objects with a <code>__call__</code> method. You can call the object with <code>ObjectProtocol::call</code> with the args as first parameter and the kwargs (or <code>None</code>) as second parameter. There are also <code>ObjectProtocol::call0</code> with no args and <code>ObjectProtocol::call1</code> with only positional args.</p>
+<p>You can use <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html#tymethod.is_callable"><code>ObjectProtocol::is_callable</code></a> to check if you have a callable object. <code>is_callable</code> will return <code>true</code> for functions (including lambdas), methods and objects with a <code>__call__</code> method. You can call the object with <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html#tymethod.call"><code>ObjectProtocol::call</code></a> with the args as first parameter and the kwargs (or <code>None</code>) as second parameter. There are also <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html#tymethod.call0"><code>ObjectProtocol::call0</code></a> with no args and <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html#tymethod.call1"><code>ObjectProtocol::call1</code></a> with only positional args.</p>
 <h3><a class="header" href="#calling-rust-functions-in-python" id="calling-rust-functions-in-python">Calling Rust functions in Python</a></h3>
-<p>If you have a static function, you can expose it with <code>#[pyfunction]</code> and use <code>wrap_pyfunction!</code> to get the corresponding <code>PyObject</code>. For dynamic functions, e.g. lambdas and functions that were passed as arguments, you must put them in some kind of owned container, e.g. a <code>Box</code>. (A long-term solution will be a special container similar to wasm-bindgen's <code>Closure</code>). You can then use a <code>#[pyclass]</code> struct with that container as a field as a way to pass the function over the FFI barrier. You can even make that class callable with <code>__call__</code> so it looks like a function in Python code.</p>
+<p>If you have a static function, you can expose it with <code>#[pyfunction]</code> and use <a href="https://docs.rs/pyo3/latest/pyo3/macro.wrap_pyfunction.html"><code>wrap_pyfunction!</code></a> to get the corresponding <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyObject"><code>PyObject</code></a>. For dynamic functions, e.g. lambdas and functions that were passed as arguments, you must put them in some kind of owned container, e.g. a <code>Box</code>. (A long-term solution will be a special container similar to wasm-bindgen's <code>Closure</code>). You can then use a <code>#[pyclass]</code> struct with that container as a field as a way to pass the function over the FFI barrier. You can even make that class callable with <code>__call__</code> so it looks like a function in Python code.</p>
 <h1><a class="header" href="#python-classes" id="python-classes">Python Classes</a></h1>
 <h2><a class="header" href="#defining-a-new-class" id="defining-a-new-class">Defining a new class</a></h2>
 <p>To define a custom Python class, a Rust struct needs to be annotated with the
@@ -523,16 +523,15 @@ Type:      builtin_function_or_method
 <span class="boring">#![allow(unused_variables)]
 </span><span class="boring">fn main() {
 </span><span class="boring">use pyo3::prelude::*;
-</span>
-#[pyclass]
+</span>#[pyclass]
 struct MyClass {
     num: i32,
     debug: bool,
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>The above example generates implementations for <code>PyTypeInfo</code>, <code>PyTypeObject</code>,
-and <code>PyClass</code> for <code>MyClass</code>.</p>
+<p>The above example generates implementations for <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PyTypeInfo.html"><code>PyTypeInfo</code></a>, <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PyTypeObject.html"><code>PyTypeObject</code></a>,
+and <a href="https://pyo3.rs/master/doc/pyo3/pyclass/trait.PyClass.html"><code>PyClass</code></a> for <code>MyClass</code>.</p>
 <p>Specifically, the following implementation is generated:</p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
@@ -631,7 +630,7 @@ from Rust code (e.g., for testing it).
 In other words, Rust code can only extract a <code>&amp;PyCell&lt;T&gt;</code>, not a <code>PyCell&lt;T&gt;</code>.</p>
 <p>Thus, to mutate data behind <code>&amp;PyCell</code> safely, PyO3 employs the
 <a href="https://doc.rust-lang.org/book/ch15-05-interior-mutability.html">Interior Mutability Pattern</a>
-like <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html">std::cell::RefCell</a>.</p>
+like <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>.</p>
 <p>Users who are familiar with <code>RefCell</code> can use <code>PyCell</code> just like <code>RefCell</code>.</p>
 <p>For users who are not very familiar with <code>RefCell</code>, here is a reminder of Rust's rules of borrowing:</p>
 <ul>
@@ -671,7 +670,7 @@ let obj = PyCell::new(py, MyClass { num: 3, debug: true }).unwrap();
 pyo3::py_run!(py, obj, &quot;assert obj.num == 5&quot;)
 <span class="boring">}
 </span></code></pre></pre>
-<p><code>&amp;PyCell&lt;T&gt;</code> is bounded by the same lifetime as a <code>GILGuard</code>.
+<p><code>&amp;PyCell&lt;T&gt;</code> is bounded by the same lifetime as a <a href="https://docs.rs/pyo3/latest/pyo3/struct.GILGuard.html"><code>GILGuard</code></a>.
 To make the object longer lived (for example, to store it in a struct on the
 Rust side), you can use <code>Py&lt;T&gt;</code>, which stores an object longer than the GIL
 lifetime, and therefore needs a <code>Python&lt;'_&gt;</code> token to access.</p>
@@ -703,7 +702,7 @@ assert_eq!(obj_ref.num, 1);
 The performance improvement applies to types that are often created and deleted in a row,
 so that they can benefit from a freelist. <code>XXX</code> is a number of items for the free list.</li>
 <li><code>gc</code> - Classes with the <code>gc</code> parameter participate in Python garbage collection.
-If a custom class contains references to other Python objects that can be collected, the <code>PyGCProtocol</code> trait has to be implemented.</li>
+If a custom class contains references to other Python objects that can be collected, the <a href="https://docs.rs/pyo3/latest/pyo3/class/gc/trait.PyGCProtocol.html"><code>PyGCProtocol</code></a> trait has to be implemented.</li>
 <li><code>weakref</code> - Adds support for Python weak references.</li>
 <li><code>extends=BaseType</code> - Use a custom base class. The base <code>BaseType</code> must implement <code>PyTypeInfo</code>.</li>
 <li><code>subclass</code> - Allows Python classes to inherit from this class.</li>
@@ -744,7 +743,7 @@ Consult the table below to determine which type your constructor should return:<
 <table><thead><tr><th></th><th><strong>Cannot fail</strong></th><th><strong>May fail</strong></th></tr></thead><tbody>
 <tr><td><strong>No inheritance</strong></td><td><code>T</code></td><td><code>PyResult&lt;T&gt;</code></td></tr>
 <tr><td><strong>Inheritance(T Inherits U)</strong></td><td><code>(T, U)</code></td><td><code>PyResult&lt;(T, U)&gt;</code></td></tr>
-<tr><td><strong>Inheritance(General Case)</strong></td><td><code>PyClassInitializer&lt;T&gt;</code></td><td><code>PyResult&lt;PyClassInitializer&lt;T&gt;&gt;</code></td></tr>
+<tr><td><strong>Inheritance(General Case)</strong></td><td><a href="https://pyo3.rs/master/doc/pyo3/pyclass_init/struct.PyClassInitializer.html"><code>PyClassInitializer&lt;T&gt;</code></a></td><td><code>PyResult&lt;PyClassInitializer&lt;T&gt;&gt;</code></td></tr>
 </tbody></table>
 <h2><a class="header" href="#inheritance" id="inheritance">Inheritance</a></h2>
 <p>By default, <code>PyAny</code> is used as the base class. To override this default,
@@ -753,8 +752,8 @@ use the <code>extends</code> parameter for <code>pyclass</code> with the full pa
 baseclass of <code>T</code>.
 But for more deeply nested inheritance, you have to return <code>PyClassInitializer&lt;T&gt;</code>
 explicitly.</p>
-<p>To get a parent class from a child, use <code>PyRef&lt;T&gt;</code> instead of <code>&amp;self</code> for methods,
-or <code>PyRefMut&lt;T&gt;</code> instead of <code>&amp;mut self</code>.
+<p>To get a parent class from a child, use <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> instead of <code>&amp;self</code> for methods,
+or <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a> instead of <code>&amp;mut self</code>.
 Then you can access a parent class by <code>self_.as_ref()</code> as <code>&amp;Self::BaseClass</code>,
 or by <code>self_.into_super()</code> as <code>PyRef&lt;Self::BaseClass&gt;</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -1344,12 +1343,12 @@ fails, so usually you will use something like</p>
 </code></pre>
 <p>This method is available for many Python object types, and can produce a wide
 variety of Rust types, which you can check out in the implementor list of
-[<code>FromPyObject</code>][FromPyObject].</p>
-<p><code>FromPyObject</code> is also implemented for your own Rust types wrapped as Python
+<a href="https://docs.rs/pyo3/latest/pyo3/types/trait.FromPyObject.html"><code>FromPyObject</code></a>.</p>
+<p><a href="https://docs.rs/pyo3/latest/pyo3/types/trait.FromPyObject.html"><code>FromPyObject</code></a> is also implemented for your own Rust types wrapped as Python
 objects (see <a href="class.html">the chapter about classes</a>).  There, in order to both be
 able to operate on mutable references <em>and</em> satisfy Rust's rules of non-aliasing
-mutable references, you have to extract the PyO3 reference wrappers <code>PyRef&lt;T&gt;</code>
-and <code>PyRefMut&lt;T&gt;</code>.  They work like the reference wrappers of
+mutable references, you have to extract the PyO3 reference wrappers <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a>
+and <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a>.  They work like the reference wrappers of
 <code>std::cell::RefCell</code> and ensure (at runtime) that Rust borrows are allowed.</p>
 <h2><a class="header" href="#the-topyobject-trait" id="the-topyobject-trait">The <code>ToPyObject</code> trait</a></h2>
 <p><a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> is a conversion trait that allows various objects to be
@@ -1438,12 +1437,15 @@ fn main() {
 }
 </code></pre></pre>
 <h2><a class="header" href="#frompyt-and-intopyt" id="frompyt-and-intopyt"><code>FromPy&lt;T&gt;</code> and <code>IntoPy&lt;T&gt;</code></a></h2>
-<p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token. The <code>FromPy&lt;T&gt;</code> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument. I.e. <code>FromPy&lt;T&gt;</code> could be converting a Rust object into a Python object even though it is called <code>FromPy</code> - it doesn't say anything about which side of the conversion is a Python object.</p>
-<p>Just like From<T>, if you implement FromPy<T> you gain a blanket implementation of IntoPy<T> for free.</p>
-<p>Eventually, traits such as <code>ToPyObject</code> will be replaced by this trait and a <code>FromPy</code> trait will be added that will implement <code>IntoPy</code>, just like with <code>From</code> and <code>Into</code>.</p>
+<p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token.
+The <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument.
+I.e. <code>FromPy&lt;T&gt;</code> could be converting a Rust object into a Python object even though it is called <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> - it doesn't say anything about which side of the conversion is a Python object.</p>
+<p>Just like <code>From&lt;T&gt;</code>, if you implement <code>FromPy&lt;T&gt;</code> you gain a blanket implementation of <a href="https://docs.rs/pyo3/latest/pyo3/trait.IntoPy.html"><code>IntoPy</code></a> for free.</p>
+<p>Eventually, traits such as <a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> will be replaced by this trait and a <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> trait will be added that will implement
+<a href="https://docs.rs/pyo3/latest/pyo3/trait.IntoPy.html"><code>IntoPy</code></a>, just like with <code>From</code> and <code>Into</code>.</p>
 <h1><a class="header" href="#python-exceptions" id="python-exceptions">Python Exceptions</a></h1>
 <h2><a class="header" href="#defining-a-new-exception" id="defining-a-new-exception">Defining a new exception</a></h2>
-<p>You can use the <code>create_exception!</code> macro to define a new exception type:</p>
+<p>You can use the <a href="https://docs.rs/pyo3/latest/pyo3/macro.create_exception.html"><code>create_exception!</code></a> macro to define a new exception type:</p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
 </span><span class="boring">fn main() {
@@ -1474,7 +1476,7 @@ fn main() {
 }
 </code></pre></pre>
 <h2><a class="header" href="#raising-an-exception" id="raising-an-exception">Raising an exception</a></h2>
-<p>To raise an exception, first you need to obtain an exception type and construct a new <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a>, then call the <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.restore"><code>PyErr::restore()</code></a> method to write the exception back to the Python interpreter's global state.</p>
+<p>To raise an exception, first you need to obtain an exception type and construct a new <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a>, then call the <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.restore"><code>PyErr::restore</code></a> method to write the exception back to the Python interpreter's global state.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::{Python, PyErr};
 use pyo3::exceptions;
 
@@ -1488,13 +1490,12 @@ fn main() {
 </code></pre></pre>
 <p>From <code>pyfunction</code>s and <code>pyclass</code> methods, returning an <code>Err(PyErr)</code> is enough;
 PyO3 will handle restoring the exception on the Python interpreter side.</p>
-<p>If you already have a Python exception instance, you can simply call
-<a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.from_instance"><code>PyErr::from_instance()</code></a>.</p>
+<p>If you already have a Python exception instance, you can simply call <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.from_instance"><code>PyErr::from_instance</code></a>.</p>
 <pre><code class="language-rust ignore">PyErr::from_instance(py, err).restore(py);
 </code></pre>
 <p>If a Rust type exists for the exception, then it is possible to use the <code>py_err</code> method.
 For example, each standard exception defined in the <code>pyo3::exceptions</code> module
-has a corresponding Rust type, exceptions defined by <code>create_exception!</code> and <code>import_exception!</code> macro
+has a corresponding Rust type, exceptions defined by <a href="https://docs.rs/pyo3/latest/pyo3/macro.create_exception.html"><code>create_exception!</code></a> and <a href="https://docs.rs/pyo3/latest/pyo3/macro.import_exception.html"><code>import_exception!</code></a> macro
 have Rust types as well.</p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
@@ -1513,7 +1514,7 @@ have Rust types as well.</p>
 </span></code></pre></pre>
 <h2><a class="header" href="#checking-exception-types" id="checking-exception-types">Checking exception types</a></h2>
 <p>Python has an <a href="https://docs.python.org/3/library/functions.html#isinstance"><code>isinstance</code></a> method to check an object's type,
-in PyO3 there is a <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.is_instance"><code>Python::is_instance()</code></a> method which does the same thing.</p>
+in PyO3 there is a <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.is_instance"><code>Python::is_instance</code></a> method which does the same thing.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::Python;
 use pyo3::types::{PyBool, PyList};
 
@@ -1526,7 +1527,8 @@ fn main() {
     assert!(py.is_instance::&lt;PyList, _&gt;(list.as_ref()).unwrap());
 }
 </code></pre></pre>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.is_instance"><code>Python::is_instance()</code></a> calls the underlying <a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyType.html#method.is_instance"><code>PyType::is_instance</code></a> method to do the actual work.</p>
+<p><a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.is_instance"><code>Python::is_instance</code></a> calls the underlying <a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyType.html#method.is_instance"><code>PyType::is_instance</code></a>
+method to do the actual work.</p>
 <p>To check the type of an exception, you can simply do:</p>
 <pre><pre class="playpen"><code class="language-rust"><span class="boring">use pyo3::exceptions;
 </span><span class="boring">use pyo3::prelude::*;
@@ -1538,11 +1540,11 @@ fn main() {
 <span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#handling-rust-errors" id="handling-rust-errors">Handling Rust errors</a></h2>
-<p>The vast majority of operations in this library will return <a href="https://docs.rs/pyo3/latest/pyo3/prelude/type.PyResult.html"><code>PyResult&lt;T&gt;</code></a>.
-This is an alias for the type <code>Result&lt;T, PyErr&gt;</code>.</p>
+<p>The vast majority of operations in this library will return <a href="https://docs.rs/pyo3/latest/pyo3/prelude/type.PyResult.html"><code>PyResult&lt;T&gt;</code></a>,
+which is an alias for the type <code>Result&lt;T, PyErr&gt;</code>.</p>
 <p>A <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a> represents a Python exception.
 Errors within the PyO3 library are also exposed as Python exceptions.</p>
-<p>The PyO3 library handles Python exceptions in two stages. During the first stage, a <code>PyErr</code> instance is
+<p>The PyO3 library handles Python exceptions in two stages. During the first stage, a <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a> instance is
 created. At this stage, holding Python's GIL is not required. During the second stage, an actual Python
 exception instance is created and set active in the Python interpreter.</p>
 <p>In simple cases, for custom errors adding an implementation of <code>std::convert::From&lt;T&gt;</code> trait
@@ -1573,8 +1575,7 @@ until a <code>Python</code> object is available.</p>
 </span><span class="boring">fn bind(_addr: &amp;str) -&gt; Result&lt;(), CustomIOError&gt; {
 </span><span class="boring">    Err(CustomIOError)
 </span><span class="boring">}
-</span>
-impl std::convert::From&lt;CustomIOError&gt; for PyErr {
+</span>impl std::convert::From&lt;CustomIOError&gt; for PyErr {
     fn from(err: CustomIOError) -&gt; PyErr {
         exceptions::OSError::py_err(err.to_string())
     }
@@ -1650,14 +1651,12 @@ fn main() -&gt; Result&lt;(), ()&gt; {
 }
 </code></pre></pre>
 <h2><a class="header" href="#want-to-run-statements-then-use-run" id="want-to-run-statements-then-use-run">Want to run statements? Then use <code>run</code>.</a></h2>
-<p><a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a>
-is a method to execute one or more
+<p><a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a> is a method to execute one or more
 <a href="https://docs.python.org/3.7/reference/simple_stmts.html">Python statements</a>.
 This method returns nothing (like any Python statement), but you can get
 access to manipulated objects via the <code>locals</code> dict.</p>
-<p>You can also use the <a href="https://pyo3.rs/master/doc/pyo3/macro.py_run.html"><code>py_run!</code></a>
-macro, which is a shorthand for <code>Python::run</code>.
-Since <code>py_run!</code> panics on exceptions, we recommend you use this macro only for
+<p>You can also use the <a href="https://pyo3.rs/master/doc/pyo3/macro.py_run.html"><code>py_run!</code></a> macro, which is a shorthand for <a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a>.
+Since <a href="https://pyo3.rs/master/doc/pyo3/macro.py_run.html"><code>py_run!</code></a> panics on exceptions, we recommend you use this macro only for
 quickly testing your Python extensions.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::{PyCell, PyObjectProtocol, py_run};
@@ -1833,8 +1832,7 @@ from getting true parallelism when running pure Python code. While PyO3 needs to
 hold the GIL by default when called from Python, in order to allow manipulation
 of Python objects, you can release the GIL when executing Rust-only code to
 achieve true parallelism.</p>
-<p>The <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a>
-method temporarily releases the GIL, thus allowing other Python threads to run.</p>
+<p>The <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> method temporarily releases the GIL, thus allowing other Python threads to run.</p>
 <pre><code class="language-rust ignore">impl Python {
     pub fn allow_threads&lt;T, F&gt;(self, f: F) -&gt; T where F: Send + FnOnce() -&gt; T {}
 }
@@ -1847,7 +1845,8 @@ where we have a <code>wc_parallel</code> function that utilizes the <a href="htt
          .sum()
 }
 </code></pre>
-<p>Then in the Python bridge, we have a function <code>search</code> exposed to the Python runtime which calls <code>wc_parallel</code> inside a closure passed to <code>Python::allow_threads</code> to enable true parallelism:</p>
+<p>Then in the Python bridge, we have a function <code>search</code> exposed to the Python runtime which calls
+<code>wc_parallel</code> inside a closure passed to <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> to enable true parallelism:</p>
 <pre><code class="language-rust ignore">#[pymodule]
 fn word_count(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 
@@ -2042,7 +2041,10 @@ impl MyClass {
 <p><a href="https://docs.rs/pyo3/0.8.5/pyo3/type_object/struct.PyRawObject.html"><code>PyRawObject</code></a>
 is now removed and our syntax for constructors has changed.</p>
 <p>Before:</p>
-<pre><code class="language-compile_fail">#[pyclass]
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>#[pyclass]
 struct MyClass {}
 
 #[pymethods]
@@ -2052,10 +2054,14 @@ impl MyClass {
        obj.init(MyClass { })
    }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
-<pre><code># use pyo3::prelude::*;
-#[pyclass]
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
 struct MyClass {}
 
 #[pymethods]
@@ -2065,12 +2071,12 @@ impl MyClass {
        MyClass {}
    }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Basically you can return <code>Self</code> or <code>Result&lt;Self&gt;</code> directly.
 For more, see <a href="https://pyo3.rs/master/class.html#constructor">the constructor section</a> of this guide.</p>
 <h3><a class="header" href="#pycell" id="pycell">PyCell</a></h3>
-<p>PyO3 0.9 introduces <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is
-a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
+<p>PyO3 0.9 introduces <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
 for ensuring Rust's rules regarding aliasing of references are upheld.
 For more detail, see the
 <a href="https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html#the-rules-of-references">Rust Book's section on Rust's rules of references</a></p>
@@ -2078,8 +2084,11 @@ For more detail, see the
 Python exceptions will automatically be raised when your functions are used in a way which breaks Rust's
 rules of references.</p>
 <p>Here is an example.</p>
-<pre><code># use pyo3::prelude::*;
-#[pyclass]
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
 struct Names {
     names: Vec&lt;String&gt;
 }
@@ -2094,47 +2103,57 @@ impl Names {
         self.names.append(&amp;mut other.names)
     }
 }
-# let gil = Python::acquire_gil();
-# let py = gil.python();
-# let names = PyCell::new(py, Names::new()).unwrap();
-# let borrow_mut_err = py.get_type::&lt;pyo3::pycell::PyBorrowMutError&gt;();
-# pyo3::py_run!(py, names borrow_mut_err, r&quot;
-# try:
-#    names.merge(names)
-#    assert False, 'Unreachable'
-# except Exception as e:
-#    isinstance(e, borrow_mut_err)
-# &quot;);
-</code></pre>
+<span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span><span class="boring">let names = PyCell::new(py, Names::new()).unwrap();
+</span><span class="boring">let borrow_mut_err = py.get_type::&lt;pyo3::pycell::PyBorrowMutError&gt;();
+</span><span class="boring">pyo3::py_run!(py, names borrow_mut_err, r&quot;
+</span><span class="boring">try:
+</span><span class="boring">   names.merge(names)
+</span><span class="boring">   assert False, 'Unreachable'
+</span><span class="boring">except RuntimeError as e:
+</span><span class="boring">   isinstance(e, borrow_mut_err)
+</span><span class="boring">&quot;);
+</span><span class="boring">}
+</span></code></pre></pre>
 <p><code>Names</code> has a <code>merge</code> method, which takes <code>&amp;mut self</code> and another argument of type <code>&amp;mut Self</code>.
-Given this <code>#[pyclass]</code>, calling <code>names.merge(names)</code> in Python raises a <code>PyBorrowMutError</code> exception,
-since it requires two mutable borrows of <code>names</code>.</p>
+Given this <code>#[pyclass]</code>, calling <code>names.merge(names)</code> in Python raises
+a <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyBorrowMutError.html"><code>PyBorrowMutError</code></a> exception, since it requires two mutable borrows of <code>names</code>.</p>
 <p>However, for <code>#[pyproto]</code> and some functions, you need to manually fix the code.</p>
 <h4><a class="header" href="#object-creation" id="object-creation">Object creation</a></h4>
 <p>In 0.8 object creation was done with <code>PyRef::new</code> and <code>PyRefMut::new</code>.
 In 0.9 these have both been removed.
-To upgrade code, please use <code>PyCell::new</code> instead.
-If a <code>PyRef</code> or <code>PyRefMut</code> is needed, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
+To upgrade code, please use
+<a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html#method.new"><code>PyCell::new</code></a> instead.
+If you need <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a>, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
 on the newly-created <code>PyCell</code>.</p>
 <p>Before:</p>
-<pre><code class="language-compile_fail"># use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {}
-let gil = Python::acquire_gil();
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {}
+</span>let gil = Python::acquire_gil();
 let py = gil.python();
 let obj_ref = PyRef::new(py, MyClass {}).unwrap();
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
-<pre><code># use pyo3::prelude::*;
-# #[pyclass]
-# struct MyClass {}
-let gil = Python::acquire_gil();
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {}
+</span>let gil = Python::acquire_gil();
 let py = gil.python();
 let obj = PyCell::new(py, MyClass {}).unwrap();
 let obj_ref = obj.borrow();
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h4><a class="header" href="#object-extraction" id="object-extraction">Object extraction</a></h4>
-<p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <code>FromPyObject</code> implementations.
+<p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementations.
 Instead you should extract <code>PyRef&lt;T&gt;</code> or <code>PyRefMut&lt;T&gt;</code>, respectively.
 If <code>T</code> implements <code>Clone</code>, you can extract <code>T</code> itself.
 In addition, you can also extract <code>&amp;PyCell&lt;T&gt;</code>, though you rarely need it.</p>
@@ -2144,16 +2163,19 @@ let obj_ref: &amp;MyClass = obj.extract().unwrap();
 let obj_ref_mut: &amp;mut MyClass = obj.extract().unwrap();
 </code></pre>
 <p>After:</p>
-<pre><code># use pyo3::prelude::*;
-# use pyo3::types::IntoPyDict;
-# #[pyclass] #[derive(Clone)] struct MyClass {}
-# #[pymethods] impl MyClass { #[new]fn new() -&gt; Self { MyClass {} }}
-# let gil = Python::acquire_gil();
-# let py = gil.python();
-# let typeobj = py.get_type::&lt;MyClass&gt;();
-# let d = [(&quot;c&quot;, typeobj)].into_py_dict(py);
-# let create_obj = || py.eval(&quot;c()&quot;, None, Some(d)).unwrap();
-let obj: &amp;PyAny = create_obj();
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::IntoPyDict;
+</span><span class="boring">#[pyclass] #[derive(Clone)] struct MyClass {}
+</span><span class="boring">#[pymethods] impl MyClass { #[new]fn new() -&gt; Self { MyClass {} }}
+</span><span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span><span class="boring">let typeobj = py.get_type::&lt;MyClass&gt;();
+</span><span class="boring">let d = [(&quot;c&quot;, typeobj)].into_py_dict(py);
+</span><span class="boring">let create_obj = || py.eval(&quot;c()&quot;, None, Some(d)).unwrap();
+</span>let obj: &amp;PyAny = create_obj();
 let obj_cell: &amp;PyCell&lt;MyClass&gt; = obj.extract().unwrap();
 let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the object
 {
@@ -2161,15 +2183,20 @@ let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the ob
     // we need to drop obj_ref before we can extract a PyRefMut due to Rust's rules of references
 }
 let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h4><a class="header" href="#pyproto" id="pyproto"><code>#[pyproto]</code></a></h4>
-<p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a [<code>FromPyObject</code>] implementation.
+<p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a
+<a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementation.
 So if your protocol methods take <code>&amp;T</code> or <code>&amp;mut T</code> (where <code>T: PyClass</code>),
-please use <code>PyRef</code> or <code>PyRefMut</code> instead.</p>
+please use <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a> instead.</p>
 <p>Before:</p>
-<pre><code class="language-compile_fail"># use pyo3::prelude::*;
-# use pyo3::class::PySequenceProtocol;
-#[pyclass]
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::class::PySequenceProtocol;
+</span>#[pyclass]
 struct ByteSequence {
     elements: Vec&lt;u8&gt;,
 }
@@ -2181,11 +2208,15 @@ impl PySequenceProtocol for ByteSequence {
         Ok(Self { elements })
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
-<pre><code># use pyo3::prelude::*;
-# use pyo3::class::PySequenceProtocol;
-#[pyclass]
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::class::PySequenceProtocol;
+</span>#[pyclass]
 struct ByteSequence {
     elements: Vec&lt;u8&gt;,
 }
@@ -2197,7 +2228,8 @@ impl PySequenceProtocol for ByteSequence {
         Ok(Self { elements })
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 
                     </main>
 
