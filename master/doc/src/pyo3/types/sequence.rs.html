@@ -743,6 +743,7 @@
 <span id="743">743</span>
 <span id="744">744</span>
 <span id="745">745</span>
+<span id="746">746</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -762,6 +763,7 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySequence</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
 <span class="macro">pyobject_native_type_named</span><span class="macro">!</span>(<span class="ident">PySequence</span>);
+<span class="macro">pyobject_native_type_extract</span><span class="macro">!</span>(<span class="ident">PySequence</span>);
 
 <span class="kw">impl</span> <span class="ident">PySequence</span> {
     <span class="doccomment">/// Returns the number of objects in sequence.</span>
