@@ -481,7 +481,6 @@
 <span id="481">481</span>
 <span id="482">482</span>
 <span id="483">483</span>
-<span id="484">484</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -593,7 +592,6 @@
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span> <span class="ident">ReleasePool</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">POOL</span>;
             <span class="ident">pool</span>.<span class="ident">drain</span>(<span class="self">self</span>.<span class="ident">python</span>(), <span class="self">self</span>.<span class="ident">owned</span>, <span class="self">self</span>.<span class="ident">borrowed</span>);
-
             <span class="ident">ffi</span>::<span class="ident">PyGILState_Release</span>(<span class="self">self</span>.<span class="ident">gstate</span>);
         }
     }
