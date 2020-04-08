@@ -45,7 +45,7 @@
         <span class="doccomment">/// This trait is private to implement; this method exists to make it</span>
         <span class="doccomment">/// impossible to implement outside the crate.</span>
         <span class="kw">fn</span> <span class="ident">__private__</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">internal_tricks</span>::<span class="ident">PrivateMarker</span>;
-    }
+    };
 }
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">private_impl</span> {
@@ -54,7 +54,7 @@
         <span class="kw">fn</span> <span class="ident">__private__</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">internal_tricks</span>::<span class="ident">PrivateMarker</span> {
             <span class="kw">crate</span>::<span class="ident">internal_tricks</span>::<span class="ident">PrivateMarker</span>
         }
-    }
+    };
 }
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">pyo3_exception</span> {
