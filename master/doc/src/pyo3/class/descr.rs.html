@@ -146,11 +146,6 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -159,7 +154,6 @@
 <span class="doccomment">//! [Python information](</span>
 <span class="doccomment">//! https://docs.python.org/3/reference/datamodel.html#implementing-descriptors)</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::{<span class="ident">PyObjectCallbackConverter</span>, <span class="ident">UnitCallbackConverter</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::<span class="ident">PyMethodDef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::<span class="ident">PyResult</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyType</span>};
@@ -238,11 +232,7 @@
     <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyDescrGetProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">tp_descr_get</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">descrgetfunc</span><span class="op">&gt;</span> {
-        <span class="macro">py_ternary_func</span><span class="macro">!</span>(
-            <span class="ident">PyDescrGetProtocol</span>,
-            <span class="ident">T</span>::<span class="ident">__get__</span>,
-            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>)
-        )
+        <span class="macro">py_ternary_func</span><span class="macro">!</span>(<span class="ident">PyDescrGetProtocol</span>, <span class="ident">T</span>::<span class="ident">__get__</span>)
     }
 }
 
@@ -262,7 +252,7 @@
     <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyDescrSetProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">tp_descr_set</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">descrsetfunc</span><span class="op">&gt;</span> {
-        <span class="macro">py_ternary_func</span><span class="macro">!</span>(<span class="ident">PyDescrSetProtocol</span>, <span class="ident">T</span>::<span class="ident">__set__</span>, <span class="ident">UnitCallbackConverter</span>, <span class="ident">c_int</span>)
+        <span class="macro">py_ternary_func</span><span class="macro">!</span>(<span class="ident">PyDescrSetProtocol</span>, <span class="ident">T</span>::<span class="ident">__set__</span>, <span class="ident">c_int</span>)
     }
 }
 

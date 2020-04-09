@@ -347,6 +347,7 @@
 <span id="347">347</span>
 <span id="348">348</span>
 <span id="349">349</span>
+<span id="350">350</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">specialization</span>)]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>)]</span> <span class="comment">// FIXME (#698)</span>
@@ -483,6 +484,7 @@
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::<span class="ident">run_callback</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conversion</span>::{
     <span class="ident">AsPyPointer</span>, <span class="ident">FromPy</span>, <span class="ident">FromPyObject</span>, <span class="ident">FromPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">PyTryInto</span>,

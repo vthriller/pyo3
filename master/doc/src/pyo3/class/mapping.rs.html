@@ -256,21 +256,15 @@
 <span id="256">256</span>
 <span id="257">257</span>
 <span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Python Mapping Interface</span>
 <span class="doccomment">//! Trait and support implementation for implementing mapping support</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::{<span class="ident">LenResultConverter</span>, <span class="ident">PyObjectCallbackConverter</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::<span class="ident">PyMethodDef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>};
 
 <span class="doccomment">/// Mapping interface</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
@@ -405,7 +399,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">mp_length</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">lenfunc</span><span class="op">&gt;</span> {
-        <span class="macro">py_len_func</span><span class="macro">!</span>(<span class="ident">PyMappingLenProtocol</span>, <span class="ident">T</span>::<span class="ident">__len__</span>, <span class="ident">LenResultConverter</span>)
+        <span class="macro">py_len_func</span><span class="macro">!</span>(<span class="ident">PyMappingLenProtocol</span>, <span class="ident">T</span>::<span class="ident">__len__</span>)
     }
 }
 
@@ -428,11 +422,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">mp_subscript</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">binaryfunc</span><span class="op">&gt;</span> {
-        <span class="macro">py_binary_func</span><span class="macro">!</span>(
-            <span class="ident">PyMappingGetItemProtocol</span>,
-            <span class="ident">T</span>::<span class="ident">__getitem__</span>,
-            <span class="ident">PyObjectCallbackConverter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Success</span><span class="op">&gt;</span>(<span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>)
-        )
+        <span class="macro">py_binary_func</span><span class="macro">!</span>(<span class="ident">PyMappingGetItemProtocol</span>, <span class="ident">T</span>::<span class="ident">__getitem__</span>)
     }
 }
 
