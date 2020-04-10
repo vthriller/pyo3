@@ -481,17 +481,147 @@
 <span id="481">481</span>
 <span id="482">482</span>
 <span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Interaction with python&#39;s global interpreter lock</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">internal_tricks</span>::<span class="ident">Unsendable</span>, <span class="ident">PyAny</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">any</span>, <span class="ident">sync</span>};
 
 <span class="kw">static</span> <span class="ident">START</span>: <span class="ident">sync</span>::<span class="ident">Once</span> <span class="op">=</span> <span class="ident">sync</span>::<span class="ident">Once</span>::<span class="ident">new</span>();
 <span class="kw">static</span> <span class="ident">START_PYO3</span>: <span class="ident">sync</span>::<span class="ident">Once</span> <span class="op">=</span> <span class="ident">sync</span>::<span class="ident">Once</span>::<span class="ident">new</span>();
+
+<span class="macro">thread_local</span><span class="macro">!</span> {
+    <span class="doccomment">/// This is a internal counter in pyo3 monitoring whether this thread has the GIL.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It will be incremented whenever a GIL-holding RAII struct is created, and decremented</span>
+    <span class="doccomment">/// whenever they are dropped.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// As a result, if this thread has the GIL, GIL_COUNT is greater than zero.</span>
+    <span class="kw">static</span> <span class="ident">GIL_COUNT</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Cell</span>::<span class="ident">new</span>(<span class="number">0</span>);
+}
+
+<span class="doccomment">/// Check whether the GIL is acquired.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note: This uses pyo3&#39;s internal count rather than PyGILState_Check for two reasons:</span>
+<span class="doccomment">///  1) for performance</span>
+<span class="doccomment">///  2) PyGILState_Check always returns 1 if the sub-interpreter APIs have ever been called,</span>
+<span class="doccomment">///     which could lead to incorrect conclusions that the GIL is held.</span>
+<span class="kw">fn</span> <span class="ident">gil_is_acquired</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">GIL_COUNT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">get</span>() <span class="op">&gt;</span> <span class="number">0</span>)
+}
 
 <span class="doccomment">/// Prepares the use of Python in a free-threaded context.</span>
 <span class="doccomment">///</span>
@@ -594,6 +724,8 @@
             <span class="ident">pool</span>.<span class="ident">drain</span>(<span class="self">self</span>.<span class="ident">python</span>(), <span class="self">self</span>.<span class="ident">owned</span>, <span class="self">self</span>.<span class="ident">borrowed</span>);
             <span class="ident">ffi</span>::<span class="ident">PyGILState_Release</span>(<span class="self">self</span>.<span class="ident">gstate</span>);
         }
+
+        <span class="ident">decrement_gil_count</span>();
     }
 }
 
@@ -661,6 +793,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">GILPool</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GILPool</span> {
+        <span class="ident">increment_gil_count</span>();
         <span class="kw">let</span> <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span> <span class="ident">ReleasePool</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">POOL</span> };
         <span class="ident">GILPool</span> {
             <span class="ident">py</span>,
@@ -677,6 +810,7 @@
             <span class="kw">let</span> <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span> <span class="ident">ReleasePool</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">POOL</span>;
             <span class="ident">pool</span>.<span class="ident">drain</span>(<span class="self">self</span>.<span class="ident">py</span>, <span class="self">self</span>.<span class="ident">owned</span>, <span class="self">self</span>.<span class="ident">borrowed</span>);
         }
+        <span class="ident">decrement_gil_count</span>();
     }
 }
 
@@ -694,7 +828,11 @@
 
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">register_pointer</span>(<span class="ident">obj</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">POOL</span>;
-    (<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">pool</span>.<span class="ident">p</span>.<span class="ident">lock</span>()).<span class="ident">push</span>(<span class="ident">obj</span>);
+    <span class="kw">if</span> <span class="ident">gil_is_acquired</span>() {
+        <span class="ident">ffi</span>::<span class="ident">Py_DECREF</span>(<span class="ident">obj</span>.<span class="ident">as_ptr</span>())
+    } <span class="kw">else</span> {
+        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">pool</span>.<span class="ident">p</span>.<span class="ident">lock</span>()).<span class="ident">push</span>(<span class="ident">obj</span>);
+    }
 }
 
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">register_owned</span>(<span class="ident">_py</span>: <span class="ident">Python</span>, <span class="ident">obj</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PyAny</span> {
@@ -717,7 +855,12 @@
 
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">gstate</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">PyGILState_Ensure</span>(); <span class="comment">// acquire GIL</span>
+            <span class="ident">increment_gil_count</span>();
+
+            <span class="comment">// Release objects that were dropped since last GIL acquisition</span>
             <span class="kw">let</span> <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span> <span class="ident">ReleasePool</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">POOL</span>;
+            <span class="ident">pool</span>.<span class="ident">release_pointers</span>();
+
             <span class="ident">GILGuard</span> {
                 <span class="ident">owned</span>: <span class="ident">pool</span>.<span class="ident">owned</span>.<span class="ident">len</span>(),
                 <span class="ident">borrowed</span>: <span class="ident">pool</span>.<span class="ident">borrowed</span>.<span class="ident">len</span>(),
@@ -732,6 +875,25 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">python</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Python</span> {
         <span class="kw">unsafe</span> { <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>() }
     }
+}
+
+<span class="doccomment">/// Increment pyo3&#39;s internal GIL count - to be called whenever GILPool or GILGuard is created.</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+<span class="kw">fn</span> <span class="ident">increment_gil_count</span>() {
+    <span class="ident">GIL_COUNT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">set</span>(<span class="ident">c</span>.<span class="ident">get</span>() <span class="op">+</span> <span class="number">1</span>))
+}
+
+<span class="doccomment">/// Decrement pyo3&#39;s internal GIL count - to be called whenever GILPool or GILGuard is dropped.</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+<span class="kw">fn</span> <span class="ident">decrement_gil_count</span>() {
+    <span class="ident">GIL_COUNT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">get</span>();
+        <span class="macro">debug_assert</span><span class="macro">!</span>(
+            <span class="ident">current</span> <span class="op">&gt;</span> <span class="number">0</span>,
+            <span class="string">&quot;Negative GIL count detected. Please report this error to the PyO3 repo as a bug.&quot;</span>
+        );
+        <span class="ident">c</span>.<span class="ident">set</span>(<span class="ident">current</span> <span class="op">-</span> <span class="number">1</span>);
+    })
 }
 
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">array_list</span>::<span class="ident">ArrayList</span>;
@@ -792,7 +954,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">GILPool</span>, <span class="ident">NonNull</span>, <span class="ident">ReleasePool</span>, <span class="ident">POOL</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">GILPool</span>, <span class="ident">NonNull</span>, <span class="ident">ReleasePool</span>, <span class="ident">GIL_COUNT</span>, <span class="ident">POOL</span>};
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
@@ -811,7 +973,6 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_owned</span>() {
-        <span class="ident">gil</span>::<span class="ident">init_once</span>();
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
         <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>();
@@ -840,7 +1001,6 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_owned_nested</span>() {
-        <span class="ident">gil</span>::<span class="ident">init_once</span>();
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
         <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>();
@@ -877,7 +1037,6 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_borrowed</span>() {
         <span class="ident">gil</span>::<span class="ident">init_once</span>();
-
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span> <span class="ident">ReleasePool</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">POOL</span>;
 
@@ -904,7 +1063,6 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_borrowed_nested</span>() {
         <span class="ident">gil</span>::<span class="ident">init_once</span>();
-
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span> <span class="ident">ReleasePool</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">POOL</span>;
 
@@ -939,8 +1097,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_pyobject_drop</span>() {
-        <span class="ident">gil</span>::<span class="ident">init_once</span>();
+    <span class="kw">fn</span> <span class="ident">test_pyobject_drop_with_gil_decreases_refcnt</span>() {
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
         <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>();
@@ -955,14 +1112,75 @@
                 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">p</span>.<span class="ident">owned</span>.<span class="ident">len</span>(), <span class="number">0</span>);
                 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ffi</span>::<span class="ident">Py_REFCNT</span>(<span class="ident">obj_ptr</span>), <span class="number">2</span>);
             }
+
+            <span class="comment">// With the GIL held, obj can be dropped immediately</span>
+            <span class="ident">drop</span>(<span class="ident">obj</span>);
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ffi</span>::<span class="ident">Py_REFCNT</span>(<span class="ident">obj_ptr</span>), <span class="number">1</span>);
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_pyobject_drop_without_gil_doesnt_decrease_refcnt</span>() {
+        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
+        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>();
+        <span class="comment">// Ensure that obj does not get freed</span>
+        <span class="kw">let</span> <span class="ident">_ref</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">clone_ref</span>(<span class="ident">py</span>);
+        <span class="kw">let</span> <span class="ident">obj_ptr</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">as_ptr</span>();
+
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span> <span class="ident">ReleasePool</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">POOL</span>;
+
+            {
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">p</span>.<span class="ident">owned</span>.<span class="ident">len</span>(), <span class="number">0</span>);
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ffi</span>::<span class="ident">Py_REFCNT</span>(<span class="ident">obj_ptr</span>), <span class="number">2</span>);
+            }
+
+            <span class="comment">// Without the GIL held, obj cannot be dropped until the next GIL acquire</span>
+            <span class="ident">drop</span>(<span class="ident">gil</span>);
             <span class="ident">drop</span>(<span class="ident">obj</span>);
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ffi</span>::<span class="ident">Py_REFCNT</span>(<span class="ident">obj_ptr</span>), <span class="number">2</span>);
 
             {
+                <span class="comment">// Next time the GIL is acquired, the object is released</span>
                 <span class="kw">let</span> <span class="ident">_gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ffi</span>::<span class="ident">Py_REFCNT</span>(<span class="ident">obj_ptr</span>), <span class="number">1</span>);
             }
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ffi</span>::<span class="ident">Py_REFCNT</span>(<span class="ident">obj_ptr</span>), <span class="number">1</span>);
         }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_gil_counts</span>() {
+        <span class="comment">// Check GILGuard and GILPool both increase counts correctly</span>
+        <span class="kw">let</span> <span class="ident">get_gil_count</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">GIL_COUNT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">get</span>());
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">1</span>);
+
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">2</span>);
+
+        <span class="kw">let</span> <span class="ident">pool2</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">3</span>);
+
+        <span class="ident">drop</span>(<span class="ident">pool</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">2</span>);
+
+        <span class="kw">let</span> <span class="ident">gil2</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">3</span>);
+
+        <span class="ident">drop</span>(<span class="ident">gil2</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">2</span>);
+
+        <span class="ident">drop</span>(<span class="ident">pool2</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">1</span>);
+
+        <span class="ident">drop</span>(<span class="ident">gil</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">get_gil_count</span>(), <span class="number">0</span>);
     }
 }
 </pre></div>
