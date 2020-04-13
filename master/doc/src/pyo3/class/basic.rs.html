@@ -514,7 +514,6 @@
 <span id="514">514</span>
 <span id="515">515</span>
 <span id="516">516</span>
-<span id="517">517</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -530,7 +529,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::<span class="ident">PyMethodDef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">callback</span>, <span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">run_callback</span>, <span class="ident">FromPyObject</span>, <span class="ident">GILPool</span>, <span class="ident">IntoPy</span>, <span class="ident">ObjectProtocol</span>, <span class="ident">PyAny</span>,
-    <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>, <span class="ident">Python</span>,
+    <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
 
@@ -736,10 +735,9 @@
         <span class="kw">where</span>
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyObjectGetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="ident">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
-
                 <span class="comment">// Behave like python&#39;s __getattr__ (as opposed to __getattribute__) and check</span>
                 <span class="comment">// for existing fields and methods first</span>
                 <span class="kw">let</span> <span class="ident">existing</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">PyObject_GenericGetAttr</span>(<span class="ident">slf</span>, <span class="ident">arg</span>);
@@ -1003,9 +1001,9 @@
         <span class="kw">where</span>
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyObjectRichcmpProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="ident">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg</span>);
 

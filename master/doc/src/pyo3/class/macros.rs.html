@@ -448,7 +448,6 @@
 <span id="448">448</span>
 <span id="449">449</span>
 <span id="450">450</span>
-<span id="451">451</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -460,9 +459,9 @@
         <span class="kw">where</span>
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">trait</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
-            <span class="kw">let</span> <span class="macro-nonterminal">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="macro-nonterminal">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">callback</span>::<span class="ident">convert</span>(<span class="ident">py</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">call</span><span class="op">!</span>(<span class="ident">slf</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>)$(.<span class="ident">map</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">conv</span>))<span class="question-mark">?</span>)
             })
@@ -486,9 +485,9 @@
         <span class="kw">where</span>
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">trait</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
-            <span class="kw">let</span> <span class="macro-nonterminal">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="macro-nonterminal">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">class</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>(<span class="ident">slf</span>.<span class="ident">borrow_mut</span>()).<span class="ident">into</span>();
                 <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">callback</span>::<span class="ident">convert</span>(<span class="ident">py</span>, <span class="ident">res</span> $(.<span class="ident">map</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">conv</span>))<span class="question-mark">?</span>)
@@ -521,9 +520,9 @@
             <span class="macro-nonterminal">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">trait</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg</span>);
                 <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">callback</span>::<span class="ident">convert</span>(<span class="ident">py</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">call</span><span class="op">!</span>(<span class="ident">slf</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>, <span class="ident">arg</span>)$(.<span class="ident">map</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">conv</span>))<span class="question-mark">?</span>)
@@ -551,9 +550,9 @@
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">trait</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">lhs</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span><span class="op">&gt;</span>(<span class="ident">lhs</span>);
                 <span class="kw">let</span> <span class="ident">rhs</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span><span class="op">&gt;</span>(<span class="ident">rhs</span>);
 
@@ -577,9 +576,9 @@
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">trait</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="comment">// Swap lhs &lt;-&gt; rhs</span>
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">rhs</span>);
                 <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span><span class="op">&gt;</span>(<span class="ident">lhs</span>);
@@ -607,9 +606,9 @@
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
 
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf_</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg</span>);
                 <span class="macro">call_mut</span><span class="macro">!</span>(<span class="ident">slf_</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>, <span class="ident">arg</span>)<span class="question-mark">?</span>;
@@ -636,9 +635,9 @@
         <span class="kw">where</span>
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">trait</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
-            <span class="kw">let</span> <span class="macro-nonterminal">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="macro-nonterminal">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">callback</span>::<span class="ident">convert</span>(<span class="ident">py</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">call</span><span class="op">!</span>(<span class="ident">slf</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>; <span class="ident">arg</span>.<span class="ident">into</span>()))
             })
@@ -661,9 +660,9 @@
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
 
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">arg1</span> <span class="op">=</span> <span class="ident">py</span>
                     .<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">types</span>::<span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg1</span>)
@@ -697,9 +696,9 @@
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
 
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">arg1</span> <span class="op">=</span> <span class="ident">py</span>
                     .<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">types</span>::<span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg1</span>)
                     .<span class="ident">extract</span>()<span class="question-mark">?</span>;
@@ -732,9 +731,9 @@
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">trait</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="comment">// Swap lhs &lt;-&gt; rhs</span>
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">arg2</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">slf</span>.<span class="ident">try_borrow</span>()<span class="question-mark">?</span>;
@@ -764,9 +763,9 @@
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
 
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf_cell</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">arg1</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg1</span>);
                 <span class="macro">call_mut</span><span class="macro">!</span>(<span class="ident">slf_cell</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>, <span class="ident">arg1</span>)<span class="question-mark">?</span>;
@@ -790,9 +789,9 @@
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
 
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">generic</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
 
                 <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
@@ -826,10 +825,9 @@
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
 
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
-
                 <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
                     <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">py</span>
@@ -860,9 +858,9 @@
         {
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ObjectProtocol</span>;
 
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyCell</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">generic</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span><span class="op">&gt;</span>(<span class="ident">name</span>);
 

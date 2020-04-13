@@ -1208,7 +1208,7 @@
 
         <span class="kw">let</span> <span class="ident">cnt</span>;
         {
-            <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">GILPool</span>::<span class="ident">new</span>(<span class="ident">py</span>);
+            <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw">crate</span>::<span class="ident">GILPool</span>::<span class="ident">new</span>() };
             <span class="kw">let</span> <span class="ident">none</span> <span class="op">=</span> <span class="ident">py</span>.<span class="prelude-val">None</span>();
             <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>();
             <span class="kw">let</span> <span class="ident">_dict</span> <span class="op">=</span> [(<span class="number">10</span>, <span class="ident">none</span>)].<span class="ident">into_py_dict</span>(<span class="ident">py</span>);

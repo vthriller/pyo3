@@ -477,6 +477,10 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -537,6 +541,10 @@
     <span class="doccomment">/// Because the output lifetime `&#39;p` is not connected to any input parameter,</span>
     <span class="doccomment">/// care must be taken that the compiler infers an appropriate lifetime for `&#39;p`</span>
     <span class="doccomment">/// when calling this function.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">/// The lifetime `&#39;p` must be shorter than the period you *assume* that you have GIL.</span>
+    <span class="doccomment">/// I.e., `Python&lt;&#39;static&gt;` is always *really* unsafe.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">assume_gil_acquired</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> {
         <span class="ident">Python</span>(<span class="ident">PhantomData</span>)
