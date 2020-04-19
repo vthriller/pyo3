@@ -116,14 +116,18 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! Python Iterator Interface.</span>
 <span class="doccomment">//! Trait and support implementation for implementing iterators</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::<span class="ident">IntoPyCallbackOutput</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">derive_utils</span>::<span class="ident">TryFromPyCell</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::<span class="ident">PyResult</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>, <span class="ident">PyRefMut</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 
 <span class="doccomment">/// Python Iterator Interface.</span>
 <span class="doccomment">///</span>
@@ -131,14 +135,14 @@
 <span class="doccomment">/// for more.</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
-    <span class="kw">fn</span> <span class="ident">__iter__</span>(<span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
+    <span class="kw">fn</span> <span class="ident">__iter__</span>(<span class="ident">slf</span>: <span class="self">Self</span>::<span class="ident">Receiver</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyIterIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__next__</span>(<span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
+    <span class="kw">fn</span> <span class="ident">__next__</span>(<span class="ident">slf</span>: <span class="self">Self</span>::<span class="ident">Receiver</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyIterNextProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
@@ -147,11 +151,13 @@
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyIterIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Receiver</span>: <span class="ident">TryFromPyCell</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="self">Self</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="ident">Success</span>: <span class="kw">crate</span>::<span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="prelude-ty">Result</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Success</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyIterNextProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Receiver</span>: <span class="ident">TryFromPyCell</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="self">Self</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="ident">Success</span>: <span class="kw">crate</span>::<span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="prelude-ty">Result</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Success</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 }
@@ -195,7 +201,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">tp_iter</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">getiterfunc</span><span class="op">&gt;</span> {
-        <span class="macro">py_unary_refmut_func</span><span class="macro">!</span>(<span class="ident">PyIterIterProtocol</span>, <span class="ident">T</span>::<span class="ident">__iter__</span>)
+        <span class="macro">py_unarys_func</span><span class="macro">!</span>(<span class="ident">PyIterIterProtocol</span>, <span class="ident">T</span>::<span class="ident">__iter__</span>)
     }
 }
 
@@ -218,7 +224,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">tp_iternext</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">iternextfunc</span><span class="op">&gt;</span> {
-        <span class="macro">py_unary_refmut_func</span><span class="macro">!</span>(<span class="ident">PyIterNextProtocol</span>, <span class="ident">T</span>::<span class="ident">__next__</span>, <span class="ident">IterNextConverter</span>)
+        <span class="macro">py_unarys_func</span><span class="macro">!</span>(<span class="ident">PyIterNextProtocol</span>, <span class="ident">T</span>::<span class="ident">__next__</span>, <span class="ident">IterNextConverter</span>)
     }
 }
 

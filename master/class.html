@@ -935,7 +935,9 @@ It includes two methods <code>__iter__</code> and <code>__next__</code>:</p>
 <li><code>fn __iter__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
 <li><code>fn __next__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;impl IntoPy&lt;PyObject&gt;&gt;&gt;</code></li>
 </ul>
-<p>Returning <code>Ok(None)</code> from <code>__next__</code> indicates that that there are no further items.</p>
+<p>Returning <code>Ok(None)</code> from <code>__next__</code> indicates that that there are no further items.
+These two methods can be take either <code>PyRef&lt;Self&gt;</code> or <code>PyRefMut&lt;Self&gt;</code> as their
+first argument, so that mutable borrow can be avoided if needed.</p>
 <p>Example:</p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
@@ -950,7 +952,7 @@ struct MyIterator {
 
 #[pyproto]
 impl PyIterProtocol for MyIterator {
-    fn __iter__(mut slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;MyIterator&gt;&gt; {
+    fn __iter__(slf: PyRef&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;MyIterator&gt;&gt; {
         Ok(slf.into())
     }
     fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;PyObject&gt;&gt; {
