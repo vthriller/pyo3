@@ -265,6 +265,12 @@
 <span id="265">265</span>
 <span id="266">266</span>
 <span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -278,7 +284,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass</span>::<span class="ident">PyClass</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pyclass_init</span>::<span class="ident">PyClassInitializer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyModule</span>, <span class="ident">PyTuple</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">GILPool</span>, <span class="ident">IntoPy</span>, <span class="ident">PyCell</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">GILPool</span>, <span class="ident">IntoPy</span>, <span class="ident">Py</span>, <span class="ident">PyCell</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span>;
 
 <span class="doccomment">/// Description of a python parameter; used for `parse_args()`.</span>
@@ -480,6 +486,12 @@
 <span class="kw">impl</span> <span class="ident">GetPropertyValue</span> <span class="kw">for</span> <span class="ident">PyObject</span> {
     <span class="kw">fn</span> <span class="ident">get_property_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
         <span class="self">self</span>.<span class="ident">clone_ref</span>(<span class="ident">py</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">GetPropertyValue</span> <span class="kw">for</span> <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_property_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+        <span class="self">self</span>.<span class="ident">clone_ref</span>(<span class="ident">py</span>).<span class="ident">into</span>()
     }
 }
 
