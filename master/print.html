@@ -1335,6 +1335,62 @@ impl PyIterProtocol for MyIterator {
 }
 <span class="boring">}
 </span></code></pre></pre>
+<p>In many cases you'll have a distinction between the type being iterated over (i.e. the <em>iterable</em>) and the iterator it
+provides. In this case, you should implement <code>PyIterProtocol</code> for both the iterable and the iterator, but the iterable
+only needs to support <code>__iter__()</code> while the iterator must support both <code>__iter__()</code> and <code>__next__()</code>. The default
+implementations in <code>PyIterProtocol</code> will ensure that the objects behave correctly in Python. For example:</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::PyIterProtocol;
+</span>
+#[pyclass]
+struct Iter {
+    inner: std::vec::IntoIter&lt;usize&gt;,
+}
+
+#[pyproto]
+impl PyIterProtocol for Iter {
+    fn __iter__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;Iter&gt;&gt; {
+        Ok(slf.into())
+    }
+
+    fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;usize&gt;&gt; {
+        Ok(slf.inner.next())
+    }
+}
+
+#[pyclass]
+struct Container {
+    iter: Vec&lt;usize&gt;,
+}
+
+#[pyproto]
+impl PyIterProtocol for Container {
+    fn __iter__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;Iter&gt;&gt; {
+        let iter = Iter {
+            inner: slf.iter.clone().into_iter(),
+        };
+        PyCell::new(slf.py(), iter).map(Into::into)
+    }
+}
+
+<span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span><span class="boring">let inst = pyo3::PyCell::new(
+</span><span class="boring">    py,
+</span><span class="boring">    Container {
+</span><span class="boring">        iter: vec![1, 2, 3, 4],
+</span><span class="boring">    },
+</span><span class="boring">)
+</span><span class="boring">.unwrap();
+</span><span class="boring">pyo3::py_run!(py, inst, &quot;assert list(inst) == [1, 2, 3, 4]&quot;);
+</span><span class="boring">pyo3::py_run!(py, inst, &quot;assert list(iter(iter(inst))) == [1, 2, 3, 4]&quot;);
+</span><span class="boring">}
+</span></code></pre></pre>
+<p>For more details on Python's iteration protocols, check out <a href="https://docs.python.org/3/library/stdtypes.html#iterator-types">the &quot;Iterator Types&quot; section of the library
+documentation</a>.</p>
 <h2><a class="header" href="#how-methods-are-implemented" id="how-methods-are-implemented">How methods are implemented</a></h2>
 <p>Users should be able to define a <code>#[pyclass]</code> with or without <code>#[pymethods]</code>, while PyO3 needs a
 trait with a function that returns all methods. Since it's impossible to make the code generation in
