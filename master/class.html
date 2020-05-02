@@ -212,11 +212,11 @@ impl pyo3::IntoPy&lt;PyObject&gt; for MyClass {
     }
 }
 
-pub struct MyClassGeneratedPyo3Inventory {
+pub struct Pyo3MethodsInventoryForMyClass {
     methods: &amp;'static [pyo3::class::PyMethodDefType],
 }
 
-impl pyo3::class::methods::PyMethodsInventory for MyClassGeneratedPyo3Inventory {
+impl pyo3::class::methods::PyMethodsInventory for Pyo3MethodsInventoryForMyClass {
     fn new(methods: &amp;'static [pyo3::class::PyMethodDefType]) -&gt; Self {
         Self { methods }
     }
@@ -226,11 +226,11 @@ impl pyo3::class::methods::PyMethodsInventory for MyClassGeneratedPyo3Inventory 
     }
 }
 
-impl pyo3::class::methods::PyMethodsInventoryDispatch for MyClass {
-    type InventoryType = MyClassGeneratedPyo3Inventory;
+impl pyo3::class::methods::PyMethodsImpl for MyClass {
+    type Methods = Pyo3MethodsInventoryForMyClass;
 }
 
-pyo3::inventory::collect!(MyClassGeneratedPyo3Inventory);
+pyo3::inventory::collect!(Pyo3MethodsInventoryForMyClass);
 <span class="boring">let gil = Python::acquire_gil();
 </span><span class="boring">let py = gil.python();
 </span><span class="boring">let cls = py.get_type::&lt;MyClass&gt;();
