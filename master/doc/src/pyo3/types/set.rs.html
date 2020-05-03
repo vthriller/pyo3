@@ -497,13 +497,11 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
-<span id="500">500</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="self">self</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">internal_tricks</span>::<span class="ident">Unsendable</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPy</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyAny</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>,
     <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
@@ -514,11 +512,11 @@
 
 <span class="doccomment">/// Represents a Python `set`</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySet</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySet</span>(<span class="ident">PyAny</span>);
 
 <span class="doccomment">/// Represents a  Python `frozenset`</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyFrozenSet</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyFrozenSet</span>(<span class="ident">PyAny</span>);
 
 <span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PySet</span>, <span class="ident">ffi</span>::<span class="ident">PySetObject</span>, <span class="ident">ffi</span>::<span class="ident">PySet_Type</span>, <span class="ident">ffi</span>::<span class="ident">PySet_Check</span>);
 <span class="macro">pyobject_native_type</span><span class="macro">!</span>(

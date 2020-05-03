@@ -450,7 +450,6 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
-<span id="453">453</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -458,7 +457,6 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="self">self</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::{<span class="self">self</span>, <span class="ident">Py_ssize_t</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">internal_tricks</span>::<span class="ident">Unsendable</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>,
     <span class="ident">ToPyObject</span>,
@@ -466,7 +464,7 @@
 
 <span class="doccomment">/// Represents a Python `list`.</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyList</span>(<span class="ident">PyObject</span>, <span class="ident">Unsendable</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyList</span>(<span class="ident">PyAny</span>);
 
 <span class="macro">pyobject_native_var_type</span><span class="macro">!</span>(<span class="ident">PyList</span>, <span class="ident">ffi</span>::<span class="ident">PyList_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyList_Check</span>);
 

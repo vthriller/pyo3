@@ -470,34 +470,21 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>::{<span class="self">self</span>, <span class="ident">GILGuard</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">AsPyRef</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyDowncastImpl</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">PyTypeObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyTypeInfo</span>, <span class="ident">PyTypeObject</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyModule</span>, <span class="ident">PyType</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">FromPyPointer</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">AsPyRef</span>, <span class="ident">FromPyPointer</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>,
+};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">gil</span>::<span class="ident">prepare_freethreaded_python</span>;
 
@@ -777,27 +764,18 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gil</span>::<span class="ident">register_owned</span>(<span class="self">self</span>, <span class="ident">obj</span>.<span class="ident">into_nonnull</span>()) };
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">obj</span>)
+        <span class="kw">let</span> <span class="ident">any</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">obj</span>.<span class="ident">into_ptr</span>()) };
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">any</span>)
     }
 
     <span class="doccomment">/// Registers the object in the release pool, and does an unchecked downcast</span>
     <span class="doccomment">/// to the specific type.</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cast_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">obj</span>: <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">T</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyDowncastImpl</span> <span class="op">+</span> <span class="ident">PyTypeInfo</span>,
+        <span class="ident">T</span>: <span class="ident">PyNativeType</span> <span class="op">+</span> <span class="ident">PyTypeInfo</span>,
     {
-        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">gil</span>::<span class="ident">register_owned</span>(<span class="self">self</span>, <span class="ident">obj</span>.<span class="ident">into_nonnull</span>());
-        <span class="ident">T</span>::<span class="ident">unchecked_downcast</span>(<span class="ident">obj</span>)
-    }
-
-    <span class="doccomment">/// Registers the object pointer in the release pool.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_borrowed_ptr_to_obj</span>(<span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyAny</span> {
-        <span class="kw">match</span> <span class="ident">NonNull</span>::<span class="ident">new</span>(<span class="ident">ptr</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gil</span>::<span class="ident">register_borrowed</span>(<span class="self">self</span>, <span class="ident">p</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">err</span>::<span class="ident">panic_after_error</span>(),
-        }
+        <span class="kw">let</span> <span class="ident">any</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">obj</span>.<span class="ident">into_ptr</span>());
+        <span class="ident">T</span>::<span class="ident">unchecked_downcast</span>(<span class="ident">any</span>)
     }
 
     <span class="doccomment">/// Registers the object pointer in the release pool,</span>

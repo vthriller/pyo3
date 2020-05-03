@@ -189,7 +189,8 @@ impl MyClass {
 <span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#ownership-and-lifetimes" id="ownership-and-lifetimes">Ownership and lifetimes</a></h2>
-<p>All objects are owned by the PyO3 library and all APIs available with references, while in rust-cpython, you own python objects.</p>
+<p>While in rust-cpython you always own python objects, PyO3 allows efficient <em>borrowed objects</em>
+and most APIs are available with references.</p>
 <p>Here is an example of the PyList API:</p>
 <p><strong>rust-cpython</strong></p>
 <pre><code class="language-rust ignore">impl PyList {
@@ -207,7 +208,8 @@ impl MyClass {
    fn get_item(&amp;self, index: isize) -&gt; &amp;PyAny {...}
 }
 </code></pre>
-<p>Because PyO3 allows only references to Python objects, all references have the GIL lifetime. So the owned Python object is not required, and it is safe to have functions like <code>fn py&lt;'p&gt;(&amp;'p self) -&gt; Python&lt;'p&gt; {}</code>.</p>
+<p>In PyO3, all object references are bounded by the GIL lifetime.
+So the owned Python object is not required, and it is safe to have functions like <code>fn py&lt;'p&gt;(&amp;'p self) -&gt; Python&lt;'p&gt; {}</code>.</p>
 <h2><a class="header" href="#error-handling" id="error-handling">Error handling</a></h2>
 <p>rust-cpython requires a <code>Python</code> parameter for constructing a <code>PyErr</code>, so error handling ergonomics is pretty bad. It is not possible to use <code>?</code> with Rust errors.</p>
 <p>PyO3 on other hand does not require <code>Python</code> for constructing a <code>PyErr</code>, it is only required if you want to raise an exception in Python with the <code>PyErr::restore()</code> method. Due to various <code>std::convert::From&lt;E&gt; for PyErr</code> implementations for Rust standard error types <code>E</code>, propagating <code>?</code> is supported automatically.</p>
