@@ -730,6 +730,14 @@
 <span id="730">730</span>
 <span id="731">731</span>
 <span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -743,6 +751,7 @@
     <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">collections</span>, <span class="ident">hash</span>};
 
 <span class="doccomment">/// Represents a Python `dict`.</span>
@@ -834,8 +843,12 @@
         <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>,
     {
         <span class="ident">key</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">py</span>()
-                .<span class="ident">from_borrowed_ptr_or_opt</span>(<span class="ident">ffi</span>::<span class="ident">PyDict_GetItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>))
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">PyDict_GetItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>);
+            <span class="ident">NonNull</span>::<span class="ident">new</span>(<span class="ident">ptr</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
+                <span class="comment">// PyDict_GetItem return s borrowed ptr, must make it owned for safety (see #890).</span>
+                <span class="ident">ffi</span>::<span class="ident">Py_INCREF</span>(<span class="ident">p</span>.<span class="ident">as_ptr</span>());
+                <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr</span>(<span class="ident">p</span>.<span class="ident">as_ptr</span>())
+            })
         })
     }
 
@@ -923,7 +936,10 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>();
             <span class="kw">if</span> <span class="ident">ffi</span>::<span class="ident">PyDict_Next</span>(<span class="self">self</span>.<span class="ident">dict</span>.<span class="ident">as_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">pos</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">key</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dict</span>.<span class="ident">py</span>();
-                <span class="prelude-val">Some</span>((<span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>(<span class="ident">key</span>), <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>(<span class="ident">value</span>)))
+                <span class="comment">// PyDict_Next returns borrowed values; for safety must make them owned (see #890)</span>
+                <span class="ident">ffi</span>::<span class="ident">Py_INCREF</span>(<span class="ident">key</span>);
+                <span class="ident">ffi</span>::<span class="ident">Py_INCREF</span>(<span class="ident">value</span>);
+                <span class="prelude-val">Some</span>((<span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">key</span>), <span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">value</span>)))
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             }
