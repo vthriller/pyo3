@@ -521,7 +521,7 @@ Type:      builtin_function_or_method
 <h3><a class="header" href="#calling-python-functions-in-rust" id="calling-python-functions-in-rust">Calling Python functions in Rust</a></h3>
 <p>You can use <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html#tymethod.is_callable"><code>ObjectProtocol::is_callable</code></a> to check if you have a callable object. <code>is_callable</code> will return <code>true</code> for functions (including lambdas), methods and objects with a <code>__call__</code> method. You can call the object with <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html#tymethod.call"><code>ObjectProtocol::call</code></a> with the args as first parameter and the kwargs (or <code>None</code>) as second parameter. There are also <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html#tymethod.call0"><code>ObjectProtocol::call0</code></a> with no args and <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html#tymethod.call1"><code>ObjectProtocol::call1</code></a> with only positional args.</p>
 <h3><a class="header" href="#calling-rust-functions-in-python" id="calling-rust-functions-in-python">Calling Rust functions in Python</a></h3>
-<p>If you have a static function, you can expose it with <code>#[pyfunction]</code> and use <a href="https://docs.rs/pyo3/latest/pyo3/macro.wrap_pyfunction.html"><code>wrap_pyfunction!</code></a> to get the corresponding <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyObject"><code>PyObject</code></a>. For dynamic functions, e.g. lambdas and functions that were passed as arguments, you must put them in some kind of owned container, e.g. a <code>Box</code>. (A long-term solution will be a special container similar to wasm-bindgen's <code>Closure</code>). You can then use a <code>#[pyclass]</code> struct with that container as a field as a way to pass the function over the FFI barrier. You can even make that class callable with <code>__call__</code> so it looks like a function in Python code.</p>
+<p>If you have a static function, you can expose it with <code>#[pyfunction]</code> and use <a href="https://docs.rs/pyo3/latest/pyo3/macro.wrap_pyfunction.html"><code>wrap_pyfunction!</code></a> to get the corresponding <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyObject.html"><code>PyObject</code></a>. For dynamic functions, e.g. lambdas and functions that were passed as arguments, you must put them in some kind of owned container, e.g. a <code>Box</code>. (A long-term solution will be a special container similar to wasm-bindgen's <code>Closure</code>). You can then use a <code>#[pyclass]</code> struct with that container as a field as a way to pass the function over the FFI barrier. You can even make that class callable with <code>__call__</code> so it looks like a function in Python code.</p>
 <h1><a class="header" href="#python-classes" id="python-classes">Python Classes</a></h1>
 <h2><a class="header" href="#defining-a-new-class" id="defining-a-new-class">Defining a new class</a></h2>
 <p>To define a custom Python class, a Rust struct needs to be annotated with the
@@ -1408,15 +1408,15 @@ fails, so usually you will use something like</p>
 </code></pre>
 <p>This method is available for many Python object types, and can produce a wide
 variety of Rust types, which you can check out in the implementor list of
-<a href="https://docs.rs/pyo3/latest/pyo3/types/trait.FromPyObject.html"><code>FromPyObject</code></a>.</p>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/types/trait.FromPyObject.html"><code>FromPyObject</code></a> is also implemented for your own Rust types wrapped as Python
+<a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a>.</p>
+<p><a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> is also implemented for your own Rust types wrapped as Python
 objects (see <a href="class.html">the chapter about classes</a>).  There, in order to both be
 able to operate on mutable references <em>and</em> satisfy Rust's rules of non-aliasing
 mutable references, you have to extract the PyO3 reference wrappers <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a>
 and <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a>.  They work like the reference wrappers of
 <code>std::cell::RefCell</code> and ensure (at runtime) that Rust borrows are allowed.</p>
 <h2><a class="header" href="#the-topyobject-trait" id="the-topyobject-trait">The <code>ToPyObject</code> trait</a></h2>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> is a conversion trait that allows various objects to be
+<p><a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.ToPyObject.html"><code>ToPyObject</code></a> is a conversion trait that allows various objects to be
 converted into <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyObject.html"><code>PyObject</code></a>. <code>IntoPy&lt;PyObject&gt;</code> serves the
 same purpose, except that it consumes <code>self</code>.</p>
 <h2><a class="header" href="#args-and-kwargs-for-python-object-calls" id="args-and-kwargs-for-python-object-calls"><code>*args</code> and <code>**kwargs</code> for Python object calls</a></h2>
@@ -1503,11 +1503,11 @@ fn main() {
 </code></pre></pre>
 <h2><a class="header" href="#frompyt-and-intopyt" id="frompyt-and-intopyt"><code>FromPy&lt;T&gt;</code> and <code>IntoPy&lt;T&gt;</code></a></h2>
 <p>Many conversions in PyO3 can't use <code>std::convert::From</code> because they need a GIL token.
-The <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument.
-I.e. <code>FromPy&lt;T&gt;</code> could be converting a Rust object into a Python object even though it is called <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> - it doesn't say anything about which side of the conversion is a Python object.</p>
-<p>Just like <code>From&lt;T&gt;</code>, if you implement <code>FromPy&lt;T&gt;</code> you gain a blanket implementation of <a href="https://docs.rs/pyo3/latest/pyo3/trait.IntoPy.html"><code>IntoPy</code></a> for free.</p>
-<p>Eventually, traits such as <a href="https://docs.rs/pyo3/latest/pyo3/trait.ToPyObject.html"><code>ToPyObject</code></a> will be replaced by this trait and a <a href="https://docs.rs/pyo3/latest/pyo3/trait.FromPy.html"><code>FromPy</code></a> trait will be added that will implement
-<a href="https://docs.rs/pyo3/latest/pyo3/trait.IntoPy.html"><code>IntoPy</code></a>, just like with <code>From</code> and <code>Into</code>.</p>
+The <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPy.html"><code>FromPy</code></a> trait offers an <code>from_py</code> method that works just like <code>from</code>, except for taking a <code>Python&lt;'_&gt;</code> argument.
+I.e. <code>FromPy&lt;T&gt;</code> could be converting a Rust object into a Python object even though it is called <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPy.html"><code>FromPy</code></a> - it doesn't say anything about which side of the conversion is a Python object.</p>
+<p>Just like <code>From&lt;T&gt;</code>, if you implement <code>FromPy&lt;T&gt;</code> you gain a blanket implementation of <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.IntoPy.html"><code>IntoPy</code></a> for free.</p>
+<p>Eventually, traits such as <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.ToPyObject.html"><code>ToPyObject</code></a> will be replaced by this trait and a <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPy.html"><code>FromPy</code></a> trait will be added that will implement
+<a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.IntoPy.html"><code>IntoPy</code></a>, just like with <code>From</code> and <code>Into</code>.</p>
 <h1><a class="header" href="#python-exceptions" id="python-exceptions">Python Exceptions</a></h1>
 <h2><a class="header" href="#defining-a-new-exception" id="defining-a-new-exception">Defining a new exception</a></h2>
 <p>You can use the <a href="https://docs.rs/pyo3/latest/pyo3/macro.create_exception.html"><code>create_exception!</code></a> macro to define a new exception type:</p>
