@@ -509,11 +509,6 @@
 <span id="509">509</span>
 <span id="510">510</span>
 <span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -528,8 +523,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::<span class="ident">HashCallbackOutput</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::<span class="ident">PyMethodDef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">callback</span>, <span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">run_callback</span>, <span class="ident">FromPyObject</span>, <span class="ident">GILPool</span>, <span class="ident">IntoPy</span>, <span class="ident">ObjectProtocol</span>, <span class="ident">PyAny</span>,
-    <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>,
+    <span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">ObjectProtocol</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyObject</span>,
+    <span class="ident">PyResult</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
 
@@ -735,9 +730,7 @@
         <span class="kw">where</span>
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyObjectGetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
-            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>();
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
-            <span class="ident">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
+            <span class="kw">crate</span>::<span class="macro">callback_body</span><span class="macro">!</span>(<span class="ident">py</span>, {
                 <span class="comment">// Behave like python&#39;s __getattr__ (as opposed to __getattribute__) and check</span>
                 <span class="comment">// for existing fields and methods first</span>
                 <span class="kw">let</span> <span class="ident">existing</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">PyObject_GenericGetAttr</span>(<span class="ident">slf</span>, <span class="ident">arg</span>);
@@ -750,7 +743,7 @@
 
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg</span>);
-                <span class="ident">callback</span>::<span class="ident">convert</span>(<span class="ident">py</span>, <span class="macro">call_ref</span><span class="macro">!</span>(<span class="ident">slf</span>, <span class="ident">__getattr__</span>, <span class="ident">arg</span>))
+                <span class="macro">call_ref</span><span class="macro">!</span>(<span class="ident">slf</span>, <span class="ident">__getattr__</span>, <span class="ident">arg</span>)
             })
         }
         <span class="prelude-val">Some</span>(<span class="ident">wrap</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
@@ -1001,17 +994,14 @@
         <span class="kw">where</span>
             <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyObjectRichcmpProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         {
-            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>();
-            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">python</span>();
-            <span class="ident">run_callback</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
+            <span class="kw">crate</span>::<span class="macro">callback_body</span><span class="macro">!</span>(<span class="ident">py</span>, {
                 <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
                 <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">arg</span>);
 
-                <span class="kw">let</span> <span class="ident">borrowed_slf</span> <span class="op">=</span> <span class="ident">slf</span>.<span class="ident">try_borrow</span>()<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">op</span> <span class="op">=</span> <span class="ident">extract_op</span>(<span class="ident">op</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">arg</span>.<span class="ident">extract</span>()<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">borrowed_slf</span>.<span class="ident">__richcmp__</span>(<span class="ident">arg</span>, <span class="ident">op</span>).<span class="ident">into</span>();
-                <span class="ident">callback</span>::<span class="ident">convert</span>(<span class="ident">py</span>, <span class="ident">result</span>)
+
+                <span class="ident">slf</span>.<span class="ident">try_borrow</span>()<span class="question-mark">?</span>.<span class="ident">__richcmp__</span>(<span class="ident">arg</span>, <span class="ident">op</span>).<span class="ident">into</span>()
             })
         }
         <span class="prelude-val">Some</span>(<span class="ident">wrap</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
