@@ -576,15 +576,50 @@
 <span id="576">576</span>
 <span id="577">577</span>
 <span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">panic</span>::<span class="ident">PanicException</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PyTypeObject</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PyType</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AsPyPointer</span>, <span class="ident">FromPy</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>,
-    <span class="ident">ToPyObject</span>,
+    <span class="ident">AsPyPointer</span>, <span class="ident">FromPy</span>, <span class="ident">FromPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">ObjectProtocol</span>, <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">PyObject</span>,
+    <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
 };
 <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">c_int</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>;
@@ -747,13 +782,33 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The error is cleared from the Python interpreter.</span>
     <span class="doccomment">/// If no error is set, returns a `SystemError`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fetch</span>(<span class="kw">_</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the error fetched is a `PanicException` (which would have originated from a panic in a</span>
+    <span class="doccomment">/// pyo3 callback) then this function will resume the panic.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fetch</span>(<span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptype</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pvalue</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptraceback</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>();
             <span class="ident">ffi</span>::<span class="ident">PyErr_Fetch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptype</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pvalue</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptraceback</span>);
-            <span class="ident">PyErr</span>::<span class="ident">new_from_ffi_tuple</span>(<span class="ident">ptype</span>, <span class="ident">pvalue</span>, <span class="ident">ptraceback</span>)
+
+            <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">PyErr</span>::<span class="ident">new_from_ffi_tuple</span>(<span class="ident">ptype</span>, <span class="ident">pvalue</span>, <span class="ident">ptraceback</span>);
+
+            <span class="kw">if</span> <span class="ident">ptype</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PanicException</span>::<span class="ident">type_object</span>().<span class="ident">as_ptr</span>() {
+                <span class="kw">let</span> <span class="ident">msg</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">PyAny</span>::<span class="ident">from_borrowed_ptr_or_opt</span>(<span class="ident">py</span>, <span class="ident">pvalue</span>)
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">obj</span><span class="op">|</span> <span class="ident">obj</span>.<span class="ident">extract</span>().<span class="ident">ok</span>())
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;Unwrapped panic from Python code&quot;</span>));
+
+                <span class="macro">eprintln</span><span class="macro">!</span>(
+                    <span class="string">&quot;--- PyO3 is resuming a panic after fetching a PanicException from Python. ---&quot;</span>
+                );
+                <span class="macro">eprintln</span><span class="macro">!</span>(<span class="string">&quot;Python stack trace below:&quot;</span>);
+                <span class="ident">err</span>.<span class="ident">print</span>(<span class="ident">py</span>);
+
+                <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">resume_unwind</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">msg</span>))
+            }
+
+            <span class="ident">err</span>
         }
     }
 
@@ -1143,6 +1198,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">exceptions</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">panic</span>::<span class="ident">PanicException</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyErr</span>, <span class="ident">Python</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1153,6 +1209,18 @@
         <span class="ident">err</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">PyErr</span>::<span class="ident">occurred</span>(<span class="ident">py</span>));
         <span class="ident">drop</span>(<span class="ident">PyErr</span>::<span class="ident">fetch</span>(<span class="ident">py</span>));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">fetching_panic_exception_panics</span>() {
+        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
+        <span class="kw">let</span> <span class="ident">err</span>: <span class="ident">PyErr</span> <span class="op">=</span> <span class="ident">PanicException</span>::<span class="ident">py_err</span>(<span class="string">&quot;new panic&quot;</span>);
+        <span class="ident">err</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">PyErr</span>::<span class="ident">occurred</span>(<span class="ident">py</span>));
+        <span class="kw">let</span> <span class="ident">started_unwind</span> <span class="op">=</span>
+            <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">AssertUnwindSafe</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">PyErr</span>::<span class="ident">fetch</span>(<span class="ident">py</span>))).<span class="ident">is_err</span>();
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">started_unwind</span>);
     }
 }
 </pre></div>
