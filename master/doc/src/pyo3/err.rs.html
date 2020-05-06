@@ -610,6 +610,14 @@
 <span id="610">610</span>
 <span id="611">611</span>
 <span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -1213,6 +1221,14 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">fetching_panic_exception_panics</span>() {
+        <span class="comment">// If -Cpanic=abort is specified, we can&#39;t catch panic.</span>
+        <span class="kw">if</span> <span class="macro">option_env</span><span class="macro">!</span>(<span class="string">&quot;RUSTFLAGS&quot;</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&quot;-Cpanic=abort&quot;</span>))
+            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+        {
+            <span class="kw">return</span>;
+        }
+
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
         <span class="kw">let</span> <span class="ident">err</span>: <span class="ident">PyErr</span> <span class="op">=</span> <span class="ident">PanicException</span>::<span class="ident">py_err</span>(<span class="string">&quot;new panic&quot;</span>);
