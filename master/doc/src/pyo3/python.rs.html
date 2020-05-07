@@ -470,6 +470,42 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -609,9 +645,16 @@
         <span class="comment">// transferring the `Python` token into the closure.</span>
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">save</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">PyEval_SaveThread</span>();
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">f</span>();
+            <span class="comment">// Unwinding right here corrupts the Python interpreter state and leads to weird</span>
+            <span class="comment">// crashes such as stack overflows. We will catch the unwind and resume as soon as</span>
+            <span class="comment">// we&#39;ve restored the GIL state.</span>
+            <span class="comment">//</span>
+            <span class="comment">// Because we will resume unwinding as soon as the GIL state is fixed, we can assert</span>
+            <span class="comment">// that the closure is unwind safe.</span>
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">AssertUnwindSafe</span>(<span class="ident">f</span>));
             <span class="ident">ffi</span>::<span class="ident">PyEval_RestoreThread</span>(<span class="ident">save</span>);
-            <span class="ident">result</span>
+            <span class="comment">// Now that the GIL state has been safely reset, we can unwind if a panic was caught.</span>
+            <span class="ident">result</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">payload</span><span class="op">|</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">resume_unwind</span>(<span class="ident">payload</span>))
         }
     }
 
@@ -941,6 +984,35 @@
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">py</span>.<span class="ident">is_subclass</span>::<span class="op">&lt;</span><span class="ident">PyBool</span>, <span class="ident">PyInt</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">py</span>.<span class="ident">is_subclass</span>::<span class="op">&lt;</span><span class="ident">PyBool</span>, <span class="ident">PyList</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_allow_threads_panics_safely</span>() {
+        <span class="comment">// If -Cpanic=abort is specified, we can&#39;t catch panic.</span>
+        <span class="kw">if</span> <span class="macro">option_env</span><span class="macro">!</span>(<span class="string">&quot;RUSTFLAGS&quot;</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&quot;-Cpanic=abort&quot;</span>))
+            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+        {
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
+
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>();
+            <span class="ident">py</span>.<span class="ident">allow_threads</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;There was a panic!&quot;</span>);
+            });
+        });
+
+        <span class="comment">// Check panic was caught</span>
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+
+        <span class="comment">// If allow_threads is implemented correctly, this thread still owns the GIL here</span>
+        <span class="comment">// so the following Python calls should not cause crashes.</span>
+        <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList</span>::<span class="ident">new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">list</span>.<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(), <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
     }
 }
 </pre></div>
