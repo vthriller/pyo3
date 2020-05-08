@@ -506,6 +506,8 @@
 <span id="506">506</span>
 <span id="507">507</span>
 <span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -644,6 +646,7 @@
         <span class="comment">// The `Send` bound on the closure prevents the user from</span>
         <span class="comment">// transferring the `Python` token into the closure.</span>
         <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">gil</span>::<span class="ident">GIL_COUNT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">replace</span>(<span class="number">0</span>));
             <span class="kw">let</span> <span class="ident">save</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">PyEval_SaveThread</span>();
             <span class="comment">// Unwinding right here corrupts the Python interpreter state and leads to weird</span>
             <span class="comment">// crashes such as stack overflows. We will catch the unwind and resume as soon as</span>
@@ -653,6 +656,7 @@
             <span class="comment">// that the closure is unwind safe.</span>
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">AssertUnwindSafe</span>(<span class="ident">f</span>));
             <span class="ident">ffi</span>::<span class="ident">PyEval_RestoreThread</span>(<span class="ident">save</span>);
+            <span class="ident">gil</span>::<span class="ident">GIL_COUNT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">set</span>(<span class="ident">count</span>));
             <span class="comment">// Now that the GIL state has been safely reset, we can unwind if a panic was caught.</span>
             <span class="ident">result</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">payload</span><span class="op">|</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">resume_unwind</span>(<span class="ident">payload</span>))
         }
