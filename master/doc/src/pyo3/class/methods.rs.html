@@ -142,12 +142,32 @@
 <span id="142">142</span>
 <span id="143">143</span>
 <span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">c_int</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
 <span class="doccomment">/// `PyMethodDefType` represents different types of Python callable objects.</span>
 <span class="doccomment">/// It is used by the `#[pymethods]` and `#[pyproto]` annotations.</span>
@@ -163,6 +183,8 @@
     <span class="ident">Static</span>(<span class="ident">PyMethodDef</span>),
     <span class="doccomment">/// Represents normal method</span>
     <span class="ident">Method</span>(<span class="ident">PyMethodDef</span>),
+    <span class="doccomment">/// Represents class attribute, used by `#[attribute]`</span>
+    <span class="ident">ClassAttribute</span>(<span class="ident">PyClassAttributeDef</span>),
     <span class="doccomment">/// Represents getter descriptor, used by `#[getter]`</span>
     <span class="ident">Getter</span>(<span class="ident">PyGetterDef</span>),
     <span class="doccomment">/// Represents setter descriptor, used by `#[setter]`</span>
@@ -183,6 +205,12 @@
     <span class="kw">pub</span> <span class="ident">ml_meth</span>: <span class="ident">PyMethodType</span>,
     <span class="kw">pub</span> <span class="ident">ml_flags</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">ml_doc</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyClassAttributeDef</span> {
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+    <span class="kw">pub</span> <span class="ident">meth</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="kw">fn</span>(<span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
@@ -227,6 +255,16 @@
             <span class="ident">ml_flags</span>: <span class="self">self</span>.<span class="ident">ml_flags</span>,
             <span class="ident">ml_doc</span>: <span class="self">self</span>.<span class="ident">ml_doc</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span>,
         }
+    }
+}
+
+<span class="comment">// Manual implementation because `Python&lt;&#39;_&gt;` does not implement `Debug` and</span>
+<span class="comment">// trait bounds on `fn` compiler-generated derive impls are too restrictive.</span>
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">PyClassAttributeDef</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;PyClassAttributeDef&quot;</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;name&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>)
+            .<span class="ident">finish</span>()
     }
 }
 
