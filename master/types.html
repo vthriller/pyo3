@@ -184,6 +184,72 @@ an object's ownership has been passed to the Python interpreter, ensuring
 references is done at runtime using <code>PyCell</code>, a scheme very similar to
 <code>std::cell::RefCell</code>.</p>
 <h2><a class="header" href="#object-types" id="object-types">Object types</a></h2>
+<h3><a class="header" href="#pyany" id="pyany">[<code>PyAny</code>]</a></h3>
+<p><strong>Represents:</strong> a Python object of unspecified type, restricted to a GIL
+lifetime.  Currently, <code>PyAny</code> can only ever occur as a reference, <code>&amp;PyAny</code>.</p>
+<p><strong>Used:</strong> Whenever you want to refer to some Python object and will have the
+GIL for the whole duration you need to access that object. For example,
+intermediate values and arguments to <code>pyfunction</code>s or <code>pymethod</code>s implemented
+in Rust where any type is allowed.</p>
+<p>Many general methods for interacting with Python objects are on the <code>PyAny</code> struct,
+such as <code>getattr</code>, <code>setattr</code>, and <code>.call</code>.</p>
+<p><strong>Conversions:</strong></p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::PyList;
+</span><span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span>let obj: &amp;PyAny = PyList::empty(py);
+
+// Convert to &amp;ConcreteType using PyAny::downcast
+let _: &amp;PyList = obj.downcast().unwrap();
+
+// Convert to PyObject using .into() or .to_object(py)
+let _: PyObject = obj.into();
+
+// Convert to Py&lt;PyAny&gt; using .into() or Py::from
+let _: Py&lt;PyAny&gt; = obj.into();
+
+// Convert to Py&lt;ConcreteType&gt; using PyAny::extract
+let _: Py&lt;PyList&gt; = obj.extract().unwrap();
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#pytuple-pydict-and-many-more" id="pytuple-pydict-and-many-more"><code>PyTuple</code>, <code>PyDict</code>, and many more</a></h3>
+<p><strong>Represents:</strong> a native Python object of known type, restricted to a GIL
+lifetime just like <code>PyAny</code>.</p>
+<p><strong>Used:</strong> Whenever you want to operate with native Python types while holding
+the GIL.  Like <code>PyAny</code>, this is the most convenient form to use for function
+arguments and intermediate values.</p>
+<p>These types all implement <code>Deref&lt;Target = PyAny&gt;</code>, so they all expose the same
+methods which can be found on <code>PyAny</code>.</p>
+<p><strong>Conversions:</strong></p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::PyList;
+</span><span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span>let list = PyList::empty(py);
+
+// Can use methods from PyAny on all Python types due to Deref implementation
+let _ = list.repr();
+
+// Rust will convert &amp;PyList etc. to &amp;PyAny automatically due to Deref implementation
+let _: &amp;PyAny = list;
+
+// For more explicit &amp;PyAny conversion, use .as_ref()
+let _: &amp;PyAny = list.as_ref();
+
+// To convert to PyObject use .into() or .to_object(py)
+let _: PyObject = list.into();
+
+// To convert to Py&lt;T&gt; use .into() or Py::from()
+let _: Py&lt;PyList&gt; = list.into();
+<span class="boring">}
+</span></code></pre></pre>
 <h3><a class="header" href="#pyobject" id="pyobject"><code>PyObject</code></a></h3>
 <p><strong>Represents:</strong> a GIL independent reference to a Python object of unspecified
 type.</p>
@@ -193,47 +259,50 @@ references in a Rust struct that outlives the Python-Rust FFI boundary,
 or returning objects from functions implemented in Rust back to Python.</p>
 <p>Can be cloned using Python reference counts with <code>.clone_ref()</code>.</p>
 <p><strong>Conversions:</strong></p>
-<ul>
-<li>To <code>&amp;PyAny</code>: <code>obj.as_ref(py)</code></li>
-<li>To <code>Py&lt;ConcreteType&gt;</code>: <code>obj.as_ref(py).extract::&lt;Py&lt;ConcreteType&gt;&gt;</code></li>
-<li>To <code>&amp;ConcreteType</code> (which must be a Python native type): <code>obj.cast_as(py)</code></li>
-</ul>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::PyList;
+</span><span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span>let obj: PyObject = PyList::empty(py).into();
+
+// Convert to &amp;PyAny using AsPyRef::as_ref
+let _: &amp;PyAny = obj.as_ref(py);
+
+// Convert to &amp;ConcreteType using PyObject::cast_as
+let _: &amp;PyList = obj.cast_as(py).unwrap();
+
+// Convert to Py&lt;ConcreteType&gt; using PyObject::extract
+let _: Py&lt;PyList&gt; = obj.extract(py).unwrap();
+<span class="boring">}
+</span></code></pre></pre>
 <h3><a class="header" href="#pysometype" id="pysometype"><code>Py&lt;SomeType&gt;</code></a></h3>
 <p><strong>Represents:</strong> a GIL independent reference to a Python object of known type.
 This can be a Python native type (like <code>PyTuple</code>), or a <code>pyclass</code> type
 implemented in Rust.</p>
 <p><strong>Used:</strong> Like <code>PyObject</code>, but with a known inner type.</p>
 <p><strong>Conversions:</strong></p>
-<ul>
-<li>To <code>PyObject</code>: <code>obj.to_object(py)</code></li>
-<li>To <code>&amp;SomeType</code> or <code>&amp;PyCell&lt;SomeType&gt;</code>: <code>obj.as_ref(py)</code>.  For <code>pyclass</code> types
-implemented in Rust, you get a <code>PyCell</code> (see below).  For Python native types,
-mutating operations through PyO3's API don't require <code>&amp;mut</code> access.</li>
-</ul>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::PyList;
+</span><span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span>let list: Py&lt;PyList&gt; = PyList::empty(py).into();
+
+// Access the native type using AsPyRef::as_ref(py)
+// (For #[pyclass] types, as_ref() will return &amp;PyCell&lt;T&gt;)
+let _: &amp;PyList = list.as_ref(py);
+
+// Convert to PyObject with .into()
+let _: PyObject = list.into();
+<span class="boring">}
+</span></code></pre></pre>
 <p><strong>Note:</strong> <code>PyObject</code> is semantically equivalent to <code>Py&lt;PyAny&gt;</code> and might be
 merged with it in the future.</p>
-<h3><a class="header" href="#pyany" id="pyany"><code>PyAny</code></a></h3>
-<p><strong>Represents:</strong> a Python object of unspecified type, restricted to a GIL
-lifetime.  Currently, <code>PyAny</code> can only ever occur as a reference, usually
-<code>&amp;PyAny</code>.</p>
-<p><strong>Used:</strong> Whenever you want to refer to some Python object only as long as
-holding the GIL.  For example, intermediate values and arguments to
-<code>pyfunction</code>s or <code>pymethod</code>s implemented in Rust where any type is allowed.</p>
-<p><strong>Conversions:</strong></p>
-<ul>
-<li>To <code>PyObject</code>: <code>obj.to_object(py)</code></li>
-</ul>
-<h3><a class="header" href="#pytuple-pydict-and-many-more" id="pytuple-pydict-and-many-more"><code>PyTuple</code>, <code>PyDict</code>, and many more</a></h3>
-<p><strong>Represents:</strong> a native Python object of known type, restricted to a GIL
-lifetime just like <code>PyAny</code>.</p>
-<p><strong>Used:</strong> Whenever you want to operate with native Python types while holding
-the GIL.  Like <code>PyAny</code>, this is the most convenient form to use for function
-arguments and intermediate values.</p>
-<p><strong>Conversions:</strong></p>
-<ul>
-<li>To <code>PyAny</code>: <code>obj.as_ref()</code></li>
-<li>To <code>Py&lt;T&gt;</code>: <code>Py::from(obj)</code></li>
-</ul>
 <h3><a class="header" href="#pycellsometype" id="pycellsometype"><code>PyCell&lt;SomeType&gt;</code></a></h3>
 <p><strong>Represents:</strong> a reference to a Rust object (instance of <code>PyClass</code>) which is
 wrapped in a Python object.  The cell part is an analog to stdlib's
@@ -241,10 +310,40 @@ wrapped in a Python object.  The cell part is an analog to stdlib's
 <p><strong>Used:</strong> for accessing pure-Rust API of the instance (members and functions
 taking <code>&amp;SomeType</code> or <code>&amp;mut SomeType</code>) while maintaining the aliasing rules of
 Rust references.</p>
+<p>Like pyo3's Python native types, <code>PyCell&lt;T&gt;</code> implements <code>Deref&lt;Target = PyAny&gt;</code>,
+so it also exposes all of the methods on <code>PyAny</code>.</p>
 <p><strong>Conversions:</strong></p>
-<ul>
-<li>From <code>PyAny</code>: <code>.downcast()</code></li>
-</ul>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::PyList;
+</span><span class="boring">#[pyclass] struct MyClass { }
+</span><span class="boring">let gil = Python::acquire_gil();
+</span><span class="boring">let py = gil.python();
+</span>let cell: &amp;PyCell&lt;MyClass&gt; = PyCell::new(py, MyClass { }).unwrap();
+
+// Obtain PyRef&lt;T&gt; with .try_borrow()
+let pr: PyRef&lt;MyClass&gt; = cell.try_borrow().unwrap();
+<span class="boring">drop(pr);
+</span>
+// Obtain PyRefMut&lt;T&gt; with .try_borrow_mut()
+let prm: PyRefMut&lt;MyClass&gt; = cell.try_borrow_mut().unwrap();
+<span class="boring">drop(prm);
+</span>
+// Can use methods from PyAny on PyCell&lt;T&gt; due to Deref implementation
+let _ = cell.repr();
+
+// Rust will convert &amp;PyCell&lt;T&gt; to &amp;PyAny automatically due to Deref implementation
+let _: &amp;PyAny = cell;
+
+// For more explicit &amp;PyAny conversion, use .as_ref()
+let any: &amp;PyAny = cell.as_ref();
+
+// To obtain a PyCell&lt;T&gt; from PyAny, use PyAny::downcast
+let _: &amp;PyCell&lt;MyClass&gt; = any.downcast().unwrap();
+<span class="boring">}
+</span></code></pre></pre>
 <h3><a class="header" href="#pyrefsometype-and-pyrefmutsometype" id="pyrefsometype-and-pyrefmutsometype"><code>PyRef&lt;SomeType&gt;</code> and <code>PyRefMut&lt;SomeType&gt;</code></a></h3>
 <p><strong>Represents:</strong> reference wrapper types employed by <code>PyCell</code> to keep track of
 borrows, analog to <code>Ref</code> and <code>RefMut</code> used by <code>RefCell</code>.</p>

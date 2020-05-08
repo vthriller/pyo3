@@ -740,8 +740,6 @@
 <span id="740">740</span>
 <span id="741">741</span>
 <span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -750,7 +748,6 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">exceptions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::{<span class="self">self</span>, <span class="ident">Py_ssize_t</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">PyNativeType</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyList</span>, <span class="ident">PyTuple</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>};
@@ -1130,7 +1127,6 @@
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">AsPyRef</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">object</span>::<span class="ident">PyObject</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::<span class="ident">PySequence</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AsPyPointer</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;

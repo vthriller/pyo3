@@ -182,7 +182,6 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
-<span id="185">185</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -205,7 +204,7 @@
 <span class="doccomment">/// let gil = Python::acquire_gil();</span>
 <span class="doccomment">/// let py = gil.python();</span>
 <span class="doccomment">/// let list = py.eval(&quot;iter([1, 2, 3, 4])&quot;, None, None)?;</span>
-<span class="doccomment">/// let numbers: PyResult&lt;Vec&lt;usize&gt;&gt; = list.iter()?.map(|i| i.and_then(ObjectProtocol::extract::&lt;usize&gt;)).collect();</span>
+<span class="doccomment">/// let numbers: PyResult&lt;Vec&lt;usize&gt;&gt; = list.iter()?.map(|i| i.and_then(PyAny::extract::&lt;usize&gt;)).collect();</span>
 <span class="doccomment">/// let sum: usize = numbers?.iter().sum();</span>
 <span class="doccomment">/// assert_eq!(sum, 10);</span>
 <span class="doccomment">/// # Ok(())</span>
@@ -273,7 +272,6 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>::<span class="ident">GILPool</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::<span class="ident">AsPyRef</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objectprotocol</span>::<span class="ident">ObjectProtocol</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyDict</span>, <span class="ident">PyList</span>};
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">GILGuard</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;

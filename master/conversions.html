@@ -171,7 +171,7 @@ converted into <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyObject.html"><
 same purpose, except that it consumes <code>self</code>.</p>
 <h2><a class="header" href="#args-and-kwargs-for-python-object-calls" id="args-and-kwargs-for-python-object-calls"><code>*args</code> and <code>**kwargs</code> for Python object calls</a></h2>
 <p>There are several ways how to pass positional and keyword arguments to a Python object call.
-The <a href="https://docs.rs/pyo3/latest/pyo3/trait.ObjectProtocol.html"><code>ObjectProtocol</code></a> trait provides two methods:</p>
+<a href="https://docs.rs/pyo3/latest/pyo3/struct.PyAny.html"><code>PyAny</code></a> provides two methods:</p>
 <ul>
 <li><code>call</code> - call any callable Python object.</li>
 <li><code>call_method</code> - call a specific method on the object, shorthand for <code>get_attr</code> then <code>call</code>.</li>
