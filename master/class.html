@@ -735,6 +735,21 @@ be mutated at all:</p>
 <pre><code class="language-rust ignore">// Would raise a `TypeError: can't set attributes of built-in/extension type 'MyClass'`
 pyo3::py_run!(py, my_class, &quot;my_class.my_attribute = 'foo'&quot;)
 </code></pre>
+<p>If the class attribute is defined with <code>const</code> code only, one can also annotate associated
+constants:</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct MyClass {}
+</span>#[pymethods]
+impl MyClass {
+    #[classattr]
+    const MY_CONST_ATTRIBUTE: &amp;'static str = &quot;foobar&quot;;
+}
+<span class="boring">}
+</span></code></pre></pre>
 <h2><a class="header" href="#callable-objects" id="callable-objects">Callable objects</a></h2>
 <p>To specify a custom <code>__call__</code> method for a custom class, the method needs to be annotated with
 the <code>#[call]</code> attribute. Arguments of the method are specified as for instance methods.</p>
