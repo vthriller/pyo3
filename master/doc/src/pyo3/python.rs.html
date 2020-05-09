@@ -507,13 +507,69 @@
 <span id="507">507</span>
 <span id="508">508</span>
 <span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>::{<span class="self">self</span>, <span class="ident">GILGuard</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>::{<span class="self">self</span>, <span class="ident">GILGuard</span>, <span class="ident">GILPool</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::{<span class="ident">PyTypeInfo</span>, <span class="ident">PyTypeObject</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyModule</span>, <span class="ident">PyType</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -801,6 +857,62 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">NotImplemented</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
         <span class="kw">unsafe</span> { <span class="ident">PyObject</span>::<span class="ident">from_borrowed_ptr</span>(<span class="self">self</span>, <span class="ident">ffi</span>::<span class="ident">Py_NotImplemented</span>()) }
+    }
+
+    <span class="doccomment">/// Create a new pool for managing PyO3&#39;s owned references.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// When this `GILPool` is dropped, all PyO3 owned references created after this `GILPool` will</span>
+    <span class="doccomment">/// all have their Python reference counts decremented, potentially allowing Python to drop</span>
+    <span class="doccomment">/// the corresponding Python objects.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Typical usage of PyO3 will not need this API, as `Python::acquire_gil` automatically</span>
+    <span class="doccomment">/// creates a `GILPool` where appropriate.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Advanced uses of PyO3 which perform long-running tasks which never free the GIL may need</span>
+    <span class="doccomment">/// to use this API to clear memory, as PyO3 usually does not clear memory until the GIL is</span>
+    <span class="doccomment">/// released.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use pyo3::prelude::*;</span>
+    <span class="doccomment">/// let gil = Python::acquire_gil();</span>
+    <span class="doccomment">/// let py = gil.python();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // Some long-running process like a webserver, which never releases the GIL.</span>
+    <span class="doccomment">/// loop {</span>
+    <span class="doccomment">///     // Create a new pool, so that PyO3 can clear memory at the end of the loop.</span>
+    <span class="doccomment">///     let pool = unsafe { py.new_pool() };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     // It is recommended to *always* immediately set py to the pool&#39;s Python, to help</span>
+    <span class="doccomment">///     // avoid creating references with invalid lifetimes.</span>
+    <span class="doccomment">///     let py = unsafe { pool.python() };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     // do stuff...</span>
+    <span class="doccomment">/// # break;  // Exit the loop so that doctest terminates!</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">/// Extreme care must be taken when using this API, as misuse can lead to accessing invalid</span>
+    <span class="doccomment">/// memory. In addition, the caller is responsible for guaranteeing that the GIL remains held</span>
+    <span class="doccomment">/// for the entire lifetime of the returned `GILPool`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Two best practices are required when using this API:</span>
+    <span class="doccomment">/// - From the moment `new_pool()` is called, only the `Python` token from the returned</span>
+    <span class="doccomment">///   `GILPool` (accessible using `.python()`) should be used in PyO3 APIs. All other older</span>
+    <span class="doccomment">///   `Python` tokens with longer lifetimes are unsafe to use until the `GILPool` is dropped,</span>
+    <span class="doccomment">///   because they can be used to create PyO3 owned references which have lifetimes which</span>
+    <span class="doccomment">///   outlive the `GILPool`.</span>
+    <span class="doccomment">/// - Similarly, methods on existing owned references will implicitly refer back to the</span>
+    <span class="doccomment">///   `Python` token which that reference was originally created with. If the returned values</span>
+    <span class="doccomment">///   from these methods are owned references they will inherit the same lifetime. As a result,</span>
+    <span class="doccomment">///   Rust&#39;s lifetime rules may allow them to outlive the `GILPool`, even though this is not</span>
+    <span class="doccomment">///   safe for reasons discussed above. Care must be taken to never access these return values</span>
+    <span class="doccomment">///   after the `GILPool` is dropped, unless they are converted to `Py&lt;T&gt;` *before* the pool</span>
+    <span class="doccomment">///   is dropped.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_pool</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GILPool</span> {
+        <span class="ident">GILPool</span>::<span class="ident">new</span>()
     }
 }
 
