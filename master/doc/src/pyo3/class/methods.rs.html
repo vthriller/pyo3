@@ -161,6 +161,16 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -302,6 +312,7 @@
 <span class="doccomment">/// Allows arbitrary pymethod blocks to submit their methods, which are eventually</span>
 <span class="doccomment">/// collected by pyclass.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMethodsInventory</span>: <span class="ident">inventory</span>::<span class="ident">Collect</span> {
     <span class="doccomment">/// Create a new instance</span>
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">methods</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">PyMethodDefType</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
@@ -313,6 +324,7 @@
 <span class="doccomment">/// Implementation detail. Only to be used through the proc macros.</span>
 <span class="doccomment">/// For pyclass derived structs, this trait collects method from all impl blocks using inventory.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMethodsImpl</span> {
     <span class="doccomment">/// Normal methods. Mainly defined by `#[pymethod]`.</span>
     <span class="kw">type</span> <span class="ident">Methods</span>: <span class="ident">PyMethodsInventory</span>;
@@ -323,6 +335,14 @@
             .<span class="ident">into_iter</span>()
             .<span class="ident">flat_map</span>(<span class="ident">PyMethodsInventory</span>::<span class="ident">get_methods</span>)
             .<span class="ident">collect</span>()
+    }
+}
+
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMethodsImpl</span> {
+    <span class="kw">fn</span> <span class="ident">py_methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">PyMethodDefType</span><span class="op">&gt;</span> {
+        <span class="ident">Vec</span>::<span class="ident">new</span>()
     }
 }
 </pre></div>
