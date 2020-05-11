@@ -309,16 +309,16 @@
 }
 
 <span class="doccomment">/// Implementation detail. Only to be used through the proc macros.</span>
-<span class="doccomment">/// Allows arbitrary pymethod blocks to submit their methods, which are eventually</span>
-<span class="doccomment">/// collected by pyclass.</span>
+<span class="doccomment">/// Allows arbitrary `#[pymethod]/#[pyproto]` blocks to submit their methods,</span>
+<span class="doccomment">/// which are eventually collected by `#[pyclass]`.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMethodsInventory</span>: <span class="ident">inventory</span>::<span class="ident">Collect</span> {
     <span class="doccomment">/// Create a new instance</span>
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">methods</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">PyMethodDefType</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
 
-    <span class="doccomment">/// Returns the methods for a single impl block</span>
-    <span class="kw">fn</span> <span class="ident">get_methods</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">PyMethodDefType</span>];
+    <span class="doccomment">/// Returns the methods for a single `#[pymethods] impl` block</span>
+    <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">PyMethodDefType</span>];
 }
 
 <span class="doccomment">/// Implementation detail. Only to be used through the proc macros.</span>
@@ -333,7 +333,7 @@
     <span class="kw">fn</span> <span class="ident">py_methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">PyMethodDefType</span><span class="op">&gt;</span> {
         <span class="ident">inventory</span>::<span class="ident">iter</span>::<span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Methods</span><span class="op">&gt;</span>
             .<span class="ident">into_iter</span>()
-            .<span class="ident">flat_map</span>(<span class="ident">PyMethodsInventory</span>::<span class="ident">get_methods</span>)
+            .<span class="ident">flat_map</span>(<span class="ident">PyMethodsInventory</span>::<span class="ident">get</span>)
             .<span class="ident">collect</span>()
     }
 }

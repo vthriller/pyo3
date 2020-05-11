@@ -139,13 +139,6 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -272,14 +265,10 @@
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyDescrProtocolImpl</span> {
-    <span class="kw">fn</span> <span class="ident">methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">tp_as_descr</span>(<span class="ident">_type_object</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>);
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PyDescrProtocolImpl</span> <span class="kw">for</span> <span class="ident">T</span> {
-    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span> {
-        <span class="ident">Vec</span>::<span class="ident">new</span>()
-    }
     <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">tp_as_descr</span>(<span class="ident">_type_object</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>) {}
 }
 
@@ -287,9 +276,6 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PyDescrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span> {
-        <span class="ident">Vec</span>::<span class="ident">new</span>()
-    }
     <span class="kw">fn</span> <span class="ident">tp_as_descr</span>(<span class="ident">type_object</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>) {
         <span class="ident">type_object</span>.<span class="ident">tp_descr_get</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">tp_descr_get</span>();
         <span class="ident">type_object</span>.<span class="ident">tp_descr_set</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">tp_descr_set</span>();

@@ -450,64 +450,6 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -520,7 +462,6 @@
 <span class="doccomment">//! [typeobj docs](https://docs.python.org/3/c-api/typeobj.html)</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::<span class="ident">HashCallbackOutput</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::<span class="ident">PyMethodDef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>,
 };
@@ -656,15 +597,11 @@
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectProtocolImpl</span> {
-    <span class="kw">fn</span> <span class="ident">methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">tp_as_object</span>(<span class="ident">_type_object</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>);
     <span class="kw">fn</span> <span class="ident">nb_bool_fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">inquiry</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PyObjectProtocolImpl</span> <span class="kw">for</span> <span class="ident">T</span> {
-    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span> {
-        <span class="ident">Vec</span>::<span class="ident">new</span>()
-    }
     <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">tp_as_object</span>(<span class="ident">_type_object</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>) {}
     <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">nb_bool_fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">inquiry</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
@@ -675,20 +612,6 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">methods</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">def</span>) <span class="op">=</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FormatProtocolImpl</span><span class="op">&gt;</span>::<span class="ident">__format__</span>() {
-            <span class="ident">methods</span>.<span class="ident">push</span>(<span class="ident">def</span>)
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">def</span>) <span class="op">=</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">BytesProtocolImpl</span><span class="op">&gt;</span>::<span class="ident">__bytes__</span>() {
-            <span class="ident">methods</span>.<span class="ident">push</span>(<span class="ident">def</span>)
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">def</span>) <span class="op">=</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">UnicodeProtocolImpl</span><span class="op">&gt;</span>::<span class="ident">__unicode__</span>() {
-            <span class="ident">methods</span>.<span class="ident">push</span>(<span class="ident">def</span>)
-        }
-        <span class="ident">methods</span>
-    }
     <span class="kw">fn</span> <span class="ident">tp_as_object</span>(<span class="ident">type_object</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>) {
         <span class="ident">type_object</span>.<span class="ident">tp_str</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">tp_str</span>();
         <span class="ident">type_object</span>.<span class="ident">tp_repr</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">tp_repr</span>();
@@ -881,45 +804,6 @@
 {
     <span class="kw">fn</span> <span class="ident">tp_repr</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">unaryfunc</span><span class="op">&gt;</span> {
         <span class="macro">py_unary_func</span><span class="macro">!</span>(<span class="ident">PyObjectReprProtocol</span>, <span class="ident">T</span>::<span class="ident">__repr__</span>)
-    }
-}
-
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FormatProtocolImpl</span> {
-    <span class="kw">fn</span> <span class="ident">__format__</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span>;
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FormatProtocolImpl</span> <span class="kw">for</span> <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
-{
-    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">__format__</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
-    }
-}
-
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BytesProtocolImpl</span> {
-    <span class="kw">fn</span> <span class="ident">__bytes__</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span>;
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">BytesProtocolImpl</span> <span class="kw">for</span> <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
-{
-    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">__bytes__</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
-    }
-}
-
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">UnicodeProtocolImpl</span> {
-    <span class="kw">fn</span> <span class="ident">__unicode__</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span>;
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">UnicodeProtocolImpl</span> <span class="kw">for</span> <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
-{
-    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">__unicode__</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PyMethodDef</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
     }
 }
 
