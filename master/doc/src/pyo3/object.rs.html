@@ -336,6 +336,15 @@
 <span id="336">336</span>
 <span id="337">337</span>
 <span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -647,11 +656,20 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">unsafe</span> {
+            <span class="ident">gil</span>::<span class="ident">register_incref</span>(<span class="self">self</span>.<span class="number">0</span>);
+        }
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>)
+    }
+}
+
 <span class="doccomment">/// Dropping a `PyObject` instance decrements the reference count on the object by 1.</span>
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">PyObject</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">unsafe</span> {
-            <span class="ident">gil</span>::<span class="ident">register_pointer</span>(<span class="self">self</span>.<span class="number">0</span>);
+            <span class="ident">gil</span>::<span class="ident">register_decref</span>(<span class="self">self</span>.<span class="number">0</span>);
         }
     }
 }

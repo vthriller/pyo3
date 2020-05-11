@@ -464,6 +464,15 @@
 <span id="464">464</span>
 <span id="465">465</span>
 <span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
@@ -732,11 +741,20 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">unsafe</span> {
+            <span class="ident">gil</span>::<span class="ident">register_incref</span>(<span class="self">self</span>.<span class="number">0</span>);
+        }
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>, <span class="ident">PhantomData</span>)
+    }
+}
+
 <span class="doccomment">/// Dropping a `Py` instance decrements the reference count on the object by 1.</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">unsafe</span> {
-            <span class="ident">gil</span>::<span class="ident">register_pointer</span>(<span class="self">self</span>.<span class="number">0</span>);
+            <span class="ident">gil</span>::<span class="ident">register_decref</span>(<span class="self">self</span>.<span class="number">0</span>);
         }
     }
 }
