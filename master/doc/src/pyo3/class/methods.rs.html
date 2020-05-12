@@ -171,6 +171,7 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
+<span id="174">174</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -321,28 +322,29 @@
     <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">PyMethodDefType</span>];
 }
 
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HasMethodsInventory</span> {
+    <span class="kw">type</span> <span class="ident">Methods</span>: <span class="ident">PyMethodsInventory</span>;
+}
+
 <span class="doccomment">/// Implementation detail. Only to be used through the proc macros.</span>
 <span class="doccomment">/// For pyclass derived structs, this trait collects method from all impl blocks using inventory.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMethodsImpl</span> {
-    <span class="doccomment">/// Normal methods. Mainly defined by `#[pymethod]`.</span>
-    <span class="kw">type</span> <span class="ident">Methods</span>: <span class="ident">PyMethodsInventory</span>;
-
     <span class="doccomment">/// Returns all methods that are defined for a class.</span>
     <span class="kw">fn</span> <span class="ident">py_methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">PyMethodDefType</span><span class="op">&gt;</span> {
-        <span class="ident">inventory</span>::<span class="ident">iter</span>::<span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Methods</span><span class="op">&gt;</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flat_map</span>(<span class="ident">PyMethodsInventory</span>::<span class="ident">get</span>)
-            .<span class="ident">collect</span>()
+        <span class="ident">Vec</span>::<span class="ident">new</span>()
     }
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMethodsImpl</span> {
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HasMethodsInventory</span><span class="op">&gt;</span> <span class="ident">PyMethodsImpl</span> <span class="kw">for</span> <span class="ident">T</span> {
     <span class="kw">fn</span> <span class="ident">py_methods</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">PyMethodDefType</span><span class="op">&gt;</span> {
-        <span class="ident">Vec</span>::<span class="ident">new</span>()
+        <span class="ident">inventory</span>::<span class="ident">iter</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Methods</span><span class="op">&gt;</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">flat_map</span>(<span class="ident">PyMethodsInventory</span>::<span class="ident">get</span>)
+            .<span class="ident">collect</span>()
     }
 }
 </pre></div>
