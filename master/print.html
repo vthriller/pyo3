@@ -185,7 +185,7 @@ name = &quot;string_sum&quot;
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies.pyo3]
-version = &quot;0.9.2&quot;
+version = &quot;0.10.0&quot;
 features = [&quot;extension-module&quot;]
 </code></pre>
 <p><strong><code>src/lib.rs</code></strong></p>
@@ -223,7 +223,7 @@ rustflags = [
 <p>If you want your Rust application to create a Python interpreter internally and
 use it to run Python code, add <code>pyo3</code> to your <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies]
-pyo3 = &quot;0.9.2&quot;
+pyo3 = &quot;0.10.0&quot;
 </code></pre>
 <p>Example program displaying the value of <code>sys.version</code> and the current user name:</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
@@ -2249,7 +2249,39 @@ So the owned Python object is not required, and it is safe to have functions lik
 <p>rust-cpython requires a <code>Python</code> parameter for constructing a <code>PyErr</code>, so error handling ergonomics is pretty bad. It is not possible to use <code>?</code> with Rust errors.</p>
 <p>PyO3 on other hand does not require <code>Python</code> for constructing a <code>PyErr</code>, it is only required if you want to raise an exception in Python with the <code>PyErr::restore()</code> method. Due to various <code>std::convert::From&lt;E&gt; for PyErr</code> implementations for Rust standard error types <code>E</code>, propagating <code>?</code> is supported automatically.</p>
 <h1><a class="header" href="#appendix-b-migrating-from-older-pyo3-versions" id="appendix-b-migrating-from-older-pyo3-versions">Appendix B: Migrating from older PyO3 versions</a></h1>
-<p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next. For a detailed list of all changes, see <a href="https://github.com/PyO3/pyo3/blob/master/CHANGELOG.md">CHANGELOG.md</a></p>
+<p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next.
+For a detailed list of all changes, see <a href="https://github.com/PyO3/pyo3/blob/master/CHANGELOG.md">CHANGELOG.md</a></p>
+<h2><a class="header" href="#from-09-to-010" id="from-09-to-010">from 0.9.* to 0.10</a></h2>
+<h3><a class="header" href="#objectprotocol-is-removed" id="objectprotocol-is-removed"><code>ObjectProtocol</code> is removed</a></h3>
+<p>All methods are moved to <a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyAny.html"><code>PyAny</code></a>.
+And since now all native types (e.g., <code>PyList</code>) implements <code>Deref&lt;Target=PyAny&gt;</code>,
+all you need to do is remove <code>ObjectProtocol</code> from your code.
+Or if you use <code>ObjectProtocol</code> by <code>use pyo3::prelude::*</code>, you have to do nothing.</p>
+<p>Before:</p>
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use pyo3::ObjectProtocol;
+
+let gil = pyo3::Python::acquire_gil();
+let obj = gil.python().eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
+let hi: &amp;pyo3::types::PyString = obj.call0().unwrap().downcast().unwrap();
+assert_eq!(hi.len().unwrap(), 5);
+<span class="boring">}
+</span></code></pre></pre>
+<p>After:</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>let gil = pyo3::Python::acquire_gil();
+let obj = gil.python().eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
+let hi: &amp;pyo3::types::PyString = obj.call0().unwrap().downcast().unwrap();
+assert_eq!(hi.len().unwrap(), 5);
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#no-featurespecialization-in-user-code" id="no-featurespecialization-in-user-code">No <code>#![feature(specialization)]</code> in user code</a></h3>
+<p>While PyO3 itself still requires specialization and nightly Rust,
+now you don't have to use <code>#![feature(specialization)]</code> in your crate.</p>
 <h2><a class="header" href="#from-08-to-09" id="from-08-to-09">from 0.8.* to 0.9</a></h2>
 <h3><a class="header" href="#new-interface" id="new-interface"><code>#[new]</code> interface</a></h3>
 <p><a href="https://docs.rs/pyo3/0.8.5/pyo3/type_object/struct.PyRawObject.html"><code>PyRawObject</code></a>
@@ -2290,7 +2322,7 @@ impl MyClass {
 <p>Basically you can return <code>Self</code> or <code>Result&lt;Self&gt;</code> directly.
 For more, see <a href="https://pyo3.rs/master/class.html#constructor">the constructor section</a> of this guide.</p>
 <h3><a class="header" href="#pycell" id="pycell">PyCell</a></h3>
-<p>PyO3 0.9 introduces <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
+<p>PyO3 0.9 introduces <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
 for ensuring Rust's rules regarding aliasing of references are upheld.
 For more detail, see the
 <a href="https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html#the-rules-of-references">Rust Book's section on Rust's rules of references</a></p>
@@ -2332,14 +2364,14 @@ impl Names {
 </span></code></pre></pre>
 <p><code>Names</code> has a <code>merge</code> method, which takes <code>&amp;mut self</code> and another argument of type <code>&amp;mut Self</code>.
 Given this <code>#[pyclass]</code>, calling <code>names.merge(names)</code> in Python raises
-a <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyBorrowMutError.html"><code>PyBorrowMutError</code></a> exception, since it requires two mutable borrows of <code>names</code>.</p>
+a <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyBorrowMutError.html"><code>PyBorrowMutError</code></a> exception, since it requires two mutable borrows of <code>names</code>.</p>
 <p>However, for <code>#[pyproto]</code> and some functions, you need to manually fix the code.</p>
 <h4><a class="header" href="#object-creation" id="object-creation">Object creation</a></h4>
 <p>In 0.8 object creation was done with <code>PyRef::new</code> and <code>PyRefMut::new</code>.
 In 0.9 these have both been removed.
 To upgrade code, please use
 <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyCell.html#method.new"><code>PyCell::new</code></a> instead.
-If you need <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a>, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
+If you need <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRefMut</code></a>, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
 on the newly-created <code>PyCell</code>.</p>
 <p>Before:</p>
 <pre><pre class="playpen"><code class="language-rust compile_fail">
@@ -2403,7 +2435,7 @@ let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
 <p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a
 <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementation.
 So if your protocol methods take <code>&amp;T</code> or <code>&amp;mut T</code> (where <code>T: PyClass</code>),
-please use <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://pyo3.rs/master/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a> instead.</p>
+please use <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRefMut</code></a> instead.</p>
 <p>Before:</p>
 <pre><pre class="playpen"><code class="language-rust compile_fail">
 <span class="boring">#![allow(unused_variables)]
