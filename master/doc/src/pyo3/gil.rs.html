@@ -651,14 +651,19 @@
 <span id="651">651</span>
 <span id="652">652</span>
 <span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Interaction with python&#39;s global interpreter lock</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">internal_tricks</span>::<span class="ident">Unsendable</span>, <span class="ident">Python</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>, <span class="ident">UnsafeCell</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">spin_loop_hint</span>, <span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">parking_lot</span>::{<span class="ident">const_mutex</span>, <span class="ident">Mutex</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">any</span>, <span class="ident">mem</span>::<span class="ident">ManuallyDrop</span>, <span class="ident">ptr</span>::<span class="ident">NonNull</span>, <span class="ident">sync</span>};
 
 <span class="kw">static</span> <span class="ident">START</span>: <span class="ident">sync</span>::<span class="ident">Once</span> <span class="op">=</span> <span class="ident">sync</span>::<span class="ident">Once</span>::<span class="ident">new</span>();
@@ -822,75 +827,49 @@
 
 <span class="doccomment">/// Thread-safe storage for objects which were inc_ref / dec_ref while the GIL was not held.</span>
 <span class="kw">struct</span> <span class="ident">ReferencePool</span> {
-    <span class="ident">locked</span>: <span class="ident">AtomicBool</span>,
-    <span class="ident">pointers_to_incref</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">pointers_to_decref</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">struct</span> <span class="ident">Lock</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">lock</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AtomicBool</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Lock</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">lock</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AtomicBool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">while</span> <span class="ident">lock</span>.<span class="ident">compare_and_swap</span>(<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">Acquire</span>) {
-            <span class="ident">spin_loop_hint</span>();
-        }
-        <span class="self">Self</span> { <span class="ident">lock</span> }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Lock</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Ordering</span>::<span class="ident">Release</span>);
-    }
+    <span class="ident">pointers_to_incref</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">pointers_to_decref</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ReferencePool</span> {
     <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">locked</span>: <span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>),
-            <span class="ident">pointers_to_incref</span>: <span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()),
-            <span class="ident">pointers_to_decref</span>: <span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()),
+            <span class="ident">pointers_to_incref</span>: <span class="ident">const_mutex</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()),
+            <span class="ident">pointers_to_decref</span>: <span class="ident">const_mutex</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">register_incref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">obj</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">_lock</span> <span class="op">=</span> <span class="ident">Lock</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">locked</span>);
-        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pointers_to_incref</span>.<span class="ident">get</span>();
-        <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="ident">v</span>).<span class="ident">push</span>(<span class="ident">obj</span>) };
+        <span class="self">self</span>.<span class="ident">pointers_to_incref</span>.<span class="ident">lock</span>().<span class="ident">push</span>(<span class="ident">obj</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">register_decref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">obj</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">_lock</span> <span class="op">=</span> <span class="ident">Lock</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">locked</span>);
-        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pointers_to_decref</span>.<span class="ident">get</span>();
-        <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="ident">v</span>).<span class="ident">push</span>(<span class="ident">obj</span>) };
+        <span class="self">self</span>.<span class="ident">pointers_to_decref</span>.<span class="ident">lock</span>().<span class="ident">push</span>(<span class="ident">obj</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">update_counts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) {
-        <span class="kw">let</span> <span class="ident">_lock</span> <span class="op">=</span> <span class="ident">Lock</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">locked</span>);
+        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">swap_vec_with_lock</span> {
+            <span class="comment">// Get vec from one of ReferencePool&#39;s mutexes via lock, swap vec if needed, unlock.</span>
+            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">cell</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">locked</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cell</span>.<span class="ident">lock</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">locked</span>.<span class="ident">is_empty</span>() {
+                    <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">locked</span>);
+                }
+                <span class="ident">drop</span>(<span class="ident">locked</span>);
+                <span class="ident">out</span>
+            }};
+        };
 
         <span class="comment">// Always increase reference counts first - as otherwise objects which have a</span>
         <span class="comment">// nonzero total reference count might be incorrectly dropped by Python during</span>
         <span class="comment">// this update.</span>
-        {
-            <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pointers_to_incref</span>.<span class="ident">get</span>();
-            <span class="kw">unsafe</span> {
-                <span class="kw">for</span> <span class="ident">ptr</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">v</span>) {
-                    <span class="ident">ffi</span>::<span class="ident">Py_INCREF</span>(<span class="ident">ptr</span>.<span class="ident">as_ptr</span>());
-                }
-                (<span class="kw-2">*</span><span class="ident">v</span>).<span class="ident">clear</span>();
-            }
+        <span class="kw">for</span> <span class="ident">ptr</span> <span class="kw">in</span> <span class="macro">swap_vec_with_lock</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">pointers_to_incref</span>) {
+            <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">Py_INCREF</span>(<span class="ident">ptr</span>.<span class="ident">as_ptr</span>()) };
         }
 
-        {
-            <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pointers_to_decref</span>.<span class="ident">get</span>();
-            <span class="kw">unsafe</span> {
-                <span class="kw">for</span> <span class="ident">ptr</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">v</span>) {
-                    <span class="ident">ffi</span>::<span class="ident">Py_DECREF</span>(<span class="ident">ptr</span>.<span class="ident">as_ptr</span>());
-                }
-                (<span class="kw-2">*</span><span class="ident">v</span>).<span class="ident">clear</span>();
-            }
+        <span class="kw">for</span> <span class="ident">ptr</span> <span class="kw">in</span> <span class="macro">swap_vec_with_lock</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">pointers_to_decref</span>) {
+            <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">Py_DECREF</span>(<span class="ident">ptr</span>.<span class="ident">as_ptr</span>()) };
         }
     }
 }
@@ -1291,18 +1270,49 @@
 
         <span class="comment">// The pointer should appear once in the incref pool, and once in the</span>
         <span class="comment">// decref pool (for the clone being created and also dropped)</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">POOL</span>.<span class="ident">pointers_to_incref</span>.<span class="ident">get</span>() }, <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ptr</span>]);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">POOL</span>.<span class="ident">pointers_to_decref</span>.<span class="ident">get</span>() }, <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ptr</span>]);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">POOL</span>.<span class="ident">pointers_to_incref</span>.<span class="ident">lock</span>(), <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ptr</span>]);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">POOL</span>.<span class="ident">pointers_to_decref</span>.<span class="ident">lock</span>(), <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ptr</span>]);
 
         <span class="comment">// Re-acquring GIL will clear these pending changes</span>
         <span class="ident">drop</span>(<span class="ident">gil</span>);
         <span class="kw">let</span> <span class="ident">_gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="ident">POOL</span>.<span class="ident">pointers_to_incref</span>.<span class="ident">get</span>()).<span class="ident">is_empty</span>() });
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="ident">POOL</span>.<span class="ident">pointers_to_decref</span>.<span class="ident">get</span>()).<span class="ident">is_empty</span>() });
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">POOL</span>.<span class="ident">pointers_to_incref</span>.<span class="ident">lock</span>().<span class="ident">is_empty</span>());
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">POOL</span>.<span class="ident">pointers_to_decref</span>.<span class="ident">lock</span>().<span class="ident">is_empty</span>());
 
         <span class="comment">// Overall count is still unchanged</span>
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_update_counts_does_not_deadlock</span>() {
+        <span class="comment">// update_counts can run arbitrary Python code during Py_DECREF.</span>
+        <span class="comment">// if the locking is implemented incorrectly, it will deadlock.</span>
+
+        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>(<span class="ident">gil</span>.<span class="ident">python</span>());
+
+        <span class="kw">unsafe</span> {
+            <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">capsule_drop</span>(<span class="ident">capsule</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyObject</span>) {
+                <span class="comment">// This line will implicitly call update_counts</span>
+                <span class="comment">// -&gt; and so cause deadlock if update_counts is not handling recursion correctly.</span>
+                <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">GILPool</span>::<span class="ident">new</span>();
+
+                <span class="comment">// Rebuild obj so that it can be dropped</span>
+                <span class="ident">PyObject</span>::<span class="ident">from_owned_ptr</span>(
+                    <span class="ident">pool</span>.<span class="ident">python</span>(),
+                    <span class="ident">ffi</span>::<span class="ident">PyCapsule_GetPointer</span>(<span class="ident">capsule</span>, <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null</span>()) <span class="kw">as</span> <span class="kw">_</span>,
+                );
+            }
+
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">into_ptr</span>();
+            <span class="kw">let</span> <span class="ident">capsule</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">PyCapsule_New</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null</span>(), <span class="prelude-val">Some</span>(<span class="ident">capsule_drop</span>));
+
+            <span class="ident">POOL</span>.<span class="ident">register_decref</span>(<span class="ident">NonNull</span>::<span class="ident">new</span>(<span class="ident">capsule</span>).<span class="ident">unwrap</span>());
+
+            <span class="comment">// Updating the counts will call decref on the capsule, which calls capsule_drop</span>
+            <span class="ident">POOL</span>.<span class="ident">update_counts</span>(<span class="ident">gil</span>.<span class="ident">python</span>())
+        }
     }
 }
 </pre></div>
