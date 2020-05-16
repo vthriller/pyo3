@@ -151,6 +151,21 @@
                         <h1><a class="header" href="#calling-python-in-rust-code" id="calling-python-in-rust-code">Calling Python in Rust code</a></h1>
 <p>These APIs work from Rust whenever you have a <code>Python</code> object handy, whether
 PyO3 is built for an extension module or not.</p>
+<h2><a class="header" href="#want-to-access-python-apis-then-use-pymoduleimport" id="want-to-access-python-apis-then-use-pymoduleimport">Want to access Python APIs? Then use <code>PyModule::import</code>.</a></h2>
+<p><a href="https://pyo3.rs/master/doc/pyo3/types/struct.PyModule.html#method.import"><code>Pymodule::import</code></a> can
+be used to get handle to a Python module from Rust. You can use this to import and use any Python
+module available in your environment.</p>
+<pre><pre class="playpen"><code class="language-rust">use pyo3::prelude::*;
+
+fn main() -&gt; PyResult&lt;()&gt; {
+    let gil = Python::acquire_gil();
+    let py = gil.python();
+    let builtins = PyModule::import(py, &quot;builtins&quot;)?;
+    let total: i32 = builtins.call1(&quot;sum&quot;, (vec![1, 2, 3],))?.extract()?;
+    assert_eq!(total, 6);
+    Ok(())
+}
+</code></pre></pre>
 <h2><a class="header" href="#want-to-run-just-an-expression-then-use-eval" id="want-to-run-just-an-expression-then-use-eval">Want to run just an expression? Then use <code>eval</code>.</a></h2>
 <p><a href="https://pyo3.rs/master/doc/pyo3/struct.Python.html#method.eval"><code>Python::eval</code></a> is
 a method to execute a <a href="https://docs.python.org/3.7/reference/expressions.html">Python expression</a>
@@ -211,9 +226,10 @@ assert userdata.as_tuple() == userdata_as_tuple
 &quot;#);
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#you-have-a-python-file-or-python-function-then-use-pymodule" id="you-have-a-python-file-or-python-function-then-use-pymodule">You have a Python file or Python function? Then use <code>PyModule</code>.</a></h2>
-<p><a href="https://pyo3.rs/master/doc/pyo3/types/struct.PyModule.html">PyModule</a> also can
-execute Python code by calling its methods.</p>
+<h2><a class="header" href="#you-have-a-python-file-or-python-function-then-use-pymodulefrom_code" id="you-have-a-python-file-or-python-function-then-use-pymodulefrom_code">You have a Python file or Python function? Then use <code>PyModule::from_code</code>.</a></h2>
+<p><a href="https://pyo3.rs/master/doc/pyo3/types/struct.PyModule.html#method.from_code">PyModule::from_code</a>
+can be used to generate a Python module which can then be used just as if it was imported with
+<code>PyModule::import</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">use pyo3::{prelude::*, types::{IntoPyDict, PyModule}};
 <span class="boring"> fn main() -&gt; PyResult&lt;()&gt; {
 </span>let gil = Python::acquire_gil();
