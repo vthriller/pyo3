@@ -224,6 +224,8 @@ the GIL.  Like <code>PyAny</code>, this is the most convenient form to use for f
 arguments and intermediate values.</p>
 <p>These types all implement <code>Deref&lt;Target = PyAny&gt;</code>, so they all expose the same
 methods which can be found on <code>PyAny</code>.</p>
+<p>To see all Python types exposed by <code>PyO3</code> you should consult the
+[<code>pyo3::types</code>] module.</p>
 <p><strong>Conversions:</strong></p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
