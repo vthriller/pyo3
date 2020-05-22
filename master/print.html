@@ -816,8 +816,35 @@ impl SubClass {
 }
 </code></pre>
 <h2><a class="header" href="#object-properties" id="object-properties">Object properties</a></h2>
-<p>Property descriptor methods can be defined in a <code>#[pymethods]</code> <code>impl</code> block only and have to be
-annotated with <code>#[getter]</code> and <code>#[setter]</code> attributes. For example:</p>
+<p>PyO3 supports two ways to add properties to your <code>#[pyclass]</code>:</p>
+<ul>
+<li>For simple fields with no side effects, a <code>#[pyo3(get, set)]</code> attribute can be added directly to the field definition in the <code>#[pyclass]</code>.</li>
+<li>For properties which require computation you can define <code>#[getter]</code> and <code>#[setter]</code> functions in the <code>#[pymethods]</code> block.</li>
+</ul>
+<p>We'll cover each of these in the following sections.</p>
+<h3><a class="header" href="#object-properties-using-pyo3get-set" id="object-properties-using-pyo3get-set">Object properties using <code>#[pyo3(get, set)]</code></a></h3>
+<p>For simple cases where a member variable is just read and written with no side effects, you can declare getters and setters in your <code>#[pyclass]</code> field definition using the <code>pyo3</code> attribute, like in the example below:</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
+struct MyClass {
+    #[pyo3(get, set)]
+    num: i32
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The above would make the <code>num</code> property available for reading and writing from Python code as <code>self.num</code>.</p>
+<p>Properties can be readonly or writeonly by using just <code>#[pyo3(get)]</code> or <code>#[pyo3(set)]</code> respectively.</p>
+<p>To use these annotations, your field type must implement some conversion traits:</p>
+<ul>
+<li>For <code>get</code> the field type must implement both <code>IntoPy&lt;PyObject&gt;</code> and <code>Clone</code>.</li>
+<li>For <code>set</code> the field type must implement <code>FromPyObject</code>.</li>
+</ul>
+<h3><a class="header" href="#object-properties-using-getter-and-setter" id="object-properties-using-getter-and-setter">Object properties using <code>#[getter]</code> and <code>#[setter]</code></a></h3>
+<p>For cases which don't satisfy the <code>#[pyo3(get, set)]</code> trait requirements, or need side effects, descriptor methods can be defined in a <code>#[pymethods]</code> <code>impl</code> block.</p>
+<p>This is done using the <code>#[getter]</code> and <code>#[setter]</code> attributes, like in the example below:</p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
 </span><span class="boring">fn main() {
@@ -893,20 +920,6 @@ impl MyClass {
 <span class="boring">}
 </span></code></pre></pre>
 <p>In this case, the property <code>number</code> is defined and available from Python code as <code>self.number</code>.</p>
-<p>For simple cases where a member variable is just read and written with no side effects, you
-can also declare getters and setters in your Rust struct field definition, for example:</p>
-<pre><pre class="playpen"><code class="language-rust">
-<span class="boring">#![allow(unused_variables)]
-</span><span class="boring">fn main() {
-</span><span class="boring">use pyo3::prelude::*;
-</span>#[pyclass]
-struct MyClass {
-    #[pyo3(get, set)]
-    num: i32
-}
-<span class="boring">}
-</span></code></pre></pre>
-<p>Then it is available from Python code as <code>self.num</code>.</p>
 <h2><a class="header" href="#instance-methods" id="instance-methods">Instance methods</a></h2>
 <p>To define a Python compatible method, an <code>impl</code> block for your struct has to be annotated with the
 <code>#[pymethods]</code> attribute. PyO3 generates Python compatible wrappers for all functions in this
