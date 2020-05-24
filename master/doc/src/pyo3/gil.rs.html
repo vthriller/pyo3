@@ -656,6 +656,20 @@
 <span id="656">656</span>
 <span id="657">657</span>
 <span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -742,7 +756,12 @@
 
             <span class="comment">// PyPy does not support the embedding API</span>
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-            <span class="ident">ffi</span>::<span class="ident">Py_InitializeEx</span>(<span class="number">0</span>);
+            {
+                <span class="ident">ffi</span>::<span class="ident">Py_InitializeEx</span>(<span class="number">0</span>);
+
+                <span class="comment">// Make sure Py_Finalize will be called before exiting.</span>
+                <span class="ident">libc</span>::<span class="ident">atexit</span>(<span class="ident">finalize</span>);
+            }
 
             <span class="comment">// &gt; Changed in version 3.7: This function is now called by Py_Initialize(), so you don’t have</span>
             <span class="comment">// &gt; to call it yourself anymore.</span>
@@ -1013,6 +1032,15 @@
         );
         <span class="ident">c</span>.<span class="ident">set</span>(<span class="ident">current</span> <span class="op">-</span> <span class="number">1</span>);
     })
+}
+
+<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">finalize</span>() {
+    <span class="kw">unsafe</span> {
+        <span class="kw">if</span> <span class="ident">ffi</span>::<span class="ident">Py_IsInitialized</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="ident">ffi</span>::<span class="ident">PyGILState_Ensure</span>();
+            <span class="ident">ffi</span>::<span class="ident">Py_Finalize</span>();
+        }
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
