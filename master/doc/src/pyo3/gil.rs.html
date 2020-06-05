@@ -670,6 +670,7 @@
 <span id="670">670</span>
 <span id="671">671</span>
 <span id="672">672</span>
+<span id="673">673</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -1286,6 +1287,7 @@
         <span class="comment">// Move obj to a thread which does not have the GIL, and clone it</span>
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
             <span class="comment">// Cloning without GIL should not update reference count</span>
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">redundant_clone</span>)]</span>
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">clone</span>();
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>());
 
