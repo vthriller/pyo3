@@ -163,9 +163,8 @@ struct MyClass {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>The above example generates implementations for <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PyTypeInfo.html"><code>PyTypeInfo</code></a>, <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PyTypeObject.html"><code>PyTypeObject</code></a>,
-and <a href="https://pyo3.rs/master/doc/pyo3/pyclass/trait.PyClass.html"><code>PyClass</code></a> for <code>MyClass</code>.</p>
-<p>If you curious what <code>#[pyclass]</code> generates, see <a href="#how-methods-are-implemented">How methods are implemented</a> section.</p>
+<p>Because Python objects are freely shared between threads by the Python interpreter, all structs annotated with <code>#[pyclass]</code> must implement <code>Send</code>.</p>
+<p>The above example generates implementations for <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PyTypeInfo.html"><code>PyTypeInfo</code></a>, <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PyTypeObject.html"><code>PyTypeObject</code></a>, and <a href="https://pyo3.rs/master/doc/pyo3/pyclass/trait.PyClass.html"><code>PyClass</code></a> for <code>MyClass</code>. To see these generated implementations, refer to the section <a href="#how-methods-are-implemented">How methods are implemented</a> at the end of this chapter.</p>
 <h2><a class="header" href="#adding-the-class-to-a-module" id="adding-the-class-to-a-module">Adding the class to a module</a></h2>
 <p>Custom Python classes can then be added to a module using <code>add_class()</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">

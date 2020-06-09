@@ -292,6 +292,8 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! `PyClass` trait</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">methods</span>::{<span class="ident">PyClassAttributeDef</span>, <span class="ident">PyMethodDefType</span>, <span class="ident">PyMethods</span>};
@@ -367,7 +369,9 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// The `#[pyclass]` attribute automatically implements this trait for your Rust struct,</span>
 <span class="doccomment">/// so you don&#39;t have to use this trait directly.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyClass</span>: <span class="ident">PyTypeInfo</span><span class="op">&lt;</span><span class="ident">Layout</span> <span class="op">=</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">PyClassAlloc</span> <span class="op">+</span> <span class="ident">PyMethods</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyClass</span>:
+    <span class="ident">PyTypeInfo</span><span class="op">&lt;</span><span class="ident">Layout</span> <span class="op">=</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">PyClassAlloc</span> <span class="op">+</span> <span class="ident">PyMethods</span> <span class="op">+</span> <span class="ident">Send</span>
+{
     <span class="doccomment">/// Specify this class has `#[pyclass(dict)]` or not.</span>
     <span class="kw">type</span> <span class="ident">Dict</span>: <span class="ident">PyClassDict</span>;
     <span class="doccomment">/// Specify this class has `#[pyclass(weakref)]` or not.</span>
