@@ -512,6 +512,10 @@
 <span id="512">512</span>
 <span id="513">513</span>
 <span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">basic</span>::<span class="ident">CompareOp</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conversion</span>::{
@@ -774,6 +778,10 @@
     <span class="doccomment">/// let dict = vec![(&quot;reverse&quot;, true)].into_py_dict(py);</span>
     <span class="doccomment">/// list.call_method(py, &quot;sort&quot;, (), Some(dict)).unwrap();</span>
     <span class="doccomment">/// assert_eq!(list.extract::&lt;Vec&lt;i32&gt;&gt;(py).unwrap(), vec![7, 6, 5, 4, 3]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let new_element = 1.to_object(py);</span>
+    <span class="doccomment">/// list.call_method(py, &quot;append&quot;, (new_element,), None).unwrap();</span>
+    <span class="doccomment">/// assert_eq!(list.extract::&lt;Vec&lt;i32&gt;&gt;(py).unwrap(), vec![7, 6, 5, 4, 3, 1]);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
