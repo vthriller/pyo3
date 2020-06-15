@@ -340,6 +340,12 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
@@ -503,14 +509,20 @@
 <span class="doccomment">/// for `#[pyclass]`.</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use pyo3::prelude::*;</span>
-<span class="doccomment">/// let obj: PyObject = {</span>
+<span class="doccomment">/// #[pyclass]</span>
+<span class="doccomment">/// struct Counter {</span>
+<span class="doccomment">///     count: usize,</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// let counter = {</span>
 <span class="doccomment">///     let gil = Python::acquire_gil();</span>
 <span class="doccomment">///     let py = gil.python();</span>
-<span class="doccomment">///     py.eval(&quot;[]&quot;, None, None).unwrap().to_object(py)</span>
+<span class="doccomment">///     Py::new(py, Counter { count: 0}).unwrap()</span>
 <span class="doccomment">/// };</span>
 <span class="doccomment">/// let gil = Python::acquire_gil();</span>
 <span class="doccomment">/// let py = gil.python();</span>
-<span class="doccomment">/// assert_eq!(obj.as_ref(py).len().unwrap(), 0);</span>
+<span class="doccomment">/// let counter_cell: &amp;PyCell&lt;Counter&gt; = counter.as_ref(py);</span>
+<span class="doccomment">/// let counter_ref = counter_cell.borrow();</span>
+<span class="doccomment">/// assert_eq!(counter_ref.count, 0);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AsPyRef</span>: <span class="ident">Sized</span> {
     <span class="kw">type</span> <span class="ident">Target</span>;
