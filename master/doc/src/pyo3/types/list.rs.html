@@ -759,11 +759,11 @@
             <span class="kw">let</span> <span class="ident">ob</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
             <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyList</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">ob</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">none</span> <span class="op">=</span> <span class="ident">py</span>.<span class="prelude-val">None</span>();
-            <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>();
+            <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>);
             <span class="ident">list</span>.<span class="ident">set_item</span>(<span class="number">0</span>, <span class="ident">none</span>).<span class="ident">unwrap</span>();
         }
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cnt</span>, <span class="ident">py</span>.<span class="prelude-val">None</span>().<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cnt</span>, <span class="ident">py</span>.<span class="prelude-val">None</span>().<span class="ident">get_refcnt</span>(<span class="ident">py</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -792,11 +792,11 @@
             <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw">crate</span>::<span class="ident">GILPool</span>::<span class="ident">new</span>() };
             <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList</span>::<span class="ident">empty</span>(<span class="ident">py</span>);
             <span class="kw">let</span> <span class="ident">none</span> <span class="op">=</span> <span class="ident">py</span>.<span class="prelude-val">None</span>();
-            <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>();
+            <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>);
             <span class="ident">list</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">none</span>).<span class="ident">unwrap</span>();
         }
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cnt</span>, <span class="ident">py</span>.<span class="prelude-val">None</span>().<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cnt</span>, <span class="ident">py</span>.<span class="prelude-val">None</span>().<span class="ident">get_refcnt</span>(<span class="ident">py</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -821,10 +821,10 @@
             <span class="kw">let</span> <span class="ident">_pool</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw">crate</span>::<span class="ident">GILPool</span>::<span class="ident">new</span>() };
             <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList</span>::<span class="ident">empty</span>(<span class="ident">py</span>);
             <span class="kw">let</span> <span class="ident">none</span> <span class="op">=</span> <span class="ident">py</span>.<span class="prelude-val">None</span>();
-            <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>();
+            <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>);
             <span class="ident">list</span>.<span class="ident">append</span>(<span class="ident">none</span>).<span class="ident">unwrap</span>();
         }
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cnt</span>, <span class="ident">py</span>.<span class="prelude-val">None</span>().<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cnt</span>, <span class="ident">py</span>.<span class="prelude-val">None</span>().<span class="ident">get_refcnt</span>(<span class="ident">py</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

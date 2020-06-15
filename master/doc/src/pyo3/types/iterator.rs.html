@@ -308,7 +308,7 @@
             <span class="kw">let</span> <span class="ident">gil_guard</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
             <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil_guard</span>.<span class="ident">python</span>();
             <span class="ident">obj</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">20</span>].<span class="ident">to_object</span>(<span class="ident">py</span>);
-            <span class="ident">count</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_refcnt</span>();
+            <span class="ident">count</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>);
         }
 
         {
@@ -319,7 +319,7 @@
 
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">it</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>());
         }
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="ident">Python</span>::<span class="ident">acquire_gil</span>().<span class="ident">python</span>()));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -336,7 +336,7 @@
             <span class="ident">none</span> <span class="op">=</span> <span class="ident">py</span>.<span class="prelude-val">None</span>();
             <span class="ident">l</span>.<span class="ident">append</span>(<span class="number">10</span>).<span class="ident">unwrap</span>();
             <span class="ident">l</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="ident">none</span>).<span class="ident">unwrap</span>();
-            <span class="ident">count</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>();
+            <span class="ident">count</span> <span class="op">=</span> <span class="ident">none</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>);
             <span class="ident">obj</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
         }
 
@@ -348,7 +348,7 @@
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">it</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>());
             <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">it</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
         }
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">none</span>.<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">none</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

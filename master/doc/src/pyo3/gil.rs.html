@@ -671,6 +671,44 @@
 <span id="671">671</span>
 <span id="672">672</span>
 <span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -1044,6 +1082,35 @@
     }
 }
 
+<span class="doccomment">/// Ensure the GIL is held, useful in implementation of APIs like PyErr::new where it&#39;s</span>
+<span class="doccomment">/// inconvenient to force the user to acquire the GIL.</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">ensure_gil</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EnsureGIL</span> {
+    <span class="kw">if</span> <span class="ident">gil_is_acquired</span>() {
+        <span class="ident">EnsureGIL</span>(<span class="prelude-val">None</span>)
+    } <span class="kw">else</span> {
+        <span class="ident">EnsureGIL</span>(<span class="prelude-val">Some</span>(<span class="ident">GILGuard</span>::<span class="ident">acquire</span>()))
+    }
+}
+
+<span class="doccomment">/// Struct used internally which avoids acquiring the GIL where it&#39;s not necessary.</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">EnsureGIL</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GILGuard</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span> <span class="ident">EnsureGIL</span> {
+    <span class="doccomment">/// Get the GIL token.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">/// If `self.0` is `None`, then this calls [Python::assume_gil_acquired].</span>
+    <span class="doccomment">/// Thus this method could be used to get access to a GIL token while the GIL is not held.</span>
+    <span class="doccomment">/// Care should be taken to only use the returned Python in contexts where it is certain the</span>
+    <span class="doccomment">/// GIL continues to be held.</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">python</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Python</span> {
+        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">gil</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gil</span>.<span class="ident">python</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>(),
+        }
+    }
+}
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">gil_is_acquired</span>, <span class="ident">GILPool</span>, <span class="ident">GIL_COUNT</span>, <span class="ident">OWNED_OBJECTS</span>, <span class="ident">POOL</span>};
@@ -1243,13 +1310,15 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_clone_with_gil</span>() {
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
-        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>(<span class="ident">gil</span>.<span class="ident">python</span>());
-        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_refcnt</span>();
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
+
+        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>(<span class="ident">py</span>);
+        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>);
 
         <span class="comment">// Cloning with the GIL should increase reference count immediately</span>
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">redundant_clone</span>)]</span>
         <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">c</span>.<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">c</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1257,39 +1326,46 @@
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
         <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>(<span class="ident">py</span>);
-        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_refcnt</span>();
+        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>);
 
         <span class="comment">// Cloning without GIL should not update reference count</span>
         <span class="ident">drop</span>(<span class="ident">gil</span>);
         <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">count</span>,
+            <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="kw">unsafe</span> { <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>() })
+        );
 
         <span class="comment">// Acquring GIL will clear this pending change</span>
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
 
         <span class="comment">// Total reference count should be one higher</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>));
 
-        <span class="comment">// Clone dropped then GIL released</span>
+        <span class="comment">// Clone dropped</span>
         <span class="ident">drop</span>(<span class="ident">c</span>);
-        <span class="ident">drop</span>(<span class="ident">gil</span>);
 
         <span class="comment">// Overall count is now back to the original, and should be no pending change</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_clone_in_other_thread</span>() {
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
-        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>(<span class="ident">gil</span>.<span class="ident">python</span>());
-        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_refcnt</span>();
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
+        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>(<span class="ident">py</span>);
+        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="ident">py</span>);
 
         <span class="comment">// Move obj to a thread which does not have the GIL, and clone it</span>
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
             <span class="comment">// Cloning without GIL should not update reference count</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">redundant_clone</span>)]</span>
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">clone</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>());
+            <span class="macro">assert_eq</span><span class="macro">!</span>(
+                <span class="ident">count</span>,
+                <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="kw">unsafe</span> { <span class="ident">Python</span>::<span class="ident">assume_gil_acquired</span>() })
+            );
 
             <span class="comment">// Return obj so original thread can continue to use</span>
             <span class="ident">obj</span>
@@ -1305,13 +1381,13 @@
 
         <span class="comment">// Re-acquring GIL will clear these pending changes</span>
         <span class="ident">drop</span>(<span class="ident">gil</span>);
-        <span class="kw">let</span> <span class="ident">_gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
+        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
 
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">POOL</span>.<span class="ident">pointers_to_incref</span>.<span class="ident">lock</span>().<span class="ident">is_empty</span>());
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">POOL</span>.<span class="ident">pointers_to_decref</span>.<span class="ident">lock</span>().<span class="ident">is_empty</span>());
 
         <span class="comment">// Overall count is still unchanged</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">count</span>, <span class="ident">obj</span>.<span class="ident">get_refcnt</span>(<span class="ident">gil</span>.<span class="ident">python</span>()));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
