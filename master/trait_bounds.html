@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded "><a href="module.html"><strong aria-hidden="true">1.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">2.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">3.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">4.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">5.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">6.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">7.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li><li class="expanded "><a href="trait_bounds.html" class="active"><strong aria-hidden="true">15.</strong> Appendix C: Trait bounds</a></li></ol>
+                <ol class="chapter"><li class="expanded "><a href="module.html"><strong aria-hidden="true">1.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">2.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">3.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">4.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">5.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">6.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">7.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li class="expanded "><a href="faq.html"><strong aria-hidden="true">13.</strong> FAQ &amp; Troubleshooting</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li><li class="expanded "><a href="trait_bounds.html" class="active"><strong aria-hidden="true">16.</strong> Appendix C: Trait bounds</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -295,16 +295,16 @@ impl UserModel {
 impl Model for UserModel {
   // the previous trait implementation
 }
-
-However, the previous code will not compile. The compilation error is the following one:
-`error: #[pymethods] cannot be used on trait impl blocks`
-
-That's a bummer!
+</code></pre>
+<p>However, the previous code will not compile. The compilation error is the following one:
+<code>error: #[pymethods] cannot be used on trait impl blocks</code></p>
+<p>That's a bummer!
 However, we can write a second wrapper around these functions to call them directly.
-This wrapper will also perform the type conversions between Python and Rust.
-
-```rust
-<span class="boring">use pyo3::prelude::*;
+This wrapper will also perform the type conversions between Python and Rust.</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">use pyo3::types::PyAny;
 </span><span class="boring">
 </span><span class="boring">pub trait Model {
@@ -378,7 +378,8 @@ impl UserModel {
         Ok(())
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>This wrapper handles the type conversion between the PyO3 requirements and the trait.
 In order to meet PyO3 requirements, this wrapper must:</p>
 <ul>

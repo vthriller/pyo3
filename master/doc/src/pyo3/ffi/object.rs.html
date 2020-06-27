@@ -1007,6 +1007,9 @@
 <span id="1007">1007</span>
 <span id="1008">1008</span>
 <span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">pyport</span>::{<span class="ident">Py_hash_t</span>, <span class="ident">Py_ssize_t</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
@@ -1448,14 +1451,16 @@
     <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PyAsyncMethods</span> {
         <span class="attribute">#[<span class="ident">inline</span>]</span>
         <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-            <span class="kw">unsafe</span> { <span class="ident">mem</span>::<span class="ident">zeroed</span>() }
+            <span class="ident">PyAsyncMethods_INIT</span>
         }
     }
+
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PyAsyncMethods_INIT</span>: <span class="ident">PyAsyncMethods</span> <span class="op">=</span> <span class="ident">PyAsyncMethods</span> {
         <span class="ident">am_await</span>: <span class="prelude-val">None</span>,
         <span class="ident">am_aiter</span>: <span class="prelude-val">None</span>,
         <span class="ident">am_anext</span>: <span class="prelude-val">None</span>,
     };
+
     <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyBufferProcs</span> {
@@ -1466,9 +1471,10 @@
     <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PyBufferProcs</span> {
         <span class="attribute">#[<span class="ident">inline</span>]</span>
         <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-            <span class="kw">unsafe</span> { <span class="ident">mem</span>::<span class="ident">zeroed</span>() }
+            <span class="ident">PyBufferProcs_INIT</span>
         }
     }
+
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PyBufferProcs_INIT</span>: <span class="ident">PyBufferProcs</span> <span class="op">=</span> <span class="ident">PyBufferProcs</span> {
         <span class="ident">bf_getbuffer</span>: <span class="prelude-val">None</span>,
         <span class="ident">bf_releasebuffer</span>: <span class="prelude-val">None</span>,
@@ -2018,4 +2024,4 @@
     <span class="number">0</span>
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "pyo3";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "pyo3";</script><script src="../../../aliases.js"></script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

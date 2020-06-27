@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded "><a href="module.html"><strong aria-hidden="true">1.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">2.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">3.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">4.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">5.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">6.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">7.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">13.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">14.</strong> Appendix B: Migration Guide</a></li><li class="expanded "><a href="trait_bounds.html"><strong aria-hidden="true">15.</strong> Appendix C: Trait bounds</a></li></ol>
+                <ol class="chapter"><li class="expanded "><a href="module.html"><strong aria-hidden="true">1.</strong> Python Modules</a></li><li class="expanded "><a href="function.html"><strong aria-hidden="true">2.</strong> Python Functions</a></li><li class="expanded "><a href="class.html"><strong aria-hidden="true">3.</strong> Python Classes</a></li><li class="expanded "><a href="conversions.html"><strong aria-hidden="true">4.</strong> Type Conversions</a></li><li class="expanded "><a href="exception.html"><strong aria-hidden="true">5.</strong> Python Exceptions</a></li><li class="expanded "><a href="python_from_rust.html"><strong aria-hidden="true">6.</strong> Calling Python from Rust</a></li><li class="expanded "><a href="types.html"><strong aria-hidden="true">7.</strong> GIL, mutability and object types</a></li><li class="expanded "><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li class="expanded "><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li class="expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li class="expanded "><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li class="expanded "><a href="faq.html"><strong aria-hidden="true">13.</strong> FAQ &amp; Troubleshooting</a></li><li class="expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li><li class="expanded "><a href="trait_bounds.html"><strong aria-hidden="true">16.</strong> Appendix C: Trait bounds</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -1050,6 +1050,8 @@ num=-1, debug=false
 mapping or number protocols. PyO3 defines separate traits for each of them. To provide specific
 Python object behavior, you need to implement the specific trait for your struct. Important note,
 each protocol implementation block has to be annotated with the <code>#[pyproto]</code> attribute.</p>
+<p>All <code>#[pyproto]</code> methods which can be defined below can return <code>T</code> instead of <code>PyResult&lt;T&gt;</code> if the
+method implementation is infallible. In addition, if the return type is <code>()</code>, it can be omitted altogether.</p>
 <h3><a class="header" href="#basic-object-customization" id="basic-object-customization">Basic object customization</a></h3>
 <p>The <a href="https://docs.rs/pyo3/latest/pyo3/class/basic/trait.PyObjectProtocol.html"><code>PyObjectProtocol</code></a> trait provides several basic customizations.</p>
 <h4><a class="header" href="#attribute-access" id="attribute-access">Attribute access</a></h4>
@@ -1165,7 +1167,7 @@ It includes two methods <code>__iter__</code> and <code>__next__</code>:</p>
 <li><code>fn __iter__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
 <li><code>fn __next__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;impl IntoPy&lt;PyObject&gt;&gt;&gt;</code></li>
 </ul>
-<p>Returning <code>Ok(None)</code> from <code>__next__</code> indicates that that there are no further items.
+<p>Returning <code>None</code> from <code>__next__</code> indicates that that there are no further items.
 These two methods can be take either <code>PyRef&lt;Self&gt;</code> or <code>PyRefMut&lt;Self&gt;</code> as their
 first argument, so that mutable borrow can be avoided if needed.</p>
 <p>Example:</p>
@@ -1182,11 +1184,11 @@ struct MyIterator {
 
 #[pyproto]
 impl PyIterProtocol for MyIterator {
-    fn __iter__(slf: PyRef&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;MyIterator&gt;&gt; {
-        Ok(slf.into())
+    fn __iter__(slf: PyRef&lt;Self&gt;) -&gt; Py&lt;MyIterator&gt; {
+        slf.into()
     }
-    fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;PyObject&gt;&gt; {
-        Ok(slf.iter.next())
+    fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; Option&lt;PyObject&gt; {
+        slf.iter.next()
     }
 }
 <span class="boring">}
@@ -1208,12 +1210,12 @@ struct Iter {
 
 #[pyproto]
 impl PyIterProtocol for Iter {
-    fn __iter__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;Iter&gt;&gt; {
-        Ok(slf.into())
+    fn __iter__(slf: PyRefMut&lt;Self&gt;) -&gt; Py&lt;Iter&gt; {
+        slf.into()
     }
 
-    fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;usize&gt;&gt; {
-        Ok(slf.inner.next())
+    fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; Option&lt;usize&gt; {
+        slf.inner.next()
     }
 }
 
@@ -1228,7 +1230,7 @@ impl PyIterProtocol for Container {
         let iter = Iter {
             inner: slf.iter.clone().into_iter(),
         };
-        PyCell::new(slf.py(), iter).map(Into::into)
+        Py::new(slf.py(), iter)
     }
 }
 
@@ -1247,15 +1249,21 @@ impl PyIterProtocol for Container {
 </span></code></pre></pre>
 <p>For more details on Python's iteration protocols, check out <a href="https://docs.python.org/3/library/stdtypes.html#iterator-types">the &quot;Iterator Types&quot; section of the library
 documentation</a>.</p>
+<h4><a class="header" href="#returning-a-value-from-iteration" id="returning-a-value-from-iteration">Returning a value from iteration</a></h4>
+<p>This guide has so far shown how to use <code>Option&lt;T&gt;</code> to implement yielding values during iteration.
+In Python a generator can also return a value. To express this in Rust, PyO3 provides the
+<a href="https://docs.rs/pyo3/latest/pyo3/class/iter/enum.IterNextOutput.html"><code>IterNextOutput</code></a> enum to
+both <code>Yield</code> values and <code>Return</code> a final value - see its docs for further details and an example.</p>
 <h2><a class="header" href="#how-methods-are-implemented" id="how-methods-are-implemented">How methods are implemented</a></h2>
 <p>Users should be able to define a <code>#[pyclass]</code> with or without <code>#[pymethods]</code>, while PyO3 needs a
 trait with a function that returns all methods. Since it's impossible to make the code generation in
 pyclass dependent on whether there is an impl block, we'd need to implement the trait on
-<code>#[pyclass]</code> and override the implementation in <code>#[pymethods]</code>, which is to the best of my knowledge
-only possible with the specialization feature, which can't be used on stable.</p>
-<p>To escape this we use <a href="https://github.com/dtolnay/inventory">inventory</a>,
+<code>#[pyclass]</code> and override the implementation in <code>#[pymethods]</code>.
+To enable this, we use a static registry type provided by <a href="https://github.com/dtolnay/inventory">inventory</a>,
 which allows us to collect <code>impl</code>s from arbitrary source code by exploiting some binary trick.
-See <a href="https://github.com/dtolnay/inventory#how-it-works">inventory: how it works</a> and <code>pyo3_derive_backend::py_class</code> for more details.</p>
+See <a href="https://github.com/dtolnay/inventory#how-it-works">inventory: how it works</a> and <code>pyo3_derive_backend::py_class</code> for more details.
+Also for <code>#[pyproto]</code>, we use a similar, but more task-specific registry and
+initialize it using the <a href="https://github.com/mmastrac/rust-ctor">ctor</a> crate.</p>
 <p>Specifically, the following implementation is generated:</p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
@@ -1284,10 +1292,10 @@ unsafe impl pyo3::PyTypeInfo for MyClass {
     const FLAGS: usize = 0;
 
     #[inline]
-    fn type_object() -&gt; &amp;'static pyo3::ffi::PyTypeObject {
+    fn type_object_raw(py: pyo3::Python) -&gt; *mut pyo3::ffi::PyTypeObject {
         use pyo3::type_object::LazyStaticType;
         static TYPE_OBJECT: LazyStaticType = LazyStaticType::new();
-        TYPE_OBJECT.get_or_init::&lt;Self&gt;()
+        TYPE_OBJECT.get_or_init::&lt;Self&gt;(py)
     }
 }
 
@@ -1318,6 +1326,14 @@ impl pyo3::class::methods::HasMethodsInventory for MyClass {
     type Methods = Pyo3MethodsInventoryForMyClass;
 }
 pyo3::inventory::collect!(Pyo3MethodsInventoryForMyClass);
+
+impl pyo3::class::proto_methods::HasProtoRegistry for MyClass {
+    fn registry() -&gt; &amp;'static pyo3::class::proto_methods::PyProtoRegistry {
+        static REGISTRY: pyo3::class::proto_methods::PyProtoRegistry
+            = pyo3::class::proto_methods::PyProtoRegistry::new();
+        &amp;REGISTRY
+    }
+}
 <span class="boring">let gil = Python::acquire_gil();
 </span><span class="boring">let py = gil.python();
 </span><span class="boring">let cls = py.get_type::&lt;MyClass&gt;();
@@ -1840,7 +1856,7 @@ an object's ownership has been passed to the Python interpreter, ensuring
 references is done at runtime using <code>PyCell</code>, a scheme very similar to
 <code>std::cell::RefCell</code>.</p>
 <h2><a class="header" href="#object-types" id="object-types">Object types</a></h2>
-<h3><a class="header" href="#pyany" id="pyany">[<code>PyAny</code>]</a></h3>
+<h3><a class="header" href="#a-hrefhttpsdocsrspyo3latestpyo3typesstructpyanyhtmlpyanya" id="a-hrefhttpsdocsrspyo3latestpyo3typesstructpyanyhtmlpyanya"><a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyAny.html"><code>PyAny</code></a></a></h3>
 <p><strong>Represents:</strong> a Python object of unspecified type, restricted to a GIL
 lifetime.  Currently, <code>PyAny</code> can only ever occur as a reference, <code>&amp;PyAny</code>.</p>
 <p><strong>Used:</strong> Whenever you want to refer to some Python object and will have the
@@ -1881,7 +1897,7 @@ arguments and intermediate values.</p>
 <p>These types all implement <code>Deref&lt;Target = PyAny&gt;</code>, so they all expose the same
 methods which can be found on <code>PyAny</code>.</p>
 <p>To see all Python types exposed by <code>PyO3</code> you should consult the
-[<code>pyo3::types</code>] module.</p>
+<a href="https://pyo3.rs/master/doc/pyo3/types/index.html"><code>pyo3::types</code></a> module.</p>
 <p><strong>Conversions:</strong></p>
 <pre><pre class="playpen"><code class="language-rust">
 <span class="boring">#![allow(unused_variables)]
@@ -2104,15 +2120,12 @@ test_word_count_python_sequential                      27.3985 (15.82)    45.452
 <p>The caveat to these &quot;owned references&quot; is that Rust references do not normally convey ownership (they are always <code>Copy</code>, and cannot implement <code>Drop</code>). Whenever a PyO3 API returns an owned reference, PyO3 stores it internally, so that PyO3 can decrease the reference count just before PyO3 releases the GIL.</p>
 <p>For most use cases this behaviour is invisible. Occasionally, however, users may need to clear memory usage sooner than PyO3 usually does. PyO3 exposes this functionality with the  the <code>GILPool</code> struct. When a <code>GILPool</code> is dropped, <em><strong>all</strong></em> owned references created after the <code>GILPool</code> was created will be cleared.</p>
 <p>The unsafe function <code>Python::new_pool</code> allows you to create a new <code>GILPool</code>. When doing this, you must be very careful to ensure that once the <code>GILPool</code> is dropped you do not retain access any owned references created after the <code>GILPool</code> was created.</p>
-<h2><a class="header" href="#testing" id="testing">Testing</a></h2>
-<p>Currently, <a href="https://github.com/PyO3/pyo3/issues/341">#341</a> causes <code>cargo test</code> to fail with weird linking errors when the <code>extension-module</code> feature is activated. For now you can work around this by making the <code>extension-module</code> feature optional and running the tests with <code>cargo test --no-default-features</code>:</p>
-<pre><code class="language-toml">[dependencies.pyo3]
-version = &quot;0.8.1&quot;
-
-[features]
-extension-module = [&quot;pyo3/extension-module&quot;]
-default = [&quot;extension-module&quot;]
-</code></pre>
+<h2><a class="header" href="#the-nightly-feature" id="the-nightly-feature">The <code>nightly</code> feature</a></h2>
+<p>The <code>pyo3/nightly</code> feature needs the nightly Rust compiler. This allows PyO3 to use Rust's unstable specialization feature to apply the following optimizations:</p>
+<ul>
+<li><code>FromPyObject</code> for <code>Vec</code> and <code>[T;N]</code> can perform a <code>memcpy</code> when the object is a <code>PyBuffer</code></li>
+<li><code>ToBorrowedObject</code> can skip a reference count increase when the provided object is a Python native type.</li>
+</ul>
 <h1><a class="header" href="#building-and-distribution" id="building-and-distribution">Building and Distribution</a></h1>
 <h2><a class="header" href="#python-version" id="python-version">Python version</a></h2>
 <p>PyO3 uses a build script to determine the Python version and set the correct linker arguments. By default it uses the <code>python3</code> executable. You can override the Python interpreter by setting <code>PYTHON_SYS_EXECUTABLE</code>, e.g., <code>PYTHON_SYS_EXECUTABLE=python3.6</code>.</p>
@@ -2172,11 +2185,32 @@ cargo build --target armv7-unknown-linux-gnueabihf
 <li><code>PySequence_Count</code> (which is used to count number of element in array)</li>
 <li><code>PyDict_MergeFromSeq2</code> (used in <code>PyDict::from_sequence</code>)</li>
 </ul>
+<h1><a class="header" href="#frequently-asked-questions--troubleshooting" id="frequently-asked-questions--troubleshooting">Frequently Asked Questions / Troubleshooting</a></h1>
+<h2><a class="header" href="#im-experiencing-deadlocks-using-pyo3-with-lazy_static-or-once_cell" id="im-experiencing-deadlocks-using-pyo3-with-lazy_static-or-once_cell">I'm experiencing deadlocks using PyO3 with lazy_static or once_cell!</a></h2>
+<p><code>lazy_static</code> and <code>once_cell::sync</code> both use locks to ensure that initialization is performed only by a single thread. Because the Python GIL is an additional lock this can lead to deadlocks in the following way:</p>
+<ol>
+<li>A thread (thread A) which has acquired the Python GIL starts initialization of a <code>lazy_static</code> value.</li>
+<li>The initialization code calls some Python API which temporarily releases the GIL e.g. <code>Python::import</code>.</li>
+<li>Another thread (thread B) acquires the Python GIL and attempts to access the same <code>lazy_static</code> value.</li>
+<li>Thread B is blocked, because it waits for <code>lazy_static</code>'s initialization to lock to release.</li>
+<li>Thread A is blocked, because it waits to re-aquire the GIL which thread B still holds.</li>
+<li>Deadlock.</li>
+</ol>
+<p>PyO3 provides a struct <a href="https://docs.rs/pyo3/latest/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> which works equivalently to <code>OnceCell</code> but relies solely on the Python GIL for thread safety. This means it can be used in place of <code>lazy_static</code> or <code>once_cell</code> where you are experiencing the deadlock described above. See the documentation for <a href="https://docs.rs/pyo3/latest/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> for an example how to use it.</p>
+<h2><a class="header" href="#i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror" id="i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">I can't run <code>cargo test</code>: I'm having linker issues like &quot;Symbol not found&quot; or &quot;Undefined reference to _PyExc_SystemError&quot;!</a></h2>
+<p>Currently, <a href="https://github.com/PyO3/pyo3/issues/341">#341</a> causes <code>cargo test</code> to fail with linking errors when the <code>extension-module</code> feature is activated. For now you can work around this by making the <code>extension-module</code> feature optional and running the tests with <code>cargo test --no-default-features</code>:</p>
+<pre><code class="language-toml">[dependencies.pyo3]
+version = &quot;0.8.1&quot;
+
+[features]
+extension-module = [&quot;pyo3/extension-module&quot;]
+default = [&quot;extension-module&quot;]
+</code></pre>
 <h1><a class="header" href="#appendix-a-pyo3-and-rust-cpython" id="appendix-a-pyo3-and-rust-cpython">Appendix A: PyO3 and rust-cpython</a></h1>
 <p>PyO3 began as fork of <a href="https://github.com/dgrunwald/rust-cpython">rust-cpython</a> when rust-cpython wasn't maintained. Over the time PyO3 has become fundamentally different from rust-cpython.</p>
 <p>This chapter is based on the discussion in <a href="https://github.com/PyO3/pyo3/issues/55">PyO3/pyo3#55</a>.</p>
 <h2><a class="header" href="#macros-1" id="macros-1">Macros</a></h2>
-<p>While rust-cpython has a macro based dsl for declaring modules and classes, PyO3 uses proc macros and specialization. PyO3 also doesn't change your struct and functions so you can still use them as normal Rust functions. The disadvantage is that specialization currently only works on nightly.</p>
+<p>While rust-cpython has a <code>macro_rules!</code> based dsl for declaring modules and classes, PyO3 uses proc macros. PyO3 also doesn't change your struct and functions so you can still use them as normal Rust functions.</p>
 <p><strong>rust-cpython</strong></p>
 <pre><code class="language-rust ignore">py_class!(class MyClass |py| {
     data number: i32;
@@ -2612,16 +2646,16 @@ impl UserModel {
 impl Model for UserModel {
   // the previous trait implementation
 }
-
-However, the previous code will not compile. The compilation error is the following one:
-`error: #[pymethods] cannot be used on trait impl blocks`
-
-That's a bummer!
+</code></pre>
+<p>However, the previous code will not compile. The compilation error is the following one:
+<code>error: #[pymethods] cannot be used on trait impl blocks</code></p>
+<p>That's a bummer!
 However, we can write a second wrapper around these functions to call them directly.
-This wrapper will also perform the type conversions between Python and Rust.
-
-```rust
-<span class="boring">use pyo3::prelude::*;
+This wrapper will also perform the type conversions between Python and Rust.</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">use pyo3::types::PyAny;
 </span><span class="boring">
 </span><span class="boring">pub trait Model {
@@ -2695,7 +2729,8 @@ impl UserModel {
         Ok(())
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>This wrapper handles the type conversion between the PyO3 requirements and the trait.
 In order to meet PyO3 requirements, this wrapper must:</p>
 <ul>
