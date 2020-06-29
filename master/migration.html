@@ -192,7 +192,7 @@ struct ThreadSafe {
 <p>Or in situations where you cannot change your <code>#[pyclass]</code> to automatically implement <code>Send</code>
 (e.g., when it contains a raw pointer), you can use <code>unsafe impl Send</code>.
 In such cases, care should be taken to ensure the struct is actually thread safe.
-See <a href="ttps://doc.rust-lang.org/nomicon/send-and-sync.html">the Rustnomicon</a> for more.</p>
+See <a href="https://doc.rust-lang.org/nomicon/send-and-sync.html">the Rustnomicon</a> for more.</p>
 <h3><a class="header" href="#all-pyobject-and-pyt-methods-now-take-python-as-an-argument" id="all-pyobject-and-pyt-methods-now-take-python-as-an-argument">All <code>PyObject</code> and <code>Py&lt;T&gt;</code> methods now take <code>Python</code> as an argument</a></h3>
 <p>Previously, a few methods such as <code>Object::get_refcnt</code> did not take <code>Python</code> as an argument (to
 ensure that the Python GIL was held by the current thread). Technically, this was not sound.
