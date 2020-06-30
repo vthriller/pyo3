@@ -3,8 +3,10 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>FAQ &amp; Troubleshooting - PyO3 user guide</title>
+        <title></title>
         
+        
+        <base href="/">
         
 
 
@@ -89,7 +91,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="module.html"><strong aria-hidden="true">1.</strong> Python Modules</a></li><li class="chapter-item expanded "><a href="function.html"><strong aria-hidden="true">2.</strong> Python Functions</a></li><li class="chapter-item expanded "><a href="class.html"><strong aria-hidden="true">3.</strong> Python Classes</a></li><li class="chapter-item expanded "><a href="conversions.html"><strong aria-hidden="true">4.</strong> Type Conversions</a></li><li class="chapter-item expanded "><a href="exception.html"><strong aria-hidden="true">5.</strong> Python Exceptions</a></li><li class="chapter-item expanded "><a href="python_from_rust.html"><strong aria-hidden="true">6.</strong> Calling Python from Rust</a></li><li class="chapter-item expanded "><a href="types.html"><strong aria-hidden="true">7.</strong> GIL, mutability and object types</a></li><li class="chapter-item expanded "><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li class="chapter-item expanded "><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li class="chapter-item expanded "><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li class="chapter-item expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li class="chapter-item expanded "><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li class="chapter-item expanded "><a href="faq.html" class="active"><strong aria-hidden="true">13.</strong> FAQ &amp; Troubleshooting</a></li><li class="chapter-item expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="chapter-item expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li><li class="chapter-item expanded "><a href="trait_bounds.html"><strong aria-hidden="true">16.</strong> Appendix C: Trait bounds</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="module.html"><strong aria-hidden="true">1.</strong> Python Modules</a></li><li class="chapter-item expanded "><a href="function.html"><strong aria-hidden="true">2.</strong> Python Functions</a></li><li class="chapter-item expanded "><a href="class.html"><strong aria-hidden="true">3.</strong> Python Classes</a></li><li class="chapter-item expanded "><a href="conversions.html"><strong aria-hidden="true">4.</strong> Type Conversions</a></li><li class="chapter-item expanded "><a href="exception.html"><strong aria-hidden="true">5.</strong> Python Exceptions</a></li><li class="chapter-item expanded "><a href="python_from_rust.html"><strong aria-hidden="true">6.</strong> Calling Python from Rust</a></li><li class="chapter-item expanded "><a href="types.html"><strong aria-hidden="true">7.</strong> GIL, mutability and object types</a></li><li class="chapter-item expanded "><a href="parallelism.html"><strong aria-hidden="true">8.</strong> Parallelism</a></li><li class="chapter-item expanded "><a href="debugging.html"><strong aria-hidden="true">9.</strong> Debugging</a></li><li class="chapter-item expanded "><a href="advanced.html"><strong aria-hidden="true">10.</strong> Advanced Topics</a></li><li class="chapter-item expanded "><a href="building_and_distribution.html"><strong aria-hidden="true">11.</strong> Building and Distribution</a></li><li class="chapter-item expanded "><a href="pypy.html"><strong aria-hidden="true">12.</strong> PyPy support</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">13.</strong> FAQ &amp; Troubleshooting</a></li><li class="chapter-item expanded "><a href="rust_cpython.html"><strong aria-hidden="true">14.</strong> Appendix A: PyO3 and rust-cpython</a></li><li class="chapter-item expanded "><a href="migration.html"><strong aria-hidden="true">15.</strong> Appendix B: Migration Guide</a></li><li class="chapter-item expanded "><a href="trait_bounds.html"><strong aria-hidden="true">16.</strong> Appendix C: Trait bounds</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -155,42 +157,15 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#frequently-asked-questions--troubleshooting" id="frequently-asked-questions--troubleshooting">Frequently Asked Questions / Troubleshooting</a></h1>
-<h2><a class="header" href="#im-experiencing-deadlocks-using-pyo3-with-lazy_static-or-once_cell" id="im-experiencing-deadlocks-using-pyo3-with-lazy_static-or-once_cell">I'm experiencing deadlocks using PyO3 with lazy_static or once_cell!</a></h2>
-<p><code>lazy_static</code> and <code>once_cell::sync</code> both use locks to ensure that initialization is performed only by a single thread. Because the Python GIL is an additional lock this can lead to deadlocks in the following way:</p>
-<ol>
-<li>A thread (thread A) which has acquired the Python GIL starts initialization of a <code>lazy_static</code> value.</li>
-<li>The initialization code calls some Python API which temporarily releases the GIL e.g. <code>Python::import</code>.</li>
-<li>Another thread (thread B) acquires the Python GIL and attempts to access the same <code>lazy_static</code> value.</li>
-<li>Thread B is blocked, because it waits for <code>lazy_static</code>'s initialization to lock to release.</li>
-<li>Thread A is blocked, because it waits to re-aquire the GIL which thread B still holds.</li>
-<li>Deadlock.</li>
-</ol>
-<p>PyO3 provides a struct <a href="https://docs.rs/pyo3/latest/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> which works equivalently to <code>OnceCell</code> but relies solely on the Python GIL for thread safety. This means it can be used in place of <code>lazy_static</code> or <code>once_cell</code> where you are experiencing the deadlock described above. See the documentation for <a href="https://docs.rs/pyo3/latest/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> for an example how to use it.</p>
-<h2><a class="header" href="#i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror" id="i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">I can't run <code>cargo test</code>: I'm having linker issues like &quot;Symbol not found&quot; or &quot;Undefined reference to _PyExc_SystemError&quot;!</a></h2>
-<p>Currently, <a href="https://github.com/PyO3/pyo3/issues/341">#341</a> causes <code>cargo test</code> to fail with linking errors when the <code>extension-module</code> feature is activated. For now you can work around this by making the <code>extension-module</code> feature optional and running the tests with <code>cargo test --no-default-features</code>:</p>
-<pre><code class="language-toml">[dependencies.pyo3]
-version = &quot;*&quot;
-
-[features]
-extension-module = [&quot;pyo3/extension-module&quot;]
-default = [&quot;extension-module&quot;]
-</code></pre>
+                        <h1><a class="header" href="#document-not-found-404" id="document-not-found-404">Document not found (404)</a></h1>
+<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="pypy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                                <i class="fa fa-angle-left"></i>
-                            </a>
-                        
 
-                        
-                            <a rel="next" href="rust_cpython.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
                         
 
                         <div style="clear: both"></div>
@@ -200,15 +175,7 @@ default = [&quot;extension-module&quot;]
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="pypy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                        <i class="fa fa-angle-left"></i>
-                    </a>
-                
 
-                
-                    <a rel="next" href="rust_cpython.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
                 
             </nav>
 
