@@ -512,6 +512,8 @@ If a custom class contains references to other Python objects that can be collec
 <li><code>extends=BaseType</code> - Use a custom base class. The base <code>BaseType</code> must implement <code>PyTypeInfo</code>.</li>
 <li><code>subclass</code> - Allows Python classes to inherit from this class.</li>
 <li><code>dict</code> - Adds <code>__dict__</code> support, so that the instances of this type have a dictionary containing arbitrary instance variables.</li>
+<li><code>unsendable</code> - Making it safe to expose <code>!Send</code> structs to Python, where all object can be accessed
+by multiple threads. A class marked with <code>unsendable</code> panics when accessed by another thread.</li>
 <li><code>module=&quot;XXX&quot;</code> - Set the name of the module the class will be shown as defined in. If not given, the class
 will be a virtual member of the <code>builtins</code> module.</li>
 </ul>
@@ -1333,6 +1335,10 @@ impl pyo3::class::proto_methods::HasProtoRegistry for MyClass {
             = pyo3::class::proto_methods::PyProtoRegistry::new();
         &amp;REGISTRY
     }
+}
+
+impl pyo3::pyclass::PyClassSend for MyClass {
+    type ThreadChecker = pyo3::pyclass::ThreadCheckerStub&lt;MyClass&gt;;
 }
 <span class="boring">let gil = Python::acquire_gil();
 </span><span class="boring">let py = gil.python();
@@ -2277,12 +2283,17 @@ For a detailed list of all changes, see <a href="https://github.com/PyO3/pyo3/bl
 <h2><a class="header" href="#from-010-to-011" id="from-010-to-011">from 0.10.* to 0.11</a></h2>
 <h3><a class="header" href="#stable-rust" id="stable-rust">Stable Rust</a></h3>
 <p>PyO3 now supports the stable Rust toolchain. The minimum required version is 1.39.0.</p>
-<h3><a class="header" href="#pyclass-structs-must-now-be-send" id="pyclass-structs-must-now-be-send"><code>#[pyclass]</code> structs must now be <code>Send</code></a></h3>
+<h3><a class="header" href="#pyclass-structs-must-now-be-send-or-unsendable" id="pyclass-structs-must-now-be-send-or-unsendable"><code>#[pyclass]</code> structs must now be <code>Send</code> or <code>unsendable</code></a></h3>
 <p>Because <code>#[pyclass]</code> structs can be sent between threads by the Python interpreter, they must implement
-<code>Send</code> to guarantee thread safety. This bound was added in PyO3 <code>0.11.0</code>.</p>
-<p>This may &quot;break&quot; some code which previously was accepted, even though it was unsound. To resolve this,
-consider using types like <code>Arc</code> instead of <code>Rc</code>, <code>Mutex</code> instead of <code>RefCell</code>, and add <code>Send</code> to any
-boxed closures stored inside the <code>#[pyclass]</code>.</p>
+<code>Send</code> or declared as <code>unsendable</code> (by <code>#[pyclass(unsendable)]</code>).
+Note that <code>unsendable</code> is added in PyO3 <code>0.11.1</code> and <code>Send</code> is always required in PyO3 <code>0.11.0</code>.</p>
+<p>This may &quot;break&quot; some code which previously was accepted, even though it could be unsound.
+There can be two fixes:</p>
+<ol>
+<li>
+<p>If you think that your <code>#[pyclass]</code> actually must be <code>Send</code>able, then let's implement <code>Send</code>.
+A common, safer way is using thread-safe types. E.g., <code>Arc</code> instead of <code>Rc</code>, <code>Mutex</code> instead of
+<code>RefCell</code>, and <code>Box&lt;dyn Send + T&gt;</code> instead of <code>Box&lt;dyn T&gt;</code>.</p>
 <p>Before:</p>
 <pre><pre class="playpen"><code class="language-rust compile_fail">
 <span class="boring">#![allow(unused_variables)]
@@ -2294,7 +2305,7 @@ use std::cell::RefCell;
 #[pyclass]
 struct NotThreadSafe {
     shared_bools: Rc&lt;RefCell&lt;Vec&lt;bool&gt;&gt;&gt;,
-    closure: Box&lt;Fn()&gt;
+    closure: Box&lt;dyn Fn()&gt;
 }
 <span class="boring">}
 </span></code></pre></pre>
@@ -2308,14 +2319,45 @@ use std::sync::{Arc, Mutex};
 #[pyclass]
 struct ThreadSafe {
     shared_bools: Arc&lt;Mutex&lt;Vec&lt;bool&gt;&gt;&gt;,
-    closure: Box&lt;Fn() + Send&gt;
+    closure: Box&lt;dyn Fn() + Send&gt;
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>Or in situations where you cannot change your <code>#[pyclass]</code> to automatically implement <code>Send</code>
-(e.g., when it contains a raw pointer), you can use <code>unsafe impl Send</code>.
+<p>In situations where you cannot change your <code>#[pyclass]</code> to automatically implement <code>Send</code>
+(e.g., when it contains a raw pointer), you can use <code>unsafe impl Send</code>. 
 In such cases, care should be taken to ensure the struct is actually thread safe.
 See <a href="https://doc.rust-lang.org/nomicon/send-and-sync.html">the Rustnomicon</a> for more.</p>
+</li>
+<li>
+<p>If you think that your <code>#[pyclass]</code> should not be accessed by another thread, you can use
+<code>unsendable</code> flag. A class marked with <code>unsendable</code> panics when accessed by another thread,
+making it thread-safe to expose an unsendable object to the Python interpreter.</p>
+<p>Before:</p>
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
+
+#[pyclass]
+struct Unsendable {
+    pointers: Vec&lt;*mut std::os::raw::c_char&gt;,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>After:</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
+
+#[pyclass(unsendable)]
+struct Unsendable {
+    pointers: Vec&lt;*mut std::os::raw::c_char&gt;,
+}
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+</ol>
 <h3><a class="header" href="#all-pyobject-and-pyt-methods-now-take-python-as-an-argument" id="all-pyobject-and-pyt-methods-now-take-python-as-an-argument">All <code>PyObject</code> and <code>Py&lt;T&gt;</code> methods now take <code>Python</code> as an argument</a></h3>
 <p>Previously, a few methods such as <code>Object::get_refcnt</code> did not take <code>Python</code> as an argument (to
 ensure that the Python GIL was held by the current thread). Technically, this was not sound.

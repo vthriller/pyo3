@@ -204,6 +204,7 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
+<span id="207">207</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -282,6 +283,7 @@
             <span class="kw">type</span> <span class="ident">WeakRef</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">pyclass_slots</span>::<span class="ident">PyClassDummySlot</span>;
             <span class="kw">type</span> <span class="ident">LayoutAsBase</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">pycell</span>::<span class="ident">PyCellBase</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>;
             <span class="kw">type</span> <span class="ident">BaseNativeType</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>;
+            <span class="kw">type</span> <span class="ident">ThreadChecker</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">pyclass</span>::<span class="ident">ThreadCheckerStub</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyObject</span><span class="op">&gt;</span>;
         }
         <span class="macro">pyobject_native_type_named</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> $(,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_param</span>)<span class="kw-2">*</span>);
         <span class="macro">pyobject_native_type_convert</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">layout</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typeobject</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">checkfunction</span> $(,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_param</span>)<span class="kw-2">*</span>);
