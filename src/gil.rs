@@ -5,29 +5,9 @@
 use crate::{ffi, internal_tricks::Unsendable, Python};
 use parking_lot::{const_mutex, Mutex};
 use std::cell::{Cell, RefCell};
-use std::{any, mem::ManuallyDrop, ptr::NonNull, sync};
+use std::{mem::ManuallyDrop, ptr::NonNull, sync};
 
 static START: sync::Once = sync::Once::new();
-
-/// Holds temporally owned objects.
-struct ObjectHolder {
-    /// Objects owned by the current thread
-    obj: Vec<NonNull<ffi::PyObject>>,
-    /// Non-python objects(e.g., String) owned by the current thread
-    any: Vec<Box<dyn any::Any>>,
-}
-
-impl ObjectHolder {
-    fn new() -> Self {
-        Self {
-            obj: Vec::with_capacity(256),
-            any: Vec::with_capacity(4),
-        }
-    }
-    fn len(&self) -> (usize, usize) {
-        (self.obj.len(), self.any.len())
-    }
-}
 
 thread_local! {
     /// This is a internal counter in pyo3 monitoring whether this thread has the GIL.
@@ -41,7 +21,7 @@ thread_local! {
     pub(crate) static GIL_COUNT: Cell<u32> = Cell::new(0);
 
     /// Temporally hold objects that will be released when the GILPool drops.
-    static OWNED_OBJECTS: RefCell<ObjectHolder> = RefCell::new(ObjectHolder::new());
+    static OWNED_OBJECTS: RefCell<Vec<NonNull<ffi::PyObject>>> = RefCell::new(Vec::with_capacity(256));
 }
 
 /// Check whether the GIL is acquired.
@@ -252,7 +232,7 @@ static POOL: ReferencePool = ReferencePool::new();
 pub struct GILPool {
     /// Initial length of owned objects and anys.
     /// `Option` is used since TSL can be broken when `new` is called from `atexit`.
-    start: Option<(usize, usize)>,
+    start: Option<usize>,
     no_send: Unsendable,
 }
 
@@ -284,14 +264,13 @@ impl GILPool {
 impl Drop for GILPool {
     fn drop(&mut self) {
         unsafe {
-            if let Some((obj_len_start, any_len_start)) = self.start {
+            if let Some(obj_len_start) = self.start {
                 let dropping_obj = OWNED_OBJECTS.with(|holder| {
                     // `holder` must be dropped before calling Py_DECREF, or Py_DECREF may call
                     // `GILPool::drop` recursively, resulting in invalid borrowing.
                     let mut holder = holder.borrow_mut();
-                    holder.any.truncate(any_len_start);
-                    if obj_len_start < holder.obj.len() {
-                        holder.obj.split_off(obj_len_start)
+                    if obj_len_start < holder.len() {
+                        holder.split_off(obj_len_start)
                     } else {
                         Vec::new()
                     }
@@ -343,23 +322,8 @@ pub unsafe fn register_decref(obj: NonNull<ffi::PyObject>) {
 /// The object must be an owned Python reference.
 pub unsafe fn register_owned(_py: Python, obj: NonNull<ffi::PyObject>) {
     debug_assert!(gil_is_acquired());
-    // Ignoring the error means we do nothing if the TLS is broken.
-    let _ = OWNED_OBJECTS.try_with(|holder| holder.borrow_mut().obj.push(obj));
-}
-
-/// Register any value inside the GILPool.
-///
-/// # Safety
-/// It is the caller's responsibility to ensure that the inferred lifetime 'p is not inferred by
-/// the Rust compiler to outlast the current GILPool.
-pub unsafe fn register_any<'p, T: 'static>(obj: T) -> &'p T {
-    debug_assert!(gil_is_acquired());
-    OWNED_OBJECTS.with(|holder| {
-        let boxed = Box::new(obj);
-        let value_ref: *const T = &*boxed;
-        holder.borrow_mut().any.push(boxed);
-        &*value_ref
-    })
+    // Ignore the error since we should do nothing when the TLS is broken,
+    let _ = OWNED_OBJECTS.try_with(|holder| holder.borrow_mut().push(obj));
 }
 
 /// Increment pyo3's internal GIL count - to be called whenever GILPool or GILGuard is created.
